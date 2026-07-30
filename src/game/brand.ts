@@ -5,4 +5,4 @@ export const GAME_TITLE_SHORT = "Battle Legions";
 export const APK_DOWNLOAD_PATH = "/downloads/BattleLegions.apk";
 export const APK_DOWNLOAD_NAME = "BattleLegions.apk";
 /** Bump when shipping site+APK together so players can confirm sync. */
-export const BUILD_ID = "2026.07.30-unstuck";
+export const BUILD_ID = "2026.07.30-retry";
