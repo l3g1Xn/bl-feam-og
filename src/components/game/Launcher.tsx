@@ -28,6 +28,7 @@ import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 import {
   BookOpen,
+  FolderOpen,
   Home,
   Music2,
   Package,
@@ -260,10 +261,33 @@ function NavBtn({
 
 function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
   const startGame = useGameStore((s) => s.startGame);
+  const continueSavedGame = useGameStore((s) => s.continueSavedGame);
   const claim = useMetaStore((s) => s.claimDailyTickets);
   const tickets = useMetaStore((s) => s.tickets);
   const totalXp = useMetaStore((s) => s.totalXp);
   const prog = xpProgressInLevel(totalXp);
+  const [hasSave, setHasSave] = useState(false);
+  const [loadMsg, setLoadMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    void import("@/game/matchSave").then((m) => {
+      if (alive) setHasSave(m.hasMatchSave());
+    });
+    // re-check when panel is shown
+    const onVis = () => {
+      void import("@/game/matchSave").then((m) => {
+        if (alive) setHasSave(m.hasMatchSave());
+      });
+    };
+    document.addEventListener("visibilitychange", onVis);
+    window.addEventListener("focus", onVis);
+    return () => {
+      alive = false;
+      document.removeEventListener("visibilitychange", onVis);
+      window.removeEventListener("focus", onVis);
+    };
+  }, []);
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-5 pb-4">
@@ -317,6 +341,36 @@ function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
                 onClick={() => {
                   unlockAudio();
                   ensureMusicUnlocked();
+                  if (!hasSave) {
+                    setLoadMsg("No saved match on this device.");
+                    return;
+                  }
+                  if (continueSavedGame()) {
+                    setHasSave(false);
+                    setLoadMsg(null);
+                  } else {
+                    setLoadMsg("Could not load saved match.");
+                  }
+                }}
+                disabled={!hasSave}
+                className={
+                  "min-h-12 rounded-2xl border px-7 py-3 text-sm font-semibold shadow-lg " +
+                  (hasSave
+                    ? "border-success/45 bg-success/20 text-success"
+                    : "cursor-not-allowed border-white/10 bg-white/5 text-fg-subtle opacity-60")
+                }
+              >
+                <span className="inline-flex items-center gap-2">
+                  <FolderOpen className="h-4 w-4" />
+                  Load game
+                  {hasSave ? "" : " (none)"}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  unlockAudio();
+                  ensureMusicUnlocked();
                   startGame("normal");
                 }}
                 className="min-h-12 rounded-2xl bg-primary px-7 py-3 text-sm font-semibold text-primary-fg shadow-[0_8px_32px_rgba(200,208,220,0.28)]"
@@ -342,6 +396,9 @@ function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
                 <ApkDownloadButton className="w-full sm:w-auto sm:min-w-[14rem]" />
               )}
             </div>
+            {loadMsg && (
+              <p className="mt-2 text-xs text-danger">{loadMsg}</p>
+            )}
             <p className="mt-3 text-xs text-fg-subtle">
               Build {BUILD_ID} · 5-track score · modern combat art pack
             </p>
@@ -473,7 +530,7 @@ function PlayPanel() {
             }}
             className="flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl border border-success/40 bg-success/15 text-base font-semibold text-success shadow-lg active:scale-[0.99]"
           >
-            Continue saved match
+            Load game
           </button>
           <button
             type="button"
