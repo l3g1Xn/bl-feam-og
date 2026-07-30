@@ -19,11 +19,11 @@ const apk =
   process.argv[2] || join(root, "public/downloads/BattleLegions.apk");
 const outDir = join(root, "public/pkg");
 const PART = 256 * 1024;
-const APP_VERSION = process.env.APK_VERSION || "1.04";
-const BUILD_ID = process.env.BUILD_ID || "2026.07.30-release-1.04";
+const APP_VERSION = process.env.APK_VERSION || "1.05";
+const BUILD_ID = process.env.BUILD_ID || "2026.07.30-release-1.05";
 const GITHUB_APK =
   process.env.GITHUB_APK_URL ||
-  "https://github.com/l3g1Xn/bl-feam-og/releases/download/apk-release-1.04/BattleLegions.apk";
+  "https://github.com/l3g1Xn/bl-feam-og/releases/download/apk-release-1.05/BattleLegions.apk";
 
 if (!existsSync(apk)) {
   console.error("APK not found:", apk);

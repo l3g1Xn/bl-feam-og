@@ -181,20 +181,30 @@ export function Launcher() {
               {n.label}
             </NavBtn>
           ))}
-          <div className="mt-auto rounded-xl border border-white/10 bg-black/40 p-2 text-[0.6rem] text-fg-subtle">
+          <div className="mt-auto max-h-52 overflow-y-auto rounded-xl border border-white/10 bg-black/40 p-2 text-[0.58rem] text-fg-subtle">
             <div className="mb-1 flex items-center gap-1 font-medium text-primary">
-              <Music2 className="h-3 w-3" /> Soundtrack
+              <Music2 className="h-3 w-3" /> Soundtrack · 10
             </div>
             {MENU_TRACKS.map((t, i) => (
-              <div
+              <button
                 key={t.id}
+                type="button"
+                onClick={() => {
+                  unlockAudio();
+                  ensureMusicUnlocked();
+                  void import("@/game/music").then((m) => m.playTrackAt(i));
+                }}
                 className={cn(
-                  "truncate py-0.5",
-                  t.title === trackTitle ? "text-fg" : "text-fg-subtle",
+                  "block w-full truncate py-0.5 text-left hover:text-fg",
+                  t.title === trackTitle ? "font-semibold text-fg" : "text-fg-subtle",
                 )}
+                title={t.mood}
               >
                 {i + 1}. {t.title}
-              </div>
+                <span className="ml-1 opacity-60">
+                  {t.group === "edm" ? "· EDM" : "· LX"}
+                </span>
+              </button>
             ))}
           </div>
         </nav>
@@ -402,7 +412,7 @@ function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
             Drag cards from the fanned hand onto the field; trails show strike
             direction.
           </li>
-          <li>Menu score rotates five symphonic tracks from omen to glory.</li>
+          <li>Menu score rotates ten soundtrack tracks (5 original + 5 EDM) from omen to glory.</li>
         </ul>
       </div>
     </div>
