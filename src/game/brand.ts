@@ -23,4 +23,4 @@ export const GITHUB_RELEASE_PAGE =
   "https://github.com/l3g1Xn/bl-feam-og/releases/tag/apk-release-1.05";
 
 /** Bump when shipping site+APK together so players can confirm sync. */
-export const BUILD_ID = "2026.07.30-release-1.05-site-gfx-redeploy";
+export const BUILD_ID = "2026.07.30-pipeline-cleared-ready";
