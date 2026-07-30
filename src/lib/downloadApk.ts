@@ -1,7 +1,15 @@
 /**
  * Client-side APK download.
- * Prefer /pkg/* base64 parts (Vercel/Grok-safe), then direct APK if present (local preview).
+ * Order: /pkg parts (production-safe) → local binary → GitHub release asset.
+ * GitHub URL matches bl-feam-og release apk-release-1.0.1.
  */
+
+import {
+  APK_DOWNLOAD_NAME,
+  APK_DOWNLOAD_PATH,
+  APK_VERSION,
+  GITHUB_APK_URL,
+} from "@/game/brand";
 
 export type DownloadProgress = {
   phase: "manifest" | "parts" | "assemble" | "save";
@@ -15,11 +23,11 @@ export type DownloadResult =
   | { ok: false; error: string };
 
 const APK_MIME = "application/vnd.android.package-archive";
-const FILENAME = "BattleLegions.apk";
+const FILENAME = APK_DOWNLOAD_NAME;
 const PKG_BASES = ["/pkg/"];
 
 /** Public direct path — available in local preview; may 404 on slim deploys. */
-export const DIRECT_APK_PATH = "/downloads/BattleLegions.apk";
+export const DIRECT_APK_PATH = APK_DOWNLOAD_PATH;
 
 type Manifest = {
   version?: number;
@@ -28,6 +36,7 @@ type Manifest = {
   parts: string[];
   encoding?: string;
   sha256?: string;
+  appVersion?: string;
 };
 
 function isPkZip(bytes: Uint8Array): boolean {
@@ -161,9 +170,8 @@ function saveBlob(bytes: Uint8Array, filename: string): void {
 
 /** Trigger browser download of the direct binary URL (when host serves it cleanly). */
 export function triggerDirectApkHref(): void {
-  const url = `${resolveUrl(DIRECT_APK_PATH)}?v=${Date.now()}`;
   const a = document.createElement("a");
-  a.href = url;
+  a.href = `${resolveUrl(DIRECT_APK_PATH)}?v=${Date.now()}`;
   a.download = FILENAME;
   a.rel = "noopener";
   a.type = APK_MIME;
@@ -173,26 +181,29 @@ export function triggerDirectApkHref(): void {
   a.remove();
 }
 
-async function trySingleBinary(
+/** Open the GitHub release asset (same binary as site package). */
+export function openGithubApk(): void {
+  window.open(GITHUB_APK_URL, "_blank", "noopener,noreferrer");
+}
+
+async function tryBinaryUrls(
+  urls: string[],
   onProgress?: (p: DownloadProgress) => void,
+  label = "Fetching Android package…",
 ): Promise<Uint8Array | null> {
-  const stamp = Date.now();
-  const candidates = [
-    resolveUrl(`${DIRECT_APK_PATH}?v=${stamp}`),
-    resolveUrl(`/downloads/BattleLegions.bin?v=${stamp}`),
-  ];
-  for (const url of candidates) {
+  for (const url of urls) {
     try {
       onProgress?.({
         phase: "parts",
         done: 0,
         total: 1,
-        label: "Fetching Android package…",
+        label,
       });
       const res = await fetch(url, {
         cache: "no-store",
-        credentials: "same-origin",
+        credentials: url.includes("github.com") ? "omit" : "same-origin",
         headers: { Accept: "application/vnd.android.package-archive,*/*" },
+        mode: url.includes("github.com") ? "cors" : "same-origin",
       });
       if (!res.ok) continue;
       const buf = new Uint8Array(await res.arrayBuffer());
@@ -206,6 +217,30 @@ async function trySingleBinary(
   return null;
 }
 
+async function trySingleBinary(
+  onProgress?: (p: DownloadProgress) => void,
+): Promise<Uint8Array | null> {
+  const stamp = Date.now();
+  return tryBinaryUrls(
+    [
+      resolveUrl(`${DIRECT_APK_PATH}?v=${stamp}`),
+      resolveUrl(`/downloads/BattleLegions.bin?v=${stamp}`),
+    ],
+    onProgress,
+    "Fetching Android package…",
+  );
+}
+
+async function tryGithubBinary(
+  onProgress?: (p: DownloadProgress) => void,
+): Promise<Uint8Array | null> {
+  return tryBinaryUrls(
+    [`${GITHUB_APK_URL}?v=${Date.now()}`],
+    onProgress,
+    `Fetching release ${APK_VERSION} from GitHub…`,
+  );
+}
+
 export async function downloadApk(
   onProgress?: (p: DownloadProgress) => void,
 ): Promise<DownloadResult> {
@@ -214,10 +249,10 @@ export async function downloadApk(
       phase: "manifest",
       done: 0,
       total: 1,
-      label: "Locating package…",
+      label: `Locating package v${APK_VERSION}…`,
     });
 
-    // 1) Chunked /pkg first — reliable on production (no huge single binary)
+    // 1) Chunked /pkg — same binary as GitHub release 1.0.1
     try {
       const { man, base } = await loadManifest();
       onProgress?.({
@@ -265,10 +300,23 @@ export async function downloadApk(
       return { ok: true, method: "direct-apk", bytes: single.byteLength };
     }
 
+    // 3) GitHub release (bl-feam-og apk-release-1.0.1) — same package
+    const fromGh = await tryGithubBinary(onProgress);
+    if (fromGh) {
+      onProgress?.({
+        phase: "save",
+        done: 1,
+        total: 1,
+        label: `Saving ${FILENAME}…`,
+      });
+      saveBlob(fromGh, FILENAME);
+      return { ok: true, method: "github-release", bytes: fromGh.byteLength };
+    }
+
     return {
       ok: false,
       error:
-        "Package not found. Hard-refresh and try again, or open the Install page.",
+        "Package not found. Hard-refresh and try again, open the Install page, or use the GitHub release link.",
     };
   } catch (e) {
     return {
