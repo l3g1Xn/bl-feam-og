@@ -44,7 +44,9 @@ export function AmbientStage({
       hue:
         variant === "battle"
           ? 10 + Math.random() * 40 + (Math.random() > 0.5 ? 190 : 0)
-          : 200 + Math.random() * 50,
+          : Math.random() > 0.45
+            ? 18 + Math.random() * 22  /* LEGIXN orange */
+            : 200 + Math.random() * 40,
       kind: Math.random() > 0.7 ? "spark" : "dust",
     }));
 

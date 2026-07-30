@@ -18,7 +18,7 @@ import {
   MENU_TRACKS,
 } from "@/game/music";
 import { useGameStore } from "@/game/store";
-import { BUILD_ID, GAME_TITLE, GAME_TITLE_SHORT } from "@/game/brand";
+import { APK_VERSION, BUILD_ID, GAME_TITLE, GAME_TITLE_SHORT } from "@/game/brand";
 import { AmbientStage } from "./AmbientStage";
 import { ApkDownloadButton } from "./ApkDownloadButton";
 import { CardView } from "./CardView";
@@ -121,12 +121,25 @@ export function Launcher() {
         aria-hidden
       />
 
-      <header className="relative z-10 flex shrink-0 items-center justify-between border-b border-white/10 bg-black/55 px-3 py-2 backdrop-blur-md sm:px-5">
-        <div className="min-w-0">
-          <div className="truncate text-sm font-semibold tracking-wide text-fg">
-            {GAME_TITLE_SHORT}
+      <header className="relative z-10 flex shrink-0 items-center justify-between border-b border-white/10 bg-black/70 px-3 py-2 backdrop-blur-md sm:px-5">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <img
+            src="/ui/legixn_icon.png"
+            alt=""
+            className="h-9 w-9 shrink-0 rounded-lg object-cover legixn-ring"
+            width={36}
+            height={36}
+          />
+          <div className="min-w-0">
+            <div className="truncate text-sm font-semibold tracking-wide text-fg">
+              {GAME_TITLE_SHORT}
+            </div>
+            <div className="truncate text-[0.6rem] text-fg-subtle">
+              <span className="font-semibold text-accent">LEGIXN</span>
+              {" · "}
+              {GAME_TITLE}
+            </div>
           </div>
-          <div className="truncate text-[0.6rem] text-fg-subtle">{GAME_TITLE}</div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <button
@@ -259,7 +272,7 @@ function NavBtn({
       className={cn(
         "flex items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm transition-colors",
         active
-          ? "bg-primary/15 font-semibold text-primary shadow-[inset_0_0_0_1px_rgba(200,208,220,0.2)]"
+          ? "bg-accent/15 font-semibold text-accent shadow-[inset_0_0_0_1px_rgba(255,106,26,0.35)]"
           : "text-fg-muted hover:bg-white/5 hover:text-fg",
       )}
     >
@@ -276,9 +289,31 @@ function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
   const totalXp = useMetaStore((s) => s.totalXp);
   const prog = xpProgressInLevel(totalXp);
 
+  const showcase = useMemo(() => {
+    const ids = [
+      "dominus_reximus",
+      "void_sovereign",
+      "prism_titan",
+      "siege_titan",
+      "cataclysm",
+      "nova_hex",
+      "arc_blade",
+      "titan_wrath",
+    ];
+    const out: ReturnType<typeof getCard>[] = [];
+    for (const id of ids) {
+      try {
+        out.push(getCard(id));
+      } catch {
+        /* skip missing */
+      }
+    }
+    return out;
+  }, []);
+
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-5 pb-4">
-      <div className="relative overflow-hidden rounded-3xl border border-white/15 shadow-2xl">
+    <div className="mx-auto flex max-w-4xl flex-col gap-5 pb-6">
+      <div className="relative overflow-hidden rounded-3xl border border-white/12 shadow-2xl legixn-ring">
         <div
           className="absolute inset-0"
           style={{
@@ -287,43 +322,54 @@ function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
             backgroundPosition: "center",
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/70 to-black/40" />
-        <div className="relative flex flex-col gap-4 p-5 sm:flex-row sm:items-end sm:p-8">
-          <div
-            className="hidden h-36 w-28 shrink-0 overflow-hidden rounded-2xl border border-primary/40 shadow-xl sm:block"
-            style={{
-              backgroundImage: "url(/ui/hero_legion_hd.jpg)",
-              backgroundSize: "cover",
-              backgroundPosition: "center top",
-            }}
-          />
-          <div className="min-w-0 flex-1">
-            <h1 className="text-xl font-semibold tracking-tight text-fg sm:text-3xl">
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 to-black/35" />
+        <div className="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-accent/20 blur-3xl legixn-pulse" />
+        <div className="relative flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:p-8">
+          <div className="relative mx-auto shrink-0 sm:mx-0">
+            <img
+              src="/ui/legixn_icon.png"
+              alt="LEGIXN"
+              className="h-28 w-28 rounded-2xl object-cover shadow-2xl legixn-glow sm:h-36 sm:w-36"
+              width={144}
+              height={144}
+            />
+            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full border border-accent/50 bg-black/80 px-2 py-0.5 text-[0.55rem] font-bold tracking-wider text-accent">
+              v{APK_VERSION}
+            </div>
+          </div>
+          <div className="min-w-0 flex-1 text-center sm:text-left">
+            <p className="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-accent">
+              LEGIXN COMMAND
+            </p>
+            <h1 className="mt-1 text-xl font-semibold tracking-tight text-fg sm:text-3xl">
               {GAME_TITLE}
             </h1>
-            <p className="mt-2 max-w-lg text-sm leading-relaxed text-fg-muted">
+            <p className="mt-2 max-w-xl text-sm leading-relaxed text-fg-muted">
               High-tech legion combat with medieval physics. Discombobulator beams,
-              laser protocols, and transparent combat math.
+              laser protocols, Dominus Reximus exclusives, and transparent combat math —
+              same build as the Android package.
             </p>
-            <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-fg-muted">
-              <span className="rounded-full border border-primary/40 bg-primary/15 px-2.5 py-1 font-semibold text-primary">
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-2 text-xs text-fg-muted sm:justify-start">
+              <span className="rounded-full border border-accent/40 bg-accent/15 px-2.5 py-1 font-semibold text-accent">
                 Legion Lv {prog.level}
               </span>
               <span className="tabular">
                 XP {prog.into}/{prog.need}
               </span>
               <span className="tabular text-attack">{tickets} tickets</span>
+              <span className="rounded-full border border-white/15 bg-white/5 px-2 py-1 text-fg-subtle">
+                10-track score
+              </span>
             </div>
-            <div className="mt-2 h-1.5 w-full max-w-sm overflow-hidden rounded-full bg-black/50">
+            <div className="mx-auto mt-2 h-1.5 w-full max-w-sm overflow-hidden rounded-full bg-black/50 sm:mx-0">
               <div
-                className="h-full rounded-full bg-primary"
+                className="h-full rounded-full bg-gradient-to-r from-accent to-attack"
                 style={{
                   width: `${prog.need > 0 ? Math.min(100, (prog.into / prog.need) * 100) : 0}%`,
                 }}
               />
             </div>
-
-            <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-start">
               <button
                 type="button"
                 onClick={() => {
@@ -331,7 +377,7 @@ function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
                   ensureMusicUnlocked();
                   startGame("normal");
                 }}
-                className="min-h-12 rounded-2xl bg-primary px-7 py-3 text-sm font-semibold text-primary-fg shadow-[0_8px_32px_rgba(200,208,220,0.28)]"
+                className="min-h-12 rounded-2xl bg-gradient-to-r from-accent to-attack px-7 py-3 text-sm font-semibold text-primary-fg shadow-[0_8px_32px_rgba(255,106,26,0.35)]"
               >
                 Launch match
               </button>
@@ -354,29 +400,77 @@ function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
               )}
             </div>
             <p className="mt-3 text-xs text-fg-subtle">
-              Build {BUILD_ID} · LX_SAVE_GAME · PIN vault
+              Build {BUILD_ID} · LX_SAVE_GAME · PIN vault · APK 1.05 graphics
             </p>
           </div>
         </div>
       </div>
 
+      <section className="legixn-panel rounded-2xl p-4">
+        <div className="mb-3 flex items-end justify-between gap-2">
+          <div>
+            <h2 className="text-sm font-semibold text-fg">Legion roster · live art</h2>
+            <p className="text-[0.65rem] text-fg-subtle">
+              Same portraits and exclusives as the 1.05 APK package
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => onNavigate("collection")}
+            className="text-[0.65rem] font-medium text-accent hover:underline"
+          >
+            Full collection
+          </button>
+        </div>
+        <div className="feat-card-scroll flex gap-3 overflow-x-auto pb-1">
+          {showcase.map((c) => (
+            <div
+              key={c.id}
+              className="w-[7.25rem] shrink-0 overflow-hidden rounded-xl border border-white/12 bg-black/40 shadow-lg"
+            >
+              <div className="relative aspect-[3/4] overflow-hidden">
+                <img
+                  src={cardArtSrc(c.id)}
+                  alt={c.name}
+                  className="card-art h-full w-full"
+                  loading="lazy"
+                />
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/70 to-transparent p-2 pt-8">
+                  <div className="truncate text-[0.65rem] font-semibold text-fg">
+                    {c.name}
+                  </div>
+                  <div className="truncate text-[0.55rem] text-fg-subtle">
+                    {typeLabel(c.type)} · {classLabel(c.art)} · {c.cost} mana
+                  </div>
+                </div>
+                {c.id === "dominus_reximus" && (
+                  <span className="absolute right-1 top-1 rounded bg-accent px-1.5 py-0.5 text-[0.5rem] font-bold text-primary-fg">
+                    EX
+                  </span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <div className="grid gap-3 sm:grid-cols-3">
         {[
           {
             t: "Play",
-            d: "Opening hand, laser trades, live math HUD",
+            d: "Opening hand · laser trades · live math HUD",
             tab: "play" as const,
             img: "/ui/bg_command_hd.jpg",
           },
           {
             t: "Store",
-            d: "Dominus Reximus · Spell Power stacks · exclusive units",
+            d: "Dominus Reximus · Spell Power · exclusives",
             tab: "store" as const,
             img: "/cards/dominus_reximus.jpg",
           },
           {
             t: "Settings",
-            d: "Graphics live · battle SFX · PIN vault · music",
+            d: "UltraHD · 40K SFX · 10-track score · PIN",
             tab: "settings" as const,
             img: "/ui/hero_legion_hd.jpg",
           },
@@ -385,17 +479,17 @@ function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
             key={c.t}
             type="button"
             onClick={() => onNavigate(c.tab)}
-            className="group relative overflow-hidden rounded-2xl border border-white/12 text-left shadow-lg transition hover:border-primary/40"
+            className="group relative overflow-hidden rounded-2xl border border-white/12 text-left shadow-lg transition hover:border-accent/50"
           >
             <div
-              className="absolute inset-0 opacity-50 transition group-hover:opacity-70"
+              className="absolute inset-0 opacity-55 transition group-hover:opacity-75"
               style={{
                 backgroundImage: `url(${c.img})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
               }}
             />
-            <div className="relative bg-gradient-to-t from-black/90 via-black/50 to-black/20 p-4 pt-14">
+            <div className="relative bg-gradient-to-t from-black/95 via-black/55 to-black/15 p-4 pt-16">
               <div className="text-sm font-semibold text-fg">{c.t}</div>
               <div className="mt-0.5 text-xs text-fg-muted">{c.d}</div>
             </div>
@@ -403,16 +497,55 @@ function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
         ))}
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-bg-panel/80 p-4 backdrop-blur">
-        <h2 className="text-sm font-semibold text-fg">Overall Gameplay</h2>
-        <ul className="mt-2 list-inside list-disc space-y-1 text-xs text-fg-muted sm:text-sm">
-          <li>Spend mana to deploy minions and cast high-tech spells.</li>
-          <li>Taunt forces attacks; Immune / Reborn rewrite lethal math.</li>
+      <section className="legixn-panel rounded-2xl p-4">
+        <div className="mb-2 flex items-center gap-2">
+          <Music2 className="h-4 w-4 text-accent" />
+          <h2 className="text-sm font-semibold text-fg">Soundtrack · 10 tracks</h2>
+        </div>
+        <div className="grid gap-1.5 sm:grid-cols-2">
+          {MENU_TRACKS.map((tr, i) => (
+            <button
+              key={tr.id}
+              type="button"
+              onClick={() => {
+                unlockAudio();
+                ensureMusicUnlocked();
+                void import("@/game/music").then((m) => m.playTrackAt(i));
+              }}
+              className="flex items-center gap-2 rounded-xl border border-white/8 bg-black/30 px-2.5 py-2 text-left text-[0.7rem] transition hover:border-accent/40 hover:bg-black/50"
+            >
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent/15 text-[0.6rem] font-bold text-accent">
+                {i + 1}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate font-medium text-fg">{tr.title}</span>
+                <span className="block truncate text-[0.55rem] text-fg-subtle">
+                  {tr.group === "edm" ? "EDM" : "LegionX"} · {tr.mood}
+                </span>
+              </span>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <div className="rounded-2xl border border-white/10 bg-bg-panel/90 p-4 backdrop-blur">
+        <h2 className="flex items-center gap-2 text-sm font-semibold text-fg">
+          <BookOpen className="h-4 w-4 text-accent" />
+          Overall Gameplay
+        </h2>
+        <ul className="mt-2 list-inside list-disc space-y-1.5 text-xs text-fg-muted sm:text-sm">
+          <li>Spend mana to deploy minions and cast high-tech spell protocols.</li>
+          <li>Taunt forces attacks; Immune / Reborn rewrite lethal math live.</li>
           <li>
-            Drag cards from the fanned hand onto the field; trails show strike
+            Drag cards from the fanned hand onto the field — trails show strike
             direction.
           </li>
-          <li>Menu score rotates ten soundtrack tracks (5 original + 5 EDM) from omen to glory.</li>
+          <li>
+            Menu score rotates ten soundtrack tracks (5 LegionX originals + 5 EDM).
+          </li>
+          <li>
+            Warhammer-scale battle SFX on every clash, beam, and war-cry — same as APK.
+          </li>
         </ul>
       </div>
     </div>
@@ -531,28 +664,47 @@ function StorePanel() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-4 pb-4">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h2 className="text-xl font-semibold">Ticket store</h2>
-          <p className="text-sm text-fg-muted">
-            High-tech exclusives not in the free starter deck. Spell Power stacks onto
-            every damage protocol.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-1 rounded-xl border border-border bg-bg-elevated/90 p-1 backdrop-blur">
-          {(["exclusive", "all", "minion", "spell"] as const).map((f) => (
-            <button
-              key={f}
-              type="button"
-              onClick={() => setFilter(f)}
-              className={cn(
-                "rounded-lg px-3 py-1.5 text-xs capitalize",
-                filter === f ? "bg-primary text-primary-fg" : "text-fg-muted",
-              )}
-            >
-              {f === "minion" ? "units" : f === "spell" ? "protocols" : f}
-            </button>
-          ))}
+      <div className="relative overflow-hidden rounded-2xl border border-accent/25 legixn-ring">
+        <div
+          className="absolute inset-0 opacity-40"
+          style={{
+            backgroundImage: "url(/cards/dominus_reximus.jpg)",
+            backgroundSize: "cover",
+            backgroundPosition: "center top",
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-black/50" />
+        <div className="relative flex flex-wrap items-end justify-between gap-3 p-4 sm:p-5">
+          <div>
+            <p className="text-[0.6rem] font-bold uppercase tracking-widest text-accent">
+              LEGIXN armory
+            </p>
+            <h2 className="text-xl font-semibold">Ticket store</h2>
+            <p className="text-sm text-fg-muted">
+              High-tech exclusives not in the free starter deck. Spell Power stacks onto
+              every damage protocol.
+            </p>
+            <p className="mt-1 text-xs tabular text-attack">
+              {tickets} tickets · Legion Lv {level}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-1 rounded-xl border border-border bg-bg-elevated/90 p-1 backdrop-blur">
+            {(["exclusive", "all", "minion", "spell"] as const).map((f) => (
+              <button
+                key={f}
+                type="button"
+                onClick={() => setFilter(f)}
+                className={cn(
+                  "rounded-lg px-3 py-1.5 text-xs capitalize",
+                  filter === f
+                    ? "bg-accent text-primary-fg"
+                    : "text-fg-muted hover:text-fg",
+                )}
+              >
+                {f === "minion" ? "units" : f === "spell" ? "protocols" : f}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -569,7 +721,7 @@ function StorePanel() {
               className={cn(
                 "flex flex-col overflow-hidden rounded-2xl border bg-bg-elevated/90 shadow-lg",
                 o.exclusive
-                  ? "border-primary/50 shadow-[0_0_28px_rgba(106,154,208,0.15)]"
+                  ? "border-accent/50 shadow-[0_0_28px_rgba(255,106,26,0.2)]"
                   : o.featured
                     ? "border-attack/40"
                     : "border-white/10",

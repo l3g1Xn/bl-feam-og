@@ -33,6 +33,8 @@ Command a modern combat legion armed with discombobulator beams, lasers, and ste
 
 **1.05** — App Icon Swap (LEGIXN shield crest)
 
+**Site graphics (1.05-site-gfx):** LEGIXN command chrome, roster strip, 10-track playlist, armory store banner — aligned with APK content.
+
 ## License / notes
 
 Personal offline build. Soundtrack originals by LegionX; EDM tracks generated for the pack. No login required.

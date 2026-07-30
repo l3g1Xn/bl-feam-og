@@ -13,7 +13,7 @@ type Variant = "primary" | "ghost" | "success";
 
 const VARIANT: Record<Variant, string> = {
   primary:
-    "border border-success/40 bg-success/15 text-success hover:bg-success/25 font-semibold",
+    "border border-accent/45 bg-accent/15 text-accent hover:bg-accent/25 font-semibold",
   success:
     "border border-success/40 bg-success/10 text-success hover:bg-success/20 font-medium",
   ghost: "border border-border bg-bg-elevated text-fg-muted hover:text-fg",
@@ -91,7 +91,7 @@ export function ApkDownloadButton({
       {busy && (
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-black/40">
           <div
-            className="h-full rounded-full bg-success transition-[width]"
+            className="h-full rounded-full bg-accent transition-[width]"
             style={{ width: `${pct}%` }}
           />
         </div>

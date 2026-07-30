@@ -9,35 +9,39 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* LEGIXN / Battle Legions 1.05 — steel + blaze brand */
 @theme inline {
-  --color-bg: #0a0b0d;
-  --color-bg-elevated: #12141a;
-  --color-bg-subtle: #1a1d26;
-  --color-bg-panel: #161922;
-  --color-fg: #eef0f4;
-  --color-fg-muted: #9aa3b2;
-  --color-fg-subtle: #6b7385;
-  --color-border: #2a2f3c;
-  --color-border-strong: #3d4455;
-  --color-primary: #c8d0dc;
+  --color-bg: #07080c;
+  --color-bg-elevated: #10131a;
+  --color-bg-subtle: #181c26;
+  --color-bg-panel: #12161f;
+  --color-fg: #f2f4f8;
+  --color-fg-muted: #9aa4b5;
+  --color-fg-subtle: #6b7488;
+  --color-border: #2c3344;
+  --color-border-strong: #454e64;
+  --color-primary: #e8ecf2;
   --color-primary-fg: #0a0b0d;
   --color-mana: #4a7ab0;
   --color-mana-glow: #6a9ad0;
   --color-health: #c45c5c;
-  --color-attack: #c4a35c;
+  --color-attack: #e8922a;
   --color-success: #5a9a6e;
   --color-danger: #c45c5c;
-  --color-warn: #b08a4a;
-  --color-warning: #b08a4a;
+  --color-warn: #e8922a;
+  --color-warning: #e8922a;
   --color-player: #5a8ab0;
   --color-enemy: #a06060;
-  --color-card-face: #1e2230;
-  --color-card-border: #3a4258;
+  --color-card-face: #1a1f2c;
+  --color-card-border: #3e465c;
   --color-taunt: #8a9ab0;
-  --color-charge: #b08a5a;
+  --color-charge: #e8922a;
   --color-shield: #7a9ab8;
   --color-lifesteal: #8a6a9a;
-  --color-accent: #6a9ad0;
+  --color-accent: #ff6a1a;
+  --color-legixn: #ff6a1a;
+  --color-legixn-hot: #ff8c3a;
+  --color-steel: #c8d0dc;
   --font-sans: "Segoe UI", system-ui, -apple-system, sans-serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --radius-md: 12px;
@@ -56,7 +60,6 @@
     @apply antialiased;
     color-scheme: dark;
     height: 100%;
-    /* Stable root for rem — clamp for phone landscape DPI */
     font-size: clamp(12px, 2.4vmin + 8px, 16px);
     transition: filter 0.2s ease;
     -webkit-text-size-adjust: 100%;
@@ -118,189 +121,56 @@
   max-height: 100dvh;
   color: var(--color-fg);
   flex-direction: column;
-  display: flex;
-  position: relative;
-  overflow: hidden;
 }
 
-/* Battle stage: only pad top/sides — hand owns bottom safe-area so cards aren't clipped */
-.battle-stage {
-  padding-top: env(safe-area-inset-top, 0px);
-  padding-left: env(safe-area-inset-left, 0px);
-  padding-right: env(safe-area-inset-right, 0px);
-  padding-bottom: 0;
-  box-sizing: border-box;
+/* LEGIXN brand chrome */
+.legixn-ring {
+  box-shadow:
+    0 0 0 1px rgba(255, 106, 26, 0.35),
+    0 0 28px rgba(255, 106, 26, 0.18),
+    inset 0 0 0 1px rgba(232, 236, 242, 0.08);
 }
 
-.battle-hand {
-  /* full card height must paint above system gesture bar */
-  flex-shrink: 0 !important;
-  overflow-y: visible !important;
+.legixn-glow {
+  box-shadow: 0 8px 40px rgba(255, 106, 26, 0.28);
 }
 
-.battle-vignette {
+.legixn-panel {
   background:
-    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(106, 154, 208, 0.08), transparent 55%),
-    radial-gradient(ellipse 70% 50% at 50% 100%, rgba(160, 96, 96, 0.06), transparent 50%),
-    var(--color-bg);
+    linear-gradient(165deg, rgba(255, 106, 26, 0.08), transparent 42%),
+    linear-gradient(180deg, rgba(18, 22, 31, 0.92), rgba(10, 12, 16, 0.96));
+  border: 1px solid rgba(255, 106, 26, 0.22);
 }
 
-.fx-hit-flash {
-  animation: fxHitFlash 180ms ease-out;
-}
-.fx-lunge {
-  animation: fxLunge 420ms cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-.fx-float {
-  pointer-events: none;
-  animation: fxFloat 700ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+.feat-card-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 106, 26, 0.4) transparent;
 }
 
-@keyframes fxHitFlash {
-  0% {
-    filter: brightness(2.2);
-  }
-  to {
-    filter: brightness(1);
-  }
+.feat-card-scroll::-webkit-scrollbar {
+  height: 6px;
 }
-@keyframes fxLunge {
-  0% {
-    transform: translate(0) scale(1);
-  }
-  35% {
-    transform: translateY(-10px) scale(1.06);
-  }
-  55% {
-    transform: translateY(6px) scale(0.98);
-  }
-  to {
-    transform: translate(0) scale(1);
-  }
+.feat-card-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 106, 26, 0.35);
+  border-radius: 99px;
 }
-@keyframes fxFloat {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -40%) scale(0.7);
+
+@keyframes legixn-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
   }
-  15% {
+  50% {
     opacity: 1;
-    transform: translate(-50%, -70%) scale(1.12);
   }
-  to {
-    opacity: 0;
-    transform: translate(-50%, -130%) scale(1);
-  }
+}
+
+.legixn-pulse {
+  animation: legixn-pulse 2.8s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .fx-hit-flash,
-  .fx-lunge,
-  .fx-float {
-    animation-duration: 1ms !important;
+  .legixn-pulse {
+    animation: none;
   }
-}
-
-@supports (padding: env(safe-area-inset-top)) {
-  .app-shell {
-    padding-top: env(safe-area-inset-top);
-    padding-right: env(safe-area-inset-right);
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-left: env(safe-area-inset-left);
-  }
-}
-
-/* Phone landscape (APK): tighter chrome so hand/board fit short viewports */
-@media (orientation: landscape) and (max-height: 500px) {
-  html {
-    font-size: 12px;
-  }
-}
-
-@media (orientation: landscape) and (max-height: 420px) {
-  html {
-    font-size: 11px;
-  }
-}
-
-/* Real-time quality tiers (toggled via html.gfx-*) */
-html.aspect-cinema body {
-  max-width: min(100vw, calc(100dvh * 16 / 9));
-  margin-inline: auto;
-}
-html.gfx-low .fx-float,
-html.gfx-low .fx-lunge {
-  animation-duration: 120ms !important;
-}
-html.gfx-low #battle-stage {
-  filter: saturate(0.92);
-}
-html.gfx-medium #battle-stage {
-  filter: saturate(1.02);
-}
-html.gfx-high #battle-stage {
-  filter: saturate(1.06) contrast(1.02);
-}
-html.gfx-ultra #battle-stage {
-  filter: saturate(1.1) contrast(1.04);
-  box-shadow: inset 0 0 120px rgba(106, 154, 208, 0.1);
-}
-html.gfx-ultra .app-shell {
-  box-shadow: inset 0 0 80px rgba(106, 154, 208, 0.06);
-}
-html.gfx-rim [data-entity] {
-  box-shadow: 0 0 0 1px rgba(200, 208, 220, 0.08);
-}
-html.gfx-high [data-entity],
-html.gfx-ultra [data-entity] {
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.35));
-}
-
-/* ---- Battle readability + Adreno compositor paths (1.01) ---- */
-.battle-stage,
-.battle-hand {
-  -webkit-font-smoothing: antialiased;
-  text-rendering: geometricPrecision;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-}
-
-.minion-token-name,
-.card-name-sharp {
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  text-shadow:
-    0 1px 0 rgba(0, 0, 0, 0.85),
-    0 0 6px rgba(0, 0, 0, 0.55);
-  -webkit-font-smoothing: antialiased;
-}
-
-.minion-fluid {
-  will-change: transform;
-  transition: transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1),
-    box-shadow 160ms ease, filter 160ms ease;
-}
-.minion-fluid:active {
-  transform: scale(0.96) translateZ(0);
-}
-.minion-fluid.can-strike {
-  animation: minionPulse 1.6s ease-in-out infinite;
-}
-@keyframes minionPulse {
-  0%,
-  100% {
-    filter: brightness(1);
-  }
-  50% {
-    filter: brightness(1.12);
-  }
-}
-
-html.gfx-high .battle-stage,
-html.gfx-ultra .battle-stage {
-  image-rendering: auto;
-}
-html.gfx-ultra .minion-fluid,
-html.gfx-high .minion-fluid {
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
 }
