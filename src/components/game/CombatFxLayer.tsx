@@ -133,6 +133,8 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
         damage: fx.damage,
         fromPlayer,
         toHero,
+        school: fx.school,
+        beam: fx.beam,
       });
     } else if (fx.kind === "spell" || fx.kind === "dominus") {
       if (fx.heal && fx.heal > 0 && !(fx.damage && fx.damage > 0)) {
@@ -143,6 +145,8 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
           damage: fx.damage,
           toHero,
           fromPlayer: true,
+          school: fx.school,
+          beam: fx.beam,
         });
       }
     } else if (fx.kind === "heal" || fx.kind === "buff" || fx.kind === "aegis") {

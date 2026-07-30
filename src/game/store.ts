@@ -170,6 +170,7 @@ export const useGameStore = create<GameStore>((set, get) => {
       actionLock = false;
       fxWaiters = [];
       clearMatchSave();
+      clearMatchSave();
       const deck = useMetaStore.getState().buildActiveDeck();
       const g = createNewGame(difficulty, deck);
       set({
@@ -278,13 +279,39 @@ export const useGameStore = create<GameStore>((set, get) => {
     returnToMenu: (opts) => {
       actionLock = false;
       fxWaiters = [];
-      if (!opts?.keepSave) clearMatchSave();
+      // Default KEEP save so Load game works after Exit to launcher
+      const keep = opts?.keepSave !== false;
+      const cur = get();
+      if (
+        keep &&
+        (cur.phase === "mulligan" ||
+          cur.phase === "player_turn" ||
+          cur.phase === "enemy_turn")
+      ) {
+        writeMatchSave({
+          phase: cur.phase,
+          turn: cur.turn,
+          player: cur.player,
+          enemy: cur.enemy,
+          enemyName: cur.enemyName,
+          selection: { kind: "none" },
+          log: cur.log,
+          logSeq: cur.logSeq,
+          lastPreview: cur.lastPreview,
+          hoverPreview: null,
+          animating: false,
+          message: cur.message,
+          difficulty: cur.difficulty,
+        });
+      } else if (!keep) {
+        clearMatchSave();
+      }
       const g = { ...createNewGame("normal"), phase: "menu" as const, message: null };
       set({
         ...withMath(g),
         activeFx: null,
         mulliganSelected: [],
-        saveNotice: null,
+        saveNotice: keep ? "Progress kept — use Load game on main menu." : null,
       });
     },
 

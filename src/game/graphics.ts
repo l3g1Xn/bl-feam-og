@@ -58,7 +58,7 @@ function tierFromVendor(v: string): GpuTier {
 }
 
 let cached: GraphicsProfile | null = null;
-let userQuality: GraphicsQuality = "high";
+let userQuality: GraphicsQuality = "high"; // Adreno-first default
 let userHz = 60;
 let userAspect: "auto" | "16:9" = "auto";
 let userReducedShake = false;

@@ -12,6 +12,7 @@ import { Launcher } from "./Launcher";
 import { AmbientStage } from "./AmbientStage";
 import { GameMenu } from "./GameMenu";
 import { BiometricGate } from "./BiometricGate";
+import { PermissionsGate } from "./PermissionsGate";
 import { useMetaStore, type MatchRewardResult } from "@/game/meta";
 import { GAME_TITLE_SHORT } from "@/game/brand";
 import { playSfx, unlockAudio } from "@/game/audio";
@@ -23,9 +24,11 @@ import type { SpellEffect } from "@/game/types";
 
 export function GameApp() {
   return (
-    <BiometricGate>
-      <GameAppInner />
-    </BiometricGate>
+    <PermissionsGate>
+      <BiometricGate>
+        <GameAppInner />
+      </BiometricGate>
+    </PermissionsGate>
   );
 }
 

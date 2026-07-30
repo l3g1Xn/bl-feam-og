@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <title>Download BattleLegions.apk v1.00</title>
+    <title>Download BattleLegions.apk v1.01</title>
     <style>
       :root { color-scheme: dark; font-family: system-ui, sans-serif; }
       body { margin: 0; min-height: 100dvh; display: grid; place-items: center; background: #0c0e14; color: #e8eaef; padding: 1.5rem; }
@@ -23,16 +23,16 @@
   </head>
   <body>
     <div class="card">
-      <h1>Battle Legions — Android APK v1.00</h1>
+      <h1>Battle Legions — Android APK v1.01</h1>
       <p>
-        Release package matching GitHub <code>apk-release-1.00</code>
-        (2026.07.30-release-1.00). Assembles from <code>/pkg/</code> chunks.
+        Release package matching GitHub <code>apk-release-1.01</code>
+        (2026.07.30-release-1.01). Assembles from <code>/pkg/</code> chunks.
       </p>
       <button type="button" id="go">Download BattleLegions.apk</button>
-      <a class="linkbtn" href="https://github.com/l3g1Xn/bl-feam-og/releases/download/apk-release-1.00/BattleLegions.apk" target="_blank" rel="noopener">GitHub backup download</a>
+      <a class="linkbtn" href="https://github.com/l3g1Xn/bl-feam-og/releases/download/apk-release-1.01/BattleLegions.apk" target="_blank" rel="noopener">GitHub backup download</a>
       <div class="bar" aria-hidden="true"><i id="prog"></i></div>
-      <div id="status">Ready · v1.00</div>
-      <p class="meta">Build 2026.07.30-release-1.00</p>
+      <div id="status">Ready · v1.01</div>
+      <p class="meta">Build 2026.07.30-release-1.01</p>
     </div>
     <script>
       const MIME = "application/vnd.android.package-archive";
@@ -105,7 +105,7 @@
         a.remove();
         setTimeout(() => URL.revokeObjectURL(url), 60000);
         progEl.style.width = "100%";
-        setStatus("Saved BattleLegions.apk v1.00 (" + (total / 1e6).toFixed(1) + " MB).", "ok");
+        setStatus("Saved BattleLegions.apk v1.01 (" + (total / 1e6).toFixed(1) + " MB).", "ok");
         go.disabled = false;
       }
       go.addEventListener("click", () => {

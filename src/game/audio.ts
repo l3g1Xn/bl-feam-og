@@ -6,6 +6,9 @@
 export type SfxId =
   | "clash"
   | "heavy_clash"
+  | "blade"
+  | "laser"
+  | "beam"
   | "spell"
   | "heal"
   | "summon"
@@ -179,6 +182,65 @@ function defeatMoan(c: AudioContext, dest: AudioNode, t0: number) {
   o.stop(t0 + 0.65);
 }
 
+
+function synthBlade(c: AudioContext, dest: AudioNode, intensity: number) {
+  const t0 = c.currentTime;
+  const n = c.createBufferSource();
+  n.buffer = noiseBuffer(c, 0.12);
+  const bp = c.createBiquadFilter();
+  bp.type = "bandpass";
+  bp.frequency.value = 2800 + intensity * 800;
+  bp.Q.value = 2.2;
+  const g = c.createGain();
+  env(g, t0, 0.45 * intensity, 0.002, 0.1);
+  n.connect(bp);
+  bp.connect(g);
+  g.connect(dest);
+  n.start(t0);
+  n.stop(t0 + 0.14);
+  tone(c, dest, 880 + intensity * 200, t0, 0.18, "triangle", 0.12 * intensity);
+  tone(c, dest, 1320, t0 + 0.02, 0.12, "sine", 0.08 * intensity);
+}
+
+function synthLaser(c: AudioContext, dest: AudioNode, intensity: number) {
+  const t0 = c.currentTime;
+  const o = c.createOscillator();
+  const g = c.createGain();
+  o.type = "sawtooth";
+  o.frequency.setValueAtTime(1600, t0);
+  o.frequency.exponentialRampToValueAtTime(220, t0 + 0.22);
+  env(g, t0, 0.35 * intensity, 0.005, 0.2);
+  const f = c.createBiquadFilter();
+  f.type = "lowpass";
+  f.frequency.setValueAtTime(4200, t0);
+  f.frequency.exponentialRampToValueAtTime(600, t0 + 0.22);
+  o.connect(f);
+  f.connect(g);
+  g.connect(dest);
+  o.start(t0);
+  o.stop(t0 + 0.25);
+}
+
+function synthBeam(c: AudioContext, dest: AudioNode, intensity: number) {
+  const t0 = c.currentTime;
+  const o = c.createOscillator();
+  const o2 = c.createOscillator();
+  const g = c.createGain();
+  o.type = "square";
+  o2.type = "sine";
+  o.frequency.setValueAtTime(90, t0);
+  o2.frequency.setValueAtTime(180, t0);
+  o.frequency.linearRampToValueAtTime(60, t0 + 0.35);
+  env(g, t0, 0.28 * intensity, 0.02, 0.32);
+  o.connect(g);
+  o2.connect(g);
+  g.connect(dest);
+  o.start(t0);
+  o2.start(t0);
+  o.stop(t0 + 0.4);
+  o2.stop(t0 + 0.4);
+}
+
 export function playSfx(id: SfxId, intensity = 1) {
   if (muted || volume <= 0.01) return;
   const c = ac();
@@ -187,6 +249,15 @@ export function playSfx(id: SfxId, intensity = 1) {
   const k = Math.max(0.2, Math.min(1.5, intensity));
 
   switch (id) {
+    case "blade":
+      synthBlade(c, masterGain, k);
+      break;
+    case "laser":
+      synthLaser(c, masterGain, k);
+      break;
+    case "beam":
+      synthBeam(c, masterGain, k);
+      break;
     case "clash":
       noiseBurst(c, masterGain, t0, 0.08, 0.35 * k, 600);
       tone(c, masterGain, 180 + Math.random() * 40, t0, 0.09, "square", 0.12 * k);
@@ -242,16 +313,39 @@ export function playCombatSfx(opts: {
   heal?: number;
   toHero?: boolean;
   fromPlayer?: boolean;
+  school?: string;
+  beam?: string;
 }) {
   const dmg = opts.damage ?? 0;
+  const school = (opts.school || "").toLowerCase();
+  const beam = (opts.beam || "").toLowerCase();
+
   if (opts.kind === "melee") {
-    playSfx(dmg >= 5 ? "heavy_clash" : "clash", 0.7 + Math.min(1, dmg * 0.08));
+    if (beam === "laser" || school === "arcane" || school === "ember") {
+      playSfx("laser", 0.75 + Math.min(0.5, dmg * 0.05));
+      playSfx(dmg >= 6 ? "heavy_clash" : "clash", 0.45 + Math.min(0.4, dmg * 0.04));
+    } else if (beam === "beam" || school === "frost" || school === "shadow") {
+      playSfx("beam", 0.7 + Math.min(0.5, dmg * 0.05));
+      playSfx("whoosh", 0.4);
+    } else if (school === "steel" || school === "nature" || beam === "slash") {
+      playSfx("blade", 0.85 + Math.min(0.4, dmg * 0.05));
+      playSfx(dmg >= 5 ? "heavy_clash" : "clash", 0.55 + Math.min(0.45, dmg * 0.05));
+    } else {
+      playSfx(dmg >= 5 ? "heavy_clash" : "clash", 0.7 + Math.min(1, dmg * 0.08));
+      if (dmg >= 4) playSfx("blade", 0.45);
+    }
     if (dmg >= 3) {
       playSfx(opts.fromPlayer ? "grunt" : "enemy_grunt", 0.8);
     }
   } else if (opts.kind === "spell") {
     playSfx("whoosh", 0.7);
-    playSfx("spell", 0.7 + Math.min(0.8, dmg * 0.06));
+    if (beam === "laser" || school === "arcane") {
+      playSfx("laser", 0.85 + Math.min(0.4, dmg * 0.05));
+    } else if (beam === "beam" || school === "shadow") {
+      playSfx("beam", 0.8);
+    } else {
+      playSfx("spell", 0.7 + Math.min(0.8, dmg * 0.06));
+    }
     if (opts.toHero && dmg >= 4) {
       playSfx(opts.fromPlayer === false ? "grunt" : "enemy_grunt", 0.9);
     }

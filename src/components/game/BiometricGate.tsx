@@ -1,26 +1,22 @@
 import { useEffect, useState } from "react";
 import {
   disableVault,
-  enrollPasskey,
   enrollPin,
   loadRegistry,
   lockSession,
   needsUnlock,
-  platformAuthAvailable,
-  unlockWithPasskey,
   unlockWithPin,
-  webAuthnAvailable,
   type MetaSnapshot,
 } from "@/game/deviceVault";
 import { useMetaStore } from "@/game/meta";
-import { GAME_TITLE, GAME_TITLE_SHORT } from "@/game/brand";
+import { GAME_TITLE_SHORT } from "@/game/brand";
 import { AmbientStage } from "./AmbientStage";
 import { unlockAudio, playSfx } from "@/game/audio";
-import { Fingerprint, KeyRound, ShieldCheck } from "lucide-react";
+import { KeyRound, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
- * Device-local biometric / PIN gate. No accounts, no network.
+ * Device-local PIN gate only (no biometric / passkey).
  */
 export function BiometricGate({ children }: { children: React.ReactNode }) {
   const [blocked, setBlocked] = useState(false);
@@ -68,23 +64,10 @@ function UnlockScreen({
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const doPasskey = async () => {
-    setBusy(true);
-    setError(null);
-    unlockAudio();
-    const res = await unlockWithPasskey(profile?.id);
-    setBusy(false);
-    if (!res.ok) {
-      setError(res.error);
-      return;
-    }
-    playSfx("ui");
-    onUnlocked(profile?.displayName || "Legionnaire", res.snapshot);
-  };
-
   const doPin = async () => {
     setBusy(true);
     setError(null);
+    unlockAudio();
     const res = await unlockWithPin(pin, profile?.id);
     setBusy(false);
     if (!res.ok) {
@@ -94,13 +77,6 @@ function UnlockScreen({
     playSfx("ui");
     onUnlocked(profile?.displayName || "Legionnaire", res.snapshot);
   };
-
-  useEffect(() => {
-    if (profile && !profile.pinOnly) {
-      void doPasskey();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <div className="relative flex h-dvh flex-col items-center justify-center overflow-hidden bg-bg px-4">
@@ -112,30 +88,18 @@ function UnlockScreen({
           </div>
           <div>
             <div className="text-sm font-semibold text-fg">{GAME_TITLE_SHORT}</div>
-            <div className="text-xs text-fg-subtle">Local vault · device only</div>
+            <div className="text-xs text-fg-subtle">Local PIN vault · device only</div>
           </div>
         </div>
         <p className="text-sm text-fg-muted">
-          Unlock{" "}
+          Enter your device PIN to unlock{" "}
           <span className="font-semibold text-fg">
             {profile?.displayName || "your profile"}
-          </span>{" "}
-          to load tickets & settings bound to this device.
+          </span>
+          .
         </p>
 
-        {profile && !profile.pinOnly && (
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => void doPasskey()}
-            className="mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-sm font-semibold text-primary-fg disabled:opacity-60"
-          >
-            <Fingerprint className="h-5 w-5" />
-            Unlock with biometrics
-          </button>
-        )}
-
-        <div className="mt-4 space-y-2">
+        <div className="mt-5 space-y-2">
           <label className="text-xs font-medium text-fg-muted">Device PIN</label>
           <input
             type="password"
@@ -146,6 +110,9 @@ function UnlockScreen({
             onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 8))}
             className="w-full rounded-xl border border-border bg-bg px-3 py-2.5 text-center text-lg tracking-[0.3em] text-fg outline-none focus:border-primary"
             placeholder="••••"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && pin.length >= 4) void doPin();
+            }}
           />
           <button
             type="button"
@@ -160,13 +127,14 @@ function UnlockScreen({
 
         {error && <p className="mt-3 text-center text-xs text-danger">{error}</p>}
         <p className="mt-4 text-center text-[0.65rem] text-fg-subtle">
-          No account · no cloud · tickets sealed on this device
+          No account · no biometrics · tickets sealed on this device
         </p>
       </div>
     </div>
   );
 }
 
+/** Settings: PIN vault only (biometric removed). */
 export function VaultSettingsSection() {
   const getSnapshot = useMetaStore((s) => s.getSnapshot);
   const setVaultProfileLabel = useMetaStore((s) => s.setVaultProfileLabel);
@@ -175,34 +143,14 @@ export function VaultSettingsSection() {
   const [name, setName] = useState("Legionnaire");
   const [pin, setPin] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
-  const [bioOk, setBioOk] = useState(false);
   const [busy, setBusy] = useState(false);
 
-  useEffect(() => {
-    void platformAuthAvailable().then(setBioOk);
-  }, []);
-
   const refresh = () => setReg(loadRegistry());
-
-  const setupPasskey = async () => {
-    setBusy(true);
-    setMsg(null);
-    unlockAudio();
-    const res = await enrollPasskey({ displayName: name, snapshot: getSnapshot() });
-    setBusy(false);
-    if (!res.ok) {
-      setMsg(res.error);
-      return;
-    }
-    setVaultProfileLabel(name);
-    setMsg("Biometric passkey bound. Tickets seal to this device profile.");
-    refresh();
-    playSfx("ui");
-  };
 
   const setupPin = async () => {
     setBusy(true);
     setMsg(null);
+    unlockAudio();
     const res = await enrollPin({ displayName: name, pin, snapshot: getSnapshot() });
     setBusy(false);
     if (!res.ok) {
@@ -238,12 +186,12 @@ export function VaultSettingsSection() {
   return (
     <section className="space-y-3 rounded-2xl border border-primary/20 bg-primary/5 p-4">
       <div className="flex items-start gap-3">
-        <Fingerprint className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+        <KeyRound className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
         <div>
-          <h3 className="text-sm font-semibold text-fg">Biometric passkey vault</h3>
+          <h3 className="text-sm font-semibold text-fg">PIN lock vault</h3>
           <p className="mt-0.5 text-xs text-fg-muted">
-            Bind a local passkey (fingerprint / face) to this device. Seals tickets, XP,
-            collection, deck, and graphics settings with AES-GCM. No login, no cloud.
+            Seal tickets, XP, collection, deck, and graphics settings with a local PIN
+            (AES-GCM). No biometrics, no cloud, no account.
           </p>
         </div>
       </div>
@@ -257,10 +205,7 @@ export function VaultSettingsSection() {
                 reg.profiles.find((p) => p.id === reg.activeProfileId)?.displayName ||
                 "bound"}
             </span>
-            {" · "}
-            {reg.profiles.find((p) => p.id === reg.activeProfileId)?.pinOnly
-              ? "PIN"
-              : "Biometric passkey"}
+            {" · PIN lock"}
           </div>
           <div className="flex flex-wrap gap-2">
             <button
@@ -290,47 +235,35 @@ export function VaultSettingsSection() {
               placeholder="Legionnaire"
             />
           </div>
-          <button
-            type="button"
-            disabled={busy || !webAuthnAvailable() || !bioOk}
-            onClick={() => void setupPasskey()}
-            className={cn(
-              "flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl text-sm font-semibold",
-              bioOk ? "bg-primary text-primary-fg" : "bg-bg-subtle text-fg-subtle",
-            )}
-          >
-            <Fingerprint className="h-4 w-4" />
-            {bioOk ? "Bind biometric passkey" : "Biometrics unavailable here"}
-          </button>
-          <div className="border-t border-border pt-3">
-            <label className="text-xs text-fg-muted">Or local PIN (4–8 digits)</label>
+          <div>
+            <label className="text-xs text-fg-muted">PIN (4–8 digits)</label>
             <input
               type="password"
               inputMode="numeric"
               maxLength={8}
               value={pin}
               onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 8))}
-              className="mt-1 w-full rounded-xl border border-border bg-bg-elevated px-3 py-2 text-center tracking-[0.25em] text-fg outline-none focus:border-primary"
+              className="mt-1 w-full rounded-xl border border-border bg-bg-elevated px-3 py-2 text-center text-lg tracking-[0.3em] text-fg outline-none focus:border-primary"
               placeholder="••••"
             />
-            <button
-              type="button"
-              disabled={busy || pin.length < 4}
-              onClick={() => void setupPin()}
-              className="mt-2 flex min-h-10 w-full items-center justify-center gap-2 rounded-xl border border-border bg-bg-elevated text-xs font-medium disabled:opacity-50"
-            >
-              <KeyRound className="h-3.5 w-3.5" />
-              Create PIN vault
-            </button>
           </div>
+          <button
+            type="button"
+            disabled={busy || pin.length < 4 || name.trim().length < 1}
+            onClick={() => void setupPin()}
+            className={cn(
+              "flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl text-sm font-semibold",
+              pin.length >= 4
+                ? "bg-primary text-primary-fg"
+                : "bg-bg-subtle text-fg-subtle",
+            )}
+          >
+            <KeyRound className="h-4 w-4" />
+            Create PIN vault
+          </button>
         </div>
       )}
-
-      {msg && <p className="text-xs text-primary">{msg}</p>}
-      <p className="text-[0.6rem] leading-relaxed text-fg-subtle">
-        {GAME_TITLE} stores vault data only in this app's device storage. Each
-        passkey profile keeps an accurate sealed ticket balance for that user.
-      </p>
+      {msg && <p className="text-center text-xs text-success">{msg}</p>}
     </section>
   );
 }

@@ -255,3 +255,52 @@ html.gfx-high [data-entity],
 html.gfx-ultra [data-entity] {
   filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.35));
 }
+
+/* ---- Battle readability + Adreno compositor paths (1.01) ---- */
+.battle-stage,
+.battle-hand {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.minion-token-name,
+.card-name-sharp {
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.85),
+    0 0 6px rgba(0, 0, 0, 0.55);
+  -webkit-font-smoothing: antialiased;
+}
+
+.minion-fluid {
+  will-change: transform;
+  transition: transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 160ms ease, filter 160ms ease;
+}
+.minion-fluid:active {
+  transform: scale(0.96) translateZ(0);
+}
+.minion-fluid.can-strike {
+  animation: minionPulse 1.6s ease-in-out infinite;
+}
+@keyframes minionPulse {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.12);
+  }
+}
+
+html.gfx-high .battle-stage,
+html.gfx-ultra .battle-stage {
+  image-rendering: auto;
+}
+html.gfx-ultra .minion-fluid,
+html.gfx-high .minion-fluid {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+}

@@ -61,7 +61,7 @@ export function CardView({
     xxs: {
       shell: "w-[3.35rem] h-[4.7rem]",
       art: "h-[2.35rem]",
-      name: "text-[0.42rem]",
+      name: "text-[0.48rem] card-name-sharp",
       meta: "text-[0.34rem]",
       body: "text-[0.34rem]",
       pad: "px-0.5 pb-0.5 pt-0.5",
@@ -71,7 +71,7 @@ export function CardView({
     xs: {
       shell: "w-[4.15rem] h-[5.8rem]",
       art: "h-[3rem]",
-      name: "text-[0.5rem]",
+      name: "text-[0.56rem] card-name-sharp",
       meta: "text-[0.4rem]",
       body: "text-[0.42rem]",
       pad: "px-0.5 pb-0.5 pt-0.5",

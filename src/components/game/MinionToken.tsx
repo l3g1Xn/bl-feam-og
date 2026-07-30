@@ -39,8 +39,9 @@ export function MinionToken({
       onFocus={() => onHover?.(true)}
       onBlur={() => onHover?.(false)}
       className={cn(
-        "relative flex shrink-0 flex-col overflow-hidden rounded-xl border-2 transition-transform duration-150",
+        "relative minion-fluid flex shrink-0 flex-col overflow-hidden rounded-xl border-2 transition-transform duration-150",
         "bg-card-face shadow-md transform-gpu",
+        minion.canAttack && side === "player" && "can-strike",
         compact
           ? "h-[3.35rem] w-[2.75rem]"
           : "h-[4.1rem] w-[3.35rem] sm:h-[5.5rem] sm:w-[4.4rem]",
@@ -76,8 +77,8 @@ export function MinionToken({
       <div className="flex min-h-0 flex-1 flex-col justify-between px-0.5 pb-0.5 pt-0.5">
         <div
           className={cn(
-            "w-full truncate text-center font-semibold leading-tight text-fg",
-            compact ? "text-[0.42rem]" : "text-[0.5rem] sm:text-[0.62rem]",
+            "minion-token-name w-full truncate text-center font-bold leading-tight text-fg",
+            compact ? "text-[0.48rem]" : "text-[0.58rem] sm:text-[0.72rem]",
           )}
         >
           {def.name}
@@ -102,7 +103,7 @@ export function MinionToken({
         <div className="flex items-center justify-between gap-0.5">
           <span
             className={cn(
-              "font-bold tabular text-attack",
+              "font-bold tabular-nums tracking-tight text-attack",
               compact ? "text-[0.55rem]" : "text-[0.65rem] sm:text-xs",
             )}
           >
@@ -110,7 +111,7 @@ export function MinionToken({
           </span>
           <span
             className={cn(
-              "font-bold tabular",
+              "font-bold tabular-nums tracking-tight",
               damaged ? "text-danger" : "text-health",
               compact ? "text-[0.55rem]" : "text-[0.65rem] sm:text-xs",
             )}

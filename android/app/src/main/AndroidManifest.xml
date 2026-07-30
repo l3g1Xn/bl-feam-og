@@ -47,5 +47,11 @@
 
     <!-- INTERNET kept optional for future updates; offline play uses local assets -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Samsung S-series / high-refresh display path (optional soft features) -->
+    <uses-feature android:name="android.hardware.opengles.aep" android:required="false" />
+    <uses-feature android:name="android.hardware.vulkan.level" android:required="false" />
+    <uses-feature android:name="android.hardware.vulkan.version" android:required="false" />
 </manifest>

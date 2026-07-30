@@ -7,7 +7,7 @@ import {
 } from "@/game/meta";
 import { cardArtSrc, classLabel, getCard, typeLabel } from "@/game/cards";
 import { configureGraphics } from "@/game/graphics";
-import { setSfxMuted, setSfxVolume, unlockAudio } from "@/game/audio";
+import { playSfx, setSfxMuted, setSfxVolume, unlockAudio } from "@/game/audio";
 import {
   currentTrack,
   ensureMusicUnlocked,
@@ -29,6 +29,7 @@ import type { ReactNode } from "react";
 import {
   BookOpen,
   FolderOpen,
+  Save,
   Home,
   Music2,
   Package,
@@ -262,32 +263,35 @@ function NavBtn({
 function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
   const startGame = useGameStore((s) => s.startGame);
   const continueSavedGame = useGameStore((s) => s.continueSavedGame);
+  const saveGameLocal = useGameStore((s) => s.saveGameLocal);
+  const clearSavedGame = useGameStore((s) => s.clearSavedGame);
+  const phase = useGameStore((s) => s.phase);
   const claim = useMetaStore((s) => s.claimDailyTickets);
   const tickets = useMetaStore((s) => s.tickets);
   const totalXp = useMetaStore((s) => s.totalXp);
   const prog = xpProgressInLevel(totalXp);
   const [hasSave, setHasSave] = useState(false);
-  const [loadMsg, setLoadMsg] = useState<string | null>(null);
+  const [saveAge, setSaveAge] = useState<string | null>(null);
+  const [status, setStatus] = useState<string | null>(null);
+
+  const refreshSave = () => {
+    void import("@/game/matchSave").then((m) => {
+      const s = m.readMatchSave();
+      setHasSave(!!s);
+      setSaveAge(s ? m.formatSaveAge(s.savedAt) : null);
+    });
+  };
 
   useEffect(() => {
-    let alive = true;
-    void import("@/game/matchSave").then((m) => {
-      if (alive) setHasSave(m.hasMatchSave());
-    });
-    // re-check when panel is shown
-    const onVis = () => {
-      void import("@/game/matchSave").then((m) => {
-        if (alive) setHasSave(m.hasMatchSave());
-      });
-    };
+    refreshSave();
+    const onVis = () => refreshSave();
     document.addEventListener("visibilitychange", onVis);
     window.addEventListener("focus", onVis);
     return () => {
-      alive = false;
       document.removeEventListener("visibilitychange", onVis);
       window.removeEventListener("focus", onVis);
     };
-  }, []);
+  }, [phase]);
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-5 pb-4">
@@ -335,37 +339,95 @@ function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
                 }}
               />
             </div>
-            <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+
+            {/* Save + Load — main menu only, reliable device cache */}
+            <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2">
               <button
                 type="button"
                 onClick={() => {
                   unlockAudio();
-                  ensureMusicUnlocked();
+                  playSfx("ui");
+                  // If mid-match somehow mirrored — saveGameLocal from store
+                  // On menu: re-commit existing cache is no-op; instruct if empty
+                  void import("@/game/matchSave").then((m) => {
+                    const existing = m.readMatchSave();
+                    if (existing) {
+                      const r = m.writeMatchSave(existing.state);
+                      setStatus(
+                        r.ok
+                          ? `Save locked · ${m.formatSaveAge(r.savedAt)}`
+                          : r.error,
+                      );
+                      refreshSave();
+                      return;
+                    }
+                    // try store (in case phase still active — should not)
+                    const r = saveGameLocal();
+                    if (r.ok) {
+                      setStatus("Match saved on this device.");
+                      refreshSave();
+                    } else {
+                      setStatus(
+                        "No match to save yet. Play a match, open Menu → Exit (auto-saves), or use Exit menu Save.",
+                      );
+                    }
+                  });
+                }}
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-success/45 bg-success/15 px-4 text-sm font-semibold text-success"
+              >
+                <Save className="h-4 w-4" />
+                Save game
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  unlockAudio();
+                  playSfx("ui");
                   if (!hasSave) {
-                    setLoadMsg("No saved match on this device.");
+                    setStatus("No saved match found on this device.");
+                    refreshSave();
                     return;
                   }
                   if (continueSavedGame()) {
+                    setStatus(null);
                     setHasSave(false);
-                    setLoadMsg(null);
                   } else {
-                    setLoadMsg("Could not load saved match.");
+                    setStatus("Could not load save — file may be damaged.");
+                    refreshSave();
                   }
                 }}
                 disabled={!hasSave}
                 className={
-                  "min-h-12 rounded-2xl border px-7 py-3 text-sm font-semibold shadow-lg " +
+                  "inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border px-4 text-sm font-semibold " +
                   (hasSave
-                    ? "border-success/45 bg-success/20 text-success"
-                    : "cursor-not-allowed border-white/10 bg-white/5 text-fg-subtle opacity-60")
+                    ? "border-primary/50 bg-primary/15 text-primary"
+                    : "cursor-not-allowed border-white/10 bg-white/5 text-fg-subtle opacity-55")
                 }
               >
-                <span className="inline-flex items-center gap-2">
-                  <FolderOpen className="h-4 w-4" />
-                  Load game
-                  {hasSave ? "" : " (none)"}
-                </span>
+                <FolderOpen className="h-4 w-4" />
+                Load game
+                {hasSave && saveAge ? ` · ${saveAge}` : ""}
               </button>
+            </div>
+            {hasSave && (
+              <button
+                type="button"
+                onClick={() => {
+                  clearSavedGame();
+                  setHasSave(false);
+                  setSaveAge(null);
+                  setStatus("Local save discarded.");
+                }}
+                className="mt-1 text-left text-[0.65rem] text-fg-subtle underline-offset-2 hover:underline"
+              >
+                Discard saved match
+              </button>
+            )}
+            {status && (
+              <p className="mt-2 text-xs text-fg-muted">{status}</p>
+            )}
+
+            <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <button
                 type="button"
                 onClick={() => {
@@ -391,16 +453,12 @@ function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
               >
                 Daily rewards
               </button>
-              {/* Website only — never shown inside the signed APK shell */}
               {isWebSite() && (
                 <ApkDownloadButton className="w-full sm:w-auto sm:min-w-[14rem]" />
               )}
             </div>
-            {loadMsg && (
-              <p className="mt-2 text-xs text-danger">{loadMsg}</p>
-            )}
             <p className="mt-3 text-xs text-fg-subtle">
-              Build {BUILD_ID} · 5-track score · modern combat art pack
+              Build {BUILD_ID} · Adreno default · PIN vault
             </p>
           </div>
         </div>
@@ -422,7 +480,7 @@ function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
           },
           {
             t: "Settings",
-            d: "Graphics live · battle SFX · biometric vault · music",
+            d: "Graphics live · battle SFX · PIN vault · music",
             tab: "settings" as const,
             img: "/ui/hero_legion_hd.jpg",
           },
@@ -441,44 +499,25 @@ function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
                 backgroundPosition: "center",
               }}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/30" />
-            <div className="relative p-4">
+            <div className="relative bg-gradient-to-t from-black/90 via-black/50 to-black/20 p-4 pt-14">
               <div className="text-sm font-semibold text-fg">{c.t}</div>
-              <div className="mt-1 text-xs text-fg-muted">{c.d}</div>
+              <div className="mt-0.5 text-xs text-fg-muted">{c.d}</div>
             </div>
           </button>
         ))}
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-white/10 bg-bg-panel/85 shadow-xl backdrop-blur">
-        <div
-          className="h-16 w-full opacity-60"
-          style={{
-            backgroundImage: "url(/ui/bg_command_hd.jpg)",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        />
-        <div className="p-4 text-sm text-fg-muted">
-          <div className="mb-2 flex items-center gap-2 font-medium text-fg">
-            <BookOpen className="h-4 w-4 text-primary" /> Overall Gameplay
-          </div>
-          <ul className="space-y-1.5 text-xs leading-relaxed sm:text-sm">
-            <li>
-              Combat is simultaneous: ATK hits both ways. Shield absorbs one hit. Immune
-              blocks all lasers.
-            </li>
-            <li>
-              Spell Power stacks and amplifies every damage protocol (Discombobulator
-              Beam, Arc Bolt, Titan Wrath…).
-            </li>
-            <li>
-              Dominus Reximus: Taunt target +50/+50 Immune Reborn · others +10/+10 Immune
-              this turn.
-            </li>
-            <li>Menu score rotates five symphonic tracks from omen to glory.</li>
-          </ul>
-        </div>
+      <div className="rounded-2xl border border-white/10 bg-bg-panel/80 p-4 backdrop-blur">
+        <h2 className="text-sm font-semibold text-fg">Overall Gameplay</h2>
+        <ul className="mt-2 list-inside list-disc space-y-1 text-xs text-fg-muted sm:text-sm">
+          <li>Spend mana to deploy minions and cast high-tech spells.</li>
+          <li>Taunt forces attacks; Immune / Reborn rewrite lethal math.</li>
+          <li>
+            Drag cards from the fanned hand onto the field; trails show strike
+            direction.
+          </li>
+          <li>Menu score rotates five symphonic tracks from omen to glory.</li>
+        </ul>
       </div>
     </div>
   );
