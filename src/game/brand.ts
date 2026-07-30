@@ -22,5 +22,8 @@ export const GITHUB_APK_URL =
 export const GITHUB_RELEASE_PAGE =
   "https://github.com/l3g1Xn/bl-feam-og/releases/tag/apk-release-1.05";
 
-/** Bump when shipping site+APK together so players can confirm sync. */
-export const BUILD_ID = "2026.07.30-live-redeploy-2115";
+/**
+ * Bump on every site publish so you can confirm the live host is the new build.
+ * After Grok app publish, hard-refresh bl-feam-og.grok.me and look for this stamp.
+ */
+export const BUILD_ID = "2026.07.30-legixn-live-v1";

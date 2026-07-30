@@ -13,6 +13,7 @@ import { hydrateMatchSaveFromDevice } from "@/game/matchSave";
 import { ensureSaveFolder } from "@/game/lxSave";
 import { useMetaStore } from "@/game/meta";
 import { GAME_TITLE_SHORT } from "@/game/brand";
+import { isNativeApp } from "@/lib/platform";
 import { AmbientStage } from "./AmbientStage";
 import { unlockAudio, playSfx } from "@/game/audio";
 import { KeyRound, ShieldCheck } from "lucide-react";
@@ -30,6 +31,14 @@ export function BiometricGate({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let alive = true;
     (async () => {
+      // Public website: never block first paint with PIN — vault is APK-only.
+      if (!isNativeApp()) {
+        if (alive) {
+          setBlocked(false);
+          setChecking(false);
+        }
+        return;
+      }
       try {
         await ensureSaveFolder();
         await hydratePinVaultFromDevice();

@@ -1,5 +1,5 @@
-/* Battle Legions offline service worker */
-const CACHE = "battle-legions-v6-pkg";
+/* Battle Legions offline service worker — bump CACHE to force drop of stale shells */
+const CACHE = "battle-legions-v7-legixn-live";
 const PRECACHE = ["./", "./index.html", "./manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {
@@ -34,9 +34,10 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // Always network-first for navigations so a new deploy replaces old shells
   if (req.mode === "navigate") {
     event.respondWith(
-      fetch(req)
+      fetch(req, { cache: "no-store" })
         .then((res) => {
           if (res && res.ok) {
             const clone = res.clone();
@@ -49,6 +50,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // Network-first for hashed assets (immutable names) with cache fallback
   if (url.includes("/assets/") || url.endsWith(".css") || url.endsWith(".js")) {
     event.respondWith(
       fetch(req)

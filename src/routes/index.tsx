@@ -11,20 +11,17 @@ export const Route = createFileRoute("/")({
 function HomePage() {
   const [ready, setReady] = useState(false);
   useEffect(() => {
-    // Drop stale service workers from earlier builds so UI/APK updates appear
+    // Aggressively drop stale service workers / caches from older live deploys
     if (typeof navigator !== "undefined" && "serviceWorker" in navigator) {
       void navigator.serviceWorker.getRegistrations().then((regs) => {
         for (const r of regs) void r.unregister();
       });
-      if (typeof caches !== "undefined") {
-        void caches.keys().then((keys) => {
-          for (const k of keys) {
-            if (k.startsWith("battle-legions")) void caches.delete(k);
-          }
-        });
-      }
     }
-    // Stamp for support / confirm sync
+    if (typeof caches !== "undefined") {
+      void caches.keys().then((keys) => {
+        for (const k of keys) void caches.delete(k);
+      });
+    }
     try {
       document.documentElement.dataset.buildId = BUILD_ID;
     } catch {

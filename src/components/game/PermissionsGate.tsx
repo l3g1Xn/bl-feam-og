@@ -1,6 +1,6 @@
 /**
  * First-run permission checklist (Samsung S-series / Adreno WebView friendly).
- * Does not block play permanently — user can continue after acknowledging.
+ * APK only — website skips so public visitors land on LEGIXN command immediately.
  */
 import { useEffect, useState } from "react";
 import { AmbientStage } from "./AmbientStage";
@@ -29,7 +29,6 @@ type Check = {
 async function runChecks(): Promise<Check[]> {
   const items: Check[] = [];
 
-  // Local storage (saves / tickets)
   let storageOk: boolean | null = null;
   try {
     const k = "__bl_perm_probe__";
@@ -46,7 +45,6 @@ async function runChecks(): Promise<Check[]> {
     ok: storageOk,
   });
 
-  // Audio unlock path
   let audioOk: boolean | null = null;
   try {
     const Ctx =
@@ -68,7 +66,6 @@ async function runChecks(): Promise<Check[]> {
     ok: audioOk,
   });
 
-  // WebGL / Adreno compositor path
   let gpuOk: boolean | null = null;
   let gpuLabel = "GPU compositor";
   try {
@@ -78,12 +75,11 @@ async function runChecks(): Promise<Check[]> {
       (canvas.getContext("webgl") as WebGLRenderingContext | null);
     if (gl) {
       gpuOk = true;
-      const ext = gl.getExtension("WEBGL_debug_renderer_info");
-      const renderer = ext
-        ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) || "")
-        : "WebGL";
-      if (/adreno/i.test(renderer)) gpuLabel = `Adreno GPU · ${renderer.slice(0, 42)}`;
-      else if (renderer) gpuLabel = `GPU · ${renderer.slice(0, 48)}`;
+      const dbg = gl.getExtension("WEBGL_debug_renderer_info");
+      if (dbg) {
+        const renderer = String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || "");
+        gpuLabel = `GPU · ${renderer.slice(0, 48)}`;
+      }
     } else gpuOk = false;
   } catch {
     gpuOk = false;
@@ -95,7 +91,6 @@ async function runChecks(): Promise<Check[]> {
     ok: gpuOk,
   });
 
-  // Landscape / orientation (Samsung S series often need sensorLandscape)
   const landscape =
     typeof window !== "undefined"
       ? window.matchMedia("(orientation: landscape)").matches ||
@@ -110,7 +105,6 @@ async function runChecks(): Promise<Check[]> {
     ok: isNativeApp() ? true : landscape,
   });
 
-  // Wake Lock API (optional — keep screen on during battle)
   const wake =
     typeof navigator !== "undefined" && "wakeLock" in navigator;
   items.push({
@@ -130,6 +124,11 @@ export function PermissionsGate({ children }: { children: React.ReactNode }) {
   const [checks, setChecks] = useState<Check[]>([]);
 
   useEffect(() => {
+    // Website: skip checklist so live site lands on LEGIXN home
+    if (!isNativeApp()) {
+      setShow(false);
+      return;
+    }
     try {
       if (localStorage.getItem(KEY) === "1") {
         setShow(false);
@@ -197,17 +196,17 @@ export function PermissionsGate({ children }: { children: React.ReactNode }) {
         </ul>
         <button
           type="button"
-          className="mt-4 flex min-h-12 w-full items-center justify-center rounded-2xl bg-primary text-sm font-semibold text-primary-fg"
           onClick={() => {
-            unlockAudio();
-            playSfx("ui");
             try {
               localStorage.setItem(KEY, "1");
             } catch {
               /* ignore */
             }
+            unlockAudio();
+            playSfx("ui");
             setShow(false);
           }}
+          className="mt-4 flex min-h-11 w-full items-center justify-center rounded-xl bg-primary text-sm font-semibold text-primary-fg"
         >
           Continue to command
         </button>
