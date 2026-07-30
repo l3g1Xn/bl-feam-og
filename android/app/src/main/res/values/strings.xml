@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Battle Legions</string>
+    <string name="title_activity_main">Battle Legions: For We Are Many</string>
+    <string name="package_name">com.xai.equate</string>
+    <string name="custom_url_scheme">com.xai.equate</string>
+</resources>

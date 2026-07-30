@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
- * Build Battle Legions debug APK + split download parts.
+ * Build Battle Legions **release** APK (non-debuggable, properly signed)
+ * + split download parts for the site.
  */
 import { spawnSync } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync } from "node:fs";
@@ -24,6 +25,8 @@ const env = {
   ...process.env,
   ANDROID_HOME: sdk,
   ANDROID_SDK_ROOT: sdk,
+  BL_STORE_PASS: process.env.BL_STORE_PASS || "BL4WeAreMany!",
+  BL_KEY_PASS: process.env.BL_KEY_PASS || "BL4WeAreMany!",
   ...(existsSync(jdk21)
     ? {
         JAVA_HOME: jdk21,
@@ -33,7 +36,10 @@ const env = {
 };
 
 // Don't embed APK inside the APK during mobile packaging
-run("rm", ["-f", "public/downloads/*.apk", "public/downloads/*.bin"], { env, shell: true });
+run("rm", ["-f", "public/downloads/*.apk", "public/downloads/*.bin"], {
+  env,
+  shell: true,
+});
 
 run("npx", ["vite", "build", "--config", "vite.mobile.config.ts"], { env });
 run("node", ["scripts/post-mobile-build.mjs"], { env });
@@ -41,23 +47,26 @@ run("npx", ["cap", "sync", "android"], { env });
 
 const gradlew = join(root, "android", "gradlew");
 run("chmod", ["+x", gradlew]);
-run(gradlew, ["assembleDebug", "--no-daemon"], {
+// Release = debuggable false + release keystore (Play Protect–friendly)
+run(gradlew, ["assembleRelease", "--no-daemon"], {
   cwd: join(root, "android"),
   env,
 });
 
-const apk = join(root, "android/app/build/outputs/apk/debug/app-debug.apk");
+const candidates = [
+  join(root, "android/app/build/outputs/apk/release/app-release.apk"),
+  join(root, "android/app/build/outputs/apk/release/app-release-unsigned.apk"),
+];
+const apk = candidates.find((p) => existsSync(p));
 const outDir = join(root, "artifacts");
 mkdirSync(outDir, { recursive: true });
 const dest = join(outDir, "BattleLegions.apk");
-if (!existsSync(apk)) {
-  console.error("APK not found at", apk);
+if (!apk) {
+  console.error("APK not found in release outputs");
   process.exit(1);
 }
 copyFileSync(apk, dest);
 mkdirSync(join(root, "public/downloads"), { recursive: true });
 copyFileSync(apk, join(root, "public/downloads/BattleLegions.apk"));
-copyFileSync(apk, join(root, "public/downloads/EQUATE-debug.apk"));
-// Split into proxy-safe parts for the web download button
 run("node", ["scripts/split-apk.mjs", dest], { env });
-console.log("APK ready:", dest);
+console.log("Release APK ready:", dest);
