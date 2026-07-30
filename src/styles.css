@@ -1,0 +1,257 @@
+@import "tailwindcss" source(none);
+@source "../src/**/*.{ts,tsx}";
+@source not "../src/**/*.test.*";
+@source not "../src/**/*.spec.*";
+@source not "../src/**/*.stories.*";
+@source not "../src/server/**";
+@source not "../src/routes/api/**";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-bg: #0a0b0d;
+  --color-bg-elevated: #12141a;
+  --color-bg-subtle: #1a1d26;
+  --color-bg-panel: #161922;
+  --color-fg: #eef0f4;
+  --color-fg-muted: #9aa3b2;
+  --color-fg-subtle: #6b7385;
+  --color-border: #2a2f3c;
+  --color-border-strong: #3d4455;
+  --color-primary: #c8d0dc;
+  --color-primary-fg: #0a0b0d;
+  --color-mana: #4a7ab0;
+  --color-mana-glow: #6a9ad0;
+  --color-health: #c45c5c;
+  --color-attack: #c4a35c;
+  --color-success: #5a9a6e;
+  --color-danger: #c45c5c;
+  --color-warn: #b08a4a;
+  --color-warning: #b08a4a;
+  --color-player: #5a8ab0;
+  --color-enemy: #a06060;
+  --color-card-face: #1e2230;
+  --color-card-border: #3a4258;
+  --color-taunt: #8a9ab0;
+  --color-charge: #b08a5a;
+  --color-shield: #7a9ab8;
+  --color-lifesteal: #8a6a9a;
+  --color-accent: #6a9ad0;
+  --font-sans: "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply antialiased;
+    color-scheme: dark;
+    height: 100%;
+    /* Stable root for rem — clamp for phone landscape DPI */
+    font-size: clamp(12px, 2.4vmin + 8px, 16px);
+    transition: filter 0.2s ease;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-bg text-fg font-sans;
+    margin: 0;
+    min-height: 100%;
+    min-height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  #root {
+    height: 100%;
+    min-height: 100%;
+    min-height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+  }
+
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.card-art {
+  object-fit: cover;
+  object-position: center 20%;
+}
+
+.card-shine {
+  background-image: linear-gradient(
+    135deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.08) 50%,
+    transparent 60%
+  );
+}
+
+.transform-gpu {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+.app-shell {
+  background: var(--color-bg);
+  height: 100%;
+  min-height: 100dvh;
+  max-height: 100dvh;
+  color: var(--color-fg);
+  flex-direction: column;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Battle stage: only pad top/sides — hand owns bottom safe-area so cards aren't clipped */
+.battle-stage {
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  padding-bottom: 0;
+  box-sizing: border-box;
+}
+
+.battle-hand {
+  /* full card height must paint above system gesture bar */
+  flex-shrink: 0 !important;
+  overflow-y: visible !important;
+}
+
+.battle-vignette {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(106, 154, 208, 0.08), transparent 55%),
+    radial-gradient(ellipse 70% 50% at 50% 100%, rgba(160, 96, 96, 0.06), transparent 50%),
+    var(--color-bg);
+}
+
+.fx-hit-flash {
+  animation: fxHitFlash 180ms ease-out;
+}
+.fx-lunge {
+  animation: fxLunge 420ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.fx-float {
+  pointer-events: none;
+  animation: fxFloat 700ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+
+@keyframes fxHitFlash {
+  0% {
+    filter: brightness(2.2);
+  }
+  to {
+    filter: brightness(1);
+  }
+}
+@keyframes fxLunge {
+  0% {
+    transform: translate(0) scale(1);
+  }
+  35% {
+    transform: translateY(-10px) scale(1.06);
+  }
+  55% {
+    transform: translateY(6px) scale(0.98);
+  }
+  to {
+    transform: translate(0) scale(1);
+  }
+}
+@keyframes fxFloat {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -40%) scale(0.7);
+  }
+  15% {
+    opacity: 1;
+    transform: translate(-50%, -70%) scale(1.12);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -130%) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-hit-flash,
+  .fx-lunge,
+  .fx-float {
+    animation-duration: 1ms !important;
+  }
+}
+
+@supports (padding: env(safe-area-inset-top)) {
+  .app-shell {
+    padding-top: env(safe-area-inset-top);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+  }
+}
+
+/* Phone landscape (APK): tighter chrome so hand/board fit short viewports */
+@media (orientation: landscape) and (max-height: 500px) {
+  html {
+    font-size: 12px;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 420px) {
+  html {
+    font-size: 11px;
+  }
+}
+
+/* Real-time quality tiers (toggled via html.gfx-*) */
+html.aspect-cinema body {
+  max-width: min(100vw, calc(100dvh * 16 / 9));
+  margin-inline: auto;
+}
+html.gfx-low .fx-float,
+html.gfx-low .fx-lunge {
+  animation-duration: 120ms !important;
+}
+html.gfx-low #battle-stage {
+  filter: saturate(0.92);
+}
+html.gfx-medium #battle-stage {
+  filter: saturate(1.02);
+}
+html.gfx-high #battle-stage {
+  filter: saturate(1.06) contrast(1.02);
+}
+html.gfx-ultra #battle-stage {
+  filter: saturate(1.1) contrast(1.04);
+  box-shadow: inset 0 0 120px rgba(106, 154, 208, 0.1);
+}
+html.gfx-ultra .app-shell {
+  box-shadow: inset 0 0 80px rgba(106, 154, 208, 0.06);
+}
+html.gfx-rim [data-entity] {
+  box-shadow: 0 0 0 1px rgba(200, 208, 220, 0.08);
+}
+html.gfx-high [data-entity],
+html.gfx-ultra [data-entity] {
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.35));
+}

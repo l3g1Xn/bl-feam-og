@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>Download BattleLegions.apk</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: system-ui, sans-serif;
+      }
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        display: grid;
+        place-items: center;
+        background: #0c0e14;
+        color: #e8eaef;
+        padding: 1.5rem;
+      }
+      .card {
+        width: min(440px, 100%);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 1.25rem;
+        background: #141820;
+        padding: 1.5rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+      }
+      h1 {
+        font-size: 1.15rem;
+        margin: 0 0 0.5rem;
+      }
+      p {
+        margin: 0 0 1rem;
+        color: #9aa3b5;
+        font-size: 0.9rem;
+        line-height: 1.45;
+      }
+      button {
+        width: 100%;
+        min-height: 3rem;
+        border: 0;
+        border-radius: 0.9rem;
+        background: #c8d0dc;
+        color: #0c0e14;
+        font-weight: 700;
+        font-size: 0.95rem;
+        cursor: pointer;
+      }
+      button:disabled {
+        opacity: 0.55;
+        cursor: wait;
+      }
+      #status {
+        margin-top: 0.85rem;
+        font-size: 0.8rem;
+        color: #9aa3b5;
+        min-height: 1.2em;
+      }
+      #status.err {
+        color: #f07178;
+      }
+      #status.ok {
+        color: #7fd99a;
+      }
+      .bar {
+        margin-top: 0.75rem;
+        height: 0.4rem;
+        border-radius: 99px;
+        background: #1e2430;
+        overflow: hidden;
+      }
+      .bar > i {
+        display: block;
+        height: 100%;
+        width: 0%;
+        background: #c8d0dc;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>Battle Legions — Android APK</h1>
+      <p>
+        Builds a real <strong>BattleLegions.apk</strong> from package chunks at
+        <code>/pkg/</code>.
+      </p>
+      <button type="button" id="go">Download BattleLegions.apk</button>
+      <div class="bar" aria-hidden="true"><i id="prog"></i></div>
+      <div id="status">Ready.</div>
+    </div>
+    <script>
+      const MIME = "application/vnd.android.package-archive";
+      const statusEl = document.getElementById("status");
+      const progEl = document.getElementById("prog");
+      const go = document.getElementById("go");
+
+      function setStatus(msg, cls) {
+        statusEl.textContent = msg;
+        statusEl.className = cls || "";
+      }
+      function looksHtml(t) {
+        const h = String(t).trimStart().slice(0, 40).toLowerCase();
+        return h.startsWith("<!doctype") || h.startsWith("<html");
+      }
+      function b64ToBytes(b64) {
+        const clean = b64.replace(/[^A-Za-z0-9+/=]/g, "");
+        const bin = atob(clean);
+        const out = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+        return out;
+      }
+      async function fetchText(url) {
+        const res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) throw new Error("HTTP " + res.status + " for " + url);
+        const text = await res.text();
+        if (looksHtml(text)) throw new Error("Got HTML for " + url);
+        return text;
+      }
+
+      async function download() {
+        go.disabled = true;
+        setStatus("Loading manifest…");
+        progEl.style.width = "2%";
+
+        const bases = ["/pkg/"];
+        let man = null;
+        let base = null;
+        for (const b of bases) {
+          try {
+            const t = await fetchText(b + "manifest.json?v=" + Date.now());
+            man = JSON.parse(t);
+            base = b;
+            break;
+          } catch (e) {
+            setStatus(String(e.message || e), "err");
+          }
+        }
+        if (!man || !base) {
+          setStatus("Could not load /pkg/manifest.json", "err");
+          go.disabled = false;
+          return;
+        }
+
+        const chunks = [];
+        let total = 0;
+        const CONC = 6;
+        for (let i = 0; i < man.parts.length; i += CONC) {
+          const batch = man.parts.slice(i, i + CONC);
+          const results = await Promise.all(
+            batch.map((name) =>
+              fetchText(base + name + "?t=" + Date.now()).then(b64ToBytes),
+            ),
+          );
+          for (const bytes of results) {
+            chunks.push(bytes);
+            total += bytes.length;
+          }
+          const done = Math.min(i + CONC, man.parts.length);
+          setStatus("Fetching " + done + " / " + man.parts.length + "…");
+          progEl.style.width =
+            Math.round((done / man.parts.length) * 92) + "%";
+        }
+
+        const out = new Uint8Array(total);
+        let o = 0;
+        for (const c of chunks) {
+          out.set(c, o);
+          o += c.length;
+        }
+        if (out[0] !== 0x50 || out[1] !== 0x4b) {
+          setStatus("Assembled file is not a valid APK.", "err");
+          go.disabled = false;
+          return;
+        }
+
+        const blob = new Blob([out.buffer], { type: MIME });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "BattleLegions.apk";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+        progEl.style.width = "100%";
+        setStatus(
+          "Saved BattleLegions.apk (" + (total / 1e6).toFixed(1) + " MB).",
+          "ok",
+        );
+        go.disabled = false;
+      }
+
+      go.addEventListener("click", () => {
+        download().catch((e) => {
+          setStatus(e.message || String(e), "err");
+          go.disabled = false;
+        });
+      });
+      if (location.search.includes("autostart=1")) go.click();
+    </script>
+  </body>
+</html>

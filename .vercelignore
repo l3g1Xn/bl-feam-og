@@ -1,0 +1,17 @@
+android
+android-sdk
+jdk-21
+artifacts
+dist-mobile
+screenshots
+attachments
+node_modules
+**/*.wav
+**/local.properties
+**/.gradle
+**/build
+.git
+.grok
+*.log
+**/*.apk
+!public/pkg/**
