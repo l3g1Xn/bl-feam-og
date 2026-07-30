@@ -26,4 +26,4 @@ export const GITHUB_RELEASE_PAGE =
  * Bump on every site publish so you can confirm the live host is the new build.
  * After Grok app publish, hard-refresh bl-feam-og.grok.me and look for this stamp.
  */
-export const BUILD_ID = "2026.07.30-legixn-live-v1";
+export const BUILD_ID = "2026.07.30-legixn-no-pin-web";

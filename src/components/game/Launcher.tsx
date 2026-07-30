@@ -400,7 +400,7 @@ function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
               )}
             </div>
             <p className="mt-3 text-xs text-fg-subtle">
-              Build {BUILD_ID} · LX_SAVE_GAME · PIN vault · APK 1.05 graphics
+              Build {BUILD_ID} · APK 1.05 graphics · offline play
             </p>
           </div>
         </div>
@@ -470,7 +470,7 @@ function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
           },
           {
             t: "Settings",
-            d: "UltraHD · 40K SFX · 10-track score · PIN",
+            d: "UltraHD · 40K SFX · 10-track score",
             tab: "settings" as const,
             img: "/ui/hero_legion_hd.jpg",
           },
