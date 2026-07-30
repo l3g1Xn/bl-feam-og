@@ -263,7 +263,6 @@ function NavBtn({
 function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
   const startGame = useGameStore((s) => s.startGame);
   const continueSavedGame = useGameStore((s) => s.continueSavedGame);
-  const saveGameLocal = useGameStore((s) => s.saveGameLocal);
   const clearSavedGame = useGameStore((s) => s.clearSavedGame);
   const phase = useGameStore((s) => s.phase);
   const claim = useMetaStore((s) => s.claimDailyTickets);
@@ -340,44 +339,8 @@ function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
               />
             </div>
 
-            {/* Save + Load — main menu only, reliable device cache */}
-            <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <button
-                type="button"
-                onClick={() => {
-                  unlockAudio();
-                  playSfx("ui");
-                  // If mid-match somehow mirrored — saveGameLocal from store
-                  // On menu: re-commit existing cache is no-op; instruct if empty
-                  void import("@/game/matchSave").then((m) => {
-                    const existing = m.readMatchSave();
-                    if (existing) {
-                      const r = m.writeMatchSave(existing.state);
-                      setStatus(
-                        r.ok
-                          ? `Save locked · ${m.formatSaveAge(r.savedAt)}`
-                          : r.error,
-                      );
-                      refreshSave();
-                      return;
-                    }
-                    // try store (in case phase still active — should not)
-                    const r = saveGameLocal();
-                    if (r.ok) {
-                      setStatus("Match saved to LX_SAVE_GAME on this device.");
-                      refreshSave();
-                    } else {
-                      setStatus(
-                        "No active match. Progress auto-saves to LX_SAVE_GAME when you close the app or exit a match.",
-                      );
-                    }
-                  });
-                }}
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-success/45 bg-success/15 px-4 text-sm font-semibold text-success"
-              >
-                <Save className="h-4 w-4" />
-                Save game
-              </button>
+            {/* Load game — resume from LX_SAVE_GAME (auto-saved on app close) */}
+            <div className="mt-5 flex flex-col gap-2">
               <button
                 type="button"
                 onClick={() => {
@@ -385,33 +348,39 @@ function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
                   playSfx("ui");
                   void import("@/game/matchSave").then(async (m) => {
                     await m.hydrateMatchSaveFromDevice();
-                    refreshSave();
+                    const exists = m.hasMatchSave();
+                    setHasSave(exists);
+                    if (!exists) {
+                      setStatus(
+                        "No saved match yet. Play a match — closing the app auto-saves to LX_SAVE_GAME.",
+                      );
+                      refreshSave();
+                      return;
+                    }
                     const ok = continueSavedGame();
                     if (ok) {
                       setStatus(null);
                       setHasSave(false);
                     } else {
-                      setStatus(
-                        hasSave
-                          ? "Could not load save — file may be damaged."
-                          : "No saved match in LX_SAVE_GAME yet.",
-                      );
+                      setStatus("Could not load save — file may be damaged.");
                       refreshSave();
                     }
                   });
                 }}
-                disabled={!hasSave}
                 className={
-                  "inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border px-4 text-sm font-semibold " +
+                  "inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border px-4 text-sm font-semibold sm:max-w-sm " +
                   (hasSave
-                    ? "border-primary/50 bg-primary/15 text-primary"
-                    : "cursor-not-allowed border-white/10 bg-white/5 text-fg-subtle opacity-55")
+                    ? "border-primary/50 bg-primary/20 text-primary shadow-[0_0_24px_rgba(200,208,220,0.12)]"
+                    : "border-white/20 bg-white/10 text-fg")
                 }
               >
                 <FolderOpen className="h-4 w-4" />
                 Load game
                 {hasSave && saveAge ? ` · ${saveAge}` : ""}
               </button>
+              <p className="text-[0.65rem] text-fg-subtle">
+                Progress auto-saves to device folder LX_SAVE_GAME when the app closes.
+              </p>
             </div>
             {hasSave && (
               <button
@@ -462,7 +431,7 @@ function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
               )}
             </div>
             <p className="mt-3 text-xs text-fg-subtle">
-              Build {BUILD_ID} · Adreno default · PIN vault
+              Build {BUILD_ID} · LX_SAVE_GAME · PIN vault
             </p>
           </div>
         </div>

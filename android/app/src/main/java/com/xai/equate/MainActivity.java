@@ -3,50 +3,41 @@ package com.xai.equate;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import com.getcapacitor.BridgeActivity;
 
 /**
- * Battle Legions offline client.
- *
- * Forces landscape on open and pins WebView density so UI scales cleanly
- * across phone DPIs (avoids oversized/clipped chrome on high-density panels).
- * Registers LxSave native folder bridge (LX_SAVE_GAME).
+ * Battle Legions offline client — landscape lock, DPI-stable WebView,
+ * LX_SAVE_GAME bridge (Capacitor plugin + JavascriptInterface).
  */
 public class MainActivity extends BridgeActivity {
+    private static final String TAG = "MainActivity";
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        // Register native save folder plugin before bridge init
         registerPlugin(LxSavePlugin.class);
-
-        // Lock to landscape before the WebView inflates — avoids portrait flash / launch glitch
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         super.onCreate(savedInstanceState);
 
-        // Ensure LX_SAVE_GAME exists at first open / install
+        // Create save folder immediately (install/first open)
         try {
-            java.io.File ext = getExternalFilesDir(null);
-            java.io.File base = ext != null ? ext : getFilesDir();
-            java.io.File dir = new java.io.File(base, LxSavePlugin.FOLDER);
-            if (!dir.exists()) {
-                //noinspection ResultOfMethodCallIgnored
-                dir.mkdirs();
-            }
-            java.io.File marker = new java.io.File(dir, ".installed");
-            if (!marker.exists()) {
-                try (java.io.FileOutputStream fos = new java.io.FileOutputStream(marker)) {
-                    fos.write(("installed=" + System.currentTimeMillis()).getBytes(java.nio.charset.StandardCharsets.UTF_8));
-                }
-            }
-        } catch (Throwable ignored) {
-            // ignore
+            String path = LxSaveStore.ensureFolders(this);
+            Log.i(TAG, "LX_SAVE_GAME=" + path);
+        } catch (Throwable t) {
+            Log.e(TAG, "ensureFolders", t);
         }
 
         WebView webView = getBridge() != null ? getBridge().getWebView() : null;
-        if (webView == null) {
-            return;
+        if (webView == null) return;
+
+        // Reliable native bridge independent of Capacitor plugin registry
+        try {
+            webView.addJavascriptInterface(new LxSaveJsBridge(this), "LxSaveNative");
+        } catch (Throwable t) {
+            Log.e(TAG, "LxSaveNative inject", t);
         }
 
         webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
@@ -69,24 +60,30 @@ public class MainActivity extends BridgeActivity {
 
         try {
             DisplayMetrics dm = getResources().getDisplayMetrics();
-            float density = dm.density;
-            if (density > 0 && density < 0.5f) {
+            if (dm.density > 0 && dm.density < 0.5f) {
                 settings.setTextZoom(100);
             }
         } catch (Throwable ignored) {
-            // ignore
         }
 
         try {
             webView.setRendererPriorityPolicy(WebView.RENDERER_PRIORITY_IMPORTANT, true);
         } catch (Throwable ignored) {
-            // older WebView builds
+        }
+
+        // Kick ensure once DOM can call back
+        try {
+            webView.post(
+                    () ->
+                            webView.evaluateJavascript(
+                                    "(function(){try{if(window.LxSaveNative&&window.LxSaveNative.ensureFolder){window.__BL_SAVE_PATH=window.LxSaveNative.ensureFolder();}}catch(e){}})();",
+                                    null));
+        } catch (Throwable ignored) {
         }
     }
 
     @Override
     public void onPause() {
-        // Persist save + lock PIN before background / close
         try {
             WebView webView = getBridge() != null ? getBridge().getWebView() : null;
             if (webView != null) {
@@ -95,7 +92,6 @@ public class MainActivity extends BridgeActivity {
                         null);
             }
         } catch (Throwable ignored) {
-            // ignore
         }
         super.onPause();
     }
@@ -110,7 +106,6 @@ public class MainActivity extends BridgeActivity {
                         null);
             }
         } catch (Throwable ignored) {
-            // ignore
         }
         super.onStop();
     }
@@ -119,19 +114,21 @@ public class MainActivity extends BridgeActivity {
     public void onResume() {
         super.onResume();
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+        try {
+            LxSaveStore.ensureFolders(this);
+        } catch (Throwable ignored) {
+        }
         WebView webView = getBridge() != null ? getBridge().getWebView() : null;
         if (webView != null) {
             try {
                 webView.getSettings().setTextZoom(100);
             } catch (Throwable ignored) {
-                // ignore
             }
             try {
                 webView.evaluateJavascript(
                         "(function(){try{if(window.__BL_ON_APP_RESUME)window.__BL_ON_APP_RESUME();}catch(e){}})();",
                         null);
             } catch (Throwable ignored) {
-                // ignore
             }
         }
     }
