@@ -13,13 +13,36 @@ import com.getcapacitor.BridgeActivity;
  *
  * Forces landscape on open and pins WebView density so UI scales cleanly
  * across phone DPIs (avoids oversized/clipped chrome on high-density panels).
+ * Registers LxSave native folder bridge (LX_SAVE_GAME).
  */
 public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        // Register native save folder plugin before bridge init
+        registerPlugin(LxSavePlugin.class);
+
         // Lock to landscape before the WebView inflates — avoids portrait flash / launch glitch
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         super.onCreate(savedInstanceState);
+
+        // Ensure LX_SAVE_GAME exists at first open / install
+        try {
+            java.io.File ext = getExternalFilesDir(null);
+            java.io.File base = ext != null ? ext : getFilesDir();
+            java.io.File dir = new java.io.File(base, LxSavePlugin.FOLDER);
+            if (!dir.exists()) {
+                //noinspection ResultOfMethodCallIgnored
+                dir.mkdirs();
+            }
+            java.io.File marker = new java.io.File(dir, ".installed");
+            if (!marker.exists()) {
+                try (java.io.FileOutputStream fos = new java.io.FileOutputStream(marker)) {
+                    fos.write(("installed=" + System.currentTimeMillis()).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                }
+            }
+        } catch (Throwable ignored) {
+            // ignore
+        }
 
         WebView webView = getBridge() != null ? getBridge().getWebView() : null;
         if (webView == null) {
@@ -27,7 +50,6 @@ public class MainActivity extends BridgeActivity {
         }
 
         webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-        // Fill parent; avoid overview-mode shrink that fights CSS rem/dvh layout
         webView.setInitialScale(100);
 
         WebSettings settings = webView.getSettings();
@@ -35,7 +57,6 @@ public class MainActivity extends BridgeActivity {
         settings.setDomStorageEnabled(true);
         settings.setDatabaseEnabled(true);
         settings.setMediaPlaybackRequiresUserGesture(false);
-        // Critical for consistent DPI: use CSS device-width viewport, fixed 100% text zoom
         settings.setLoadWithOverviewMode(false);
         settings.setUseWideViewPort(true);
         settings.setSupportZoom(false);
@@ -48,10 +69,8 @@ public class MainActivity extends BridgeActivity {
 
         try {
             DisplayMetrics dm = getResources().getDisplayMetrics();
-            // Keep default density — do not force artificial scale; CSS uses rem + dvh
             float density = dm.density;
             if (density > 0 && density < 0.5f) {
-                // pathological OEM — nudge to 1.0 logical
                 settings.setTextZoom(100);
             }
         } catch (Throwable ignored) {
@@ -66,14 +85,51 @@ public class MainActivity extends BridgeActivity {
     }
 
     @Override
+    public void onPause() {
+        // Persist save + lock PIN before background / close
+        try {
+            WebView webView = getBridge() != null ? getBridge().getWebView() : null;
+            if (webView != null) {
+                webView.evaluateJavascript(
+                        "(function(){try{if(window.__BL_ON_APP_PAUSE)window.__BL_ON_APP_PAUSE();}catch(e){}})();",
+                        null);
+            }
+        } catch (Throwable ignored) {
+            // ignore
+        }
+        super.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        try {
+            WebView webView = getBridge() != null ? getBridge().getWebView() : null;
+            if (webView != null) {
+                webView.evaluateJavascript(
+                        "(function(){try{if(window.__BL_ON_APP_PAUSE)window.__BL_ON_APP_PAUSE();}catch(e){}})();",
+                        null);
+            }
+        } catch (Throwable ignored) {
+            // ignore
+        }
+        super.onStop();
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
-        // Re-assert landscape if the system restored portrait (rare OEM quirk)
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         WebView webView = getBridge() != null ? getBridge().getWebView() : null;
         if (webView != null) {
             try {
                 webView.getSettings().setTextZoom(100);
+            } catch (Throwable ignored) {
+                // ignore
+            }
+            try {
+                webView.evaluateJavascript(
+                        "(function(){try{if(window.__BL_ON_APP_RESUME)window.__BL_ON_APP_RESUME();}catch(e){}})();",
+                        null);
             } catch (Throwable ignored) {
                 // ignore
             }

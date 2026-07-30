@@ -26,7 +26,6 @@ import { computeCombatPreview, computeMathSnapshot, hasTaunt } from "./math";
 import {
   clearMatchSave,
   readMatchSave,
-  writeMatchArchive,
   writeMatchSave,
 } from "./matchSave";
 import type {
@@ -48,7 +47,6 @@ interface GameStore extends GameState {
   startGame: (difficulty?: "normal" | "hard") => void;
   continueSavedGame: () => boolean;
   saveGameLocal: () => { ok: true } | { ok: false; error: string };
-  saveMatchArchive: () => { ok: true } | { ok: false; error: string };
   clearSavedGame: () => void;
   returnToMenu: (opts?: { keepSave?: boolean }) => void;
   toggleMulligan: (index: number) => void;
@@ -204,28 +202,6 @@ export const useGameStore = create<GameStore>((set, get) => {
 
     saveGameLocal: () => {
       const s = get();
-      if (s.phase === "victory" || s.phase === "defeat") {
-        const result = writeMatchArchive(
-          {
-            phase: s.phase,
-            turn: s.turn,
-            player: s.player,
-            enemy: s.enemy,
-            enemyName: s.enemyName,
-            selection: { kind: "none" },
-            log: s.log,
-            logSeq: s.logSeq,
-            lastPreview: s.lastPreview,
-            hoverPreview: null,
-            animating: false,
-            message: s.message,
-            difficulty: s.difficulty,
-          },
-          s.math,
-        );
-        if (result.ok) set({ saveNotice: "Match archived on this device." });
-        return result;
-      }
       const result = writeMatchSave({
         phase: s.phase,
         turn: s.turn,
@@ -244,30 +220,6 @@ export const useGameStore = create<GameStore>((set, get) => {
       if (result.ok) {
         set({ saveNotice: "Match saved on this device." });
       }
-      return result;
-    },
-
-    saveMatchArchive: () => {
-      const s = get();
-      const result = writeMatchArchive(
-        {
-          phase: s.phase,
-          turn: s.turn,
-          player: s.player,
-          enemy: s.enemy,
-          enemyName: s.enemyName,
-          selection: { kind: "none" },
-          log: s.log,
-          logSeq: s.logSeq,
-          lastPreview: s.lastPreview,
-          hoverPreview: null,
-          animating: false,
-          message: s.message,
-          difficulty: s.difficulty,
-        },
-        s.math,
-      );
-      if (result.ok) set({ saveNotice: "Match archived on this device." });
       return result;
     },
 

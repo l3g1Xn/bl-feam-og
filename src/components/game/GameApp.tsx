@@ -13,6 +13,7 @@ import { AmbientStage } from "./AmbientStage";
 import { GameMenu } from "./GameMenu";
 import { BiometricGate } from "./BiometricGate";
 import { PermissionsGate } from "./PermissionsGate";
+import { installAppLifecycleHooks } from "@/game/appLifecycle";
 import { useMetaStore, type MatchRewardResult } from "@/game/meta";
 import { GAME_TITLE_SHORT } from "@/game/brand";
 import { playSfx, unlockAudio } from "@/game/audio";
@@ -39,6 +40,10 @@ function GameAppInner() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [backHint, setBackHint] = useState<string | null>(null);
   const lastBack = useRef(0);
+
+  useEffect(() => {
+    return installAppLifecycleHooks();
+  }, []);
 
   useEffect(() => {
     if (phase === "menu" || phase === "victory" || phase === "defeat") {

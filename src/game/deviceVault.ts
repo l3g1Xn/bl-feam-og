@@ -1,11 +1,11 @@
 /**
- * Local device-bound passkey vault (no cloud / no account).
- * WebAuthn platform authenticator (fingerprint / face) + AES-GCM profile storage.
- * Optional PIN fallback when biometrics are unavailable.
+ * Local device PIN vault (no cloud / no account).
+ * PIN profile sealed with AES-GCM; mirrored to LX_SAVE_GAME/pin_vault.json on APK.
  */
 
 import { buildStarterDeck, getCard } from "./cards";
 import type { GraphicsQuality } from "./graphics";
+import { ensureSaveFolder, lxRead, lxWrite, PIN_FILE } from "./lxSave";
 
 const REGISTRY_KEY = "bl-vault-registry-v1";
 const ACTIVE_KEY = "bl-vault-active-v1";
@@ -173,6 +173,49 @@ export function loadRegistry(): VaultRegistry {
 export function saveRegistry(reg: VaultRegistry) {
   localStorage.setItem(REGISTRY_KEY, JSON.stringify(reg));
   if (reg.activeProfileId) localStorage.setItem(ACTIVE_KEY, reg.activeProfileId);
+  void persistPinVaultToDevice(reg);
+}
+
+/** Write PIN vault JSON into LX_SAVE_GAME (and web mirror). */
+export async function persistPinVaultToDevice(reg?: VaultRegistry): Promise<void> {
+  try {
+    const r = reg ?? loadRegistry();
+    await ensureSaveFolder();
+    await lxWrite(
+      PIN_FILE,
+      JSON.stringify({
+        version: 1,
+        savedAt: Date.now(),
+        registry: r,
+      }),
+    );
+  } catch (e) {
+    console.warn("[vault] persist pin", e);
+  }
+}
+
+/** Load PIN vault from LX_SAVE_GAME if local registry empty/stale. */
+export async function hydratePinVaultFromDevice(): Promise<boolean> {
+  try {
+    await ensureSaveFolder();
+    const raw = await lxRead(PIN_FILE);
+    if (!raw) return loadRegistry().enabled;
+    const parsed = JSON.parse(raw) as { registry?: VaultRegistry };
+    if (!parsed.registry || !Array.isArray(parsed.registry.profiles)) return false;
+    if (parsed.registry.profiles.length === 0) return false;
+    // Prefer device file when requireOnLaunch pin profiles exist
+    const reg: VaultRegistry = {
+      enabled: !!parsed.registry.enabled && parsed.registry.profiles.length > 0,
+      requireOnLaunch: true,
+      profiles: parsed.registry.profiles,
+      activeProfileId: parsed.registry.activeProfileId ?? parsed.registry.profiles[0]?.id ?? null,
+    };
+    localStorage.setItem(REGISTRY_KEY, JSON.stringify(reg));
+    if (reg.activeProfileId) localStorage.setItem(ACTIVE_KEY, reg.activeProfileId);
+    return reg.enabled;
+  } catch {
+    return loadRegistry().enabled;
+  }
 }
 
 async function sha256Hex(text: string): Promise<string> {
@@ -267,7 +310,10 @@ export function setSessionUnlocked(on: boolean) {
 
 export function needsUnlock(): boolean {
   const reg = loadRegistry();
-  if (!reg.enabled || !reg.requireOnLaunch || reg.profiles.length === 0) return false;
+  if (!reg.enabled || reg.profiles.length === 0) return false;
+  // Always require PIN after cold start / lock — requireOnLaunch forced on for PIN vaults
+  const pinProfile = reg.profiles.some((p) => p.pinOnly || !!p.pinHash);
+  if (!pinProfile && !reg.requireOnLaunch) return false;
   return !isSessionUnlocked();
 }
 
@@ -501,6 +547,11 @@ export function lockSession() {
   memoryKeyMaterial = null;
   memoryProfileId = null;
   setSessionUnlocked(false);
+  try {
+    sessionStorage.removeItem(SESSION_UNLOCKED);
+  } catch {
+    /* ignore */
+  }
 }
 
 export function disableVault() {

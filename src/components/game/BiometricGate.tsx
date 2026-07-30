@@ -2,12 +2,15 @@ import { useEffect, useState } from "react";
 import {
   disableVault,
   enrollPin,
+  hydratePinVaultFromDevice,
   loadRegistry,
   lockSession,
   needsUnlock,
   unlockWithPin,
   type MetaSnapshot,
 } from "@/game/deviceVault";
+import { hydrateMatchSaveFromDevice } from "@/game/matchSave";
+import { ensureSaveFolder } from "@/game/lxSave";
 import { useMetaStore } from "@/game/meta";
 import { GAME_TITLE_SHORT } from "@/game/brand";
 import { AmbientStage } from "./AmbientStage";
@@ -25,8 +28,22 @@ export function BiometricGate({ children }: { children: React.ReactNode }) {
   const setVaultProfileLabel = useMetaStore((s) => s.setVaultProfileLabel);
 
   useEffect(() => {
-    setBlocked(needsUnlock());
-    setChecking(false);
+    let alive = true;
+    (async () => {
+      try {
+        await ensureSaveFolder();
+        await hydratePinVaultFromDevice();
+        await hydrateMatchSaveFromDevice();
+      } catch {
+        /* ignore */
+      }
+      if (!alive) return;
+      setBlocked(needsUnlock());
+      setChecking(false);
+    })();
+    return () => {
+      alive = false;
+    };
   }, []);
 
   if (checking) {

@@ -364,11 +364,11 @@ function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
                     // try store (in case phase still active — should not)
                     const r = saveGameLocal();
                     if (r.ok) {
-                      setStatus("Match saved on this device.");
+                      setStatus("Match saved to LX_SAVE_GAME on this device.");
                       refreshSave();
                     } else {
                       setStatus(
-                        "No match to save yet. Play a match, open Menu → Exit (auto-saves), or use Exit menu Save.",
+                        "No active match. Progress auto-saves to LX_SAVE_GAME when you close the app or exit a match.",
                       );
                     }
                   });
@@ -383,18 +383,22 @@ function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
                 onClick={() => {
                   unlockAudio();
                   playSfx("ui");
-                  if (!hasSave) {
-                    setStatus("No saved match found on this device.");
+                  void import("@/game/matchSave").then(async (m) => {
+                    await m.hydrateMatchSaveFromDevice();
                     refreshSave();
-                    return;
-                  }
-                  if (continueSavedGame()) {
-                    setStatus(null);
-                    setHasSave(false);
-                  } else {
-                    setStatus("Could not load save — file may be damaged.");
-                    refreshSave();
-                  }
+                    const ok = continueSavedGame();
+                    if (ok) {
+                      setStatus(null);
+                      setHasSave(false);
+                    } else {
+                      setStatus(
+                        hasSave
+                          ? "Could not load save — file may be damaged."
+                          : "No saved match in LX_SAVE_GAME yet.",
+                      );
+                      refreshSave();
+                    }
+                  });
                 }}
                 disabled={!hasSave}
                 className={
