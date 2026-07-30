@@ -1,7 +1,7 @@
 /**
  * Client-side APK download.
  * Order: /pkg parts (production-safe) → local binary → GitHub release asset.
- * GitHub URL matches bl-feam-og release apk-release-1.0.3.
+ * GitHub URL matches bl-feam-og release apk-release-1.00.
  */
 
 import {
@@ -252,7 +252,7 @@ export async function downloadApk(
       label: `Locating package v${APK_VERSION}…`,
     });
 
-    // 1) Chunked /pkg — same binary as GitHub release 1.0.3
+    // 1) Chunked /pkg — same binary as GitHub release 1.00
     try {
       const { man, base } = await loadManifest();
       onProgress?.({
@@ -300,7 +300,7 @@ export async function downloadApk(
       return { ok: true, method: "direct-apk", bytes: single.byteLength };
     }
 
-    // 3) GitHub release (bl-feam-og apk-release-1.0.3) — same package
+    // 3) GitHub release (bl-feam-og apk-release-1.00) — same package
     const fromGh = await tryGithubBinary(onProgress);
     if (fromGh) {
       onProgress?.({

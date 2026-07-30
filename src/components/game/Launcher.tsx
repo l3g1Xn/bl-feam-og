@@ -20,7 +20,6 @@ import {
 import { useGameStore } from "@/game/store";
 import { BUILD_ID, GAME_TITLE, GAME_TITLE_SHORT } from "@/game/brand";
 import { AmbientStage } from "./AmbientStage";
-import { ApkDownloadButton } from "./ApkDownloadButton";
 import { CardView } from "./CardView";
 import { SettingsPanel } from "./SettingsPanel";
 import { cn } from "@/lib/utils";
@@ -336,7 +335,6 @@ function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
               >
                 Daily rewards
               </button>
-              <ApkDownloadButton className="sm:inline-flex" />
             </div>
             <p className="mt-3 text-xs text-fg-subtle">
               Build {BUILD_ID} · 5-track score · modern combat art pack
