@@ -28,7 +28,6 @@ import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 import {
   BookOpen,
-  FolderOpen,
   Save,
   Home,
   Music2,
@@ -262,35 +261,10 @@ function NavBtn({
 
 function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
   const startGame = useGameStore((s) => s.startGame);
-  const continueSavedGame = useGameStore((s) => s.continueSavedGame);
-  const clearSavedGame = useGameStore((s) => s.clearSavedGame);
-  const phase = useGameStore((s) => s.phase);
   const claim = useMetaStore((s) => s.claimDailyTickets);
   const tickets = useMetaStore((s) => s.tickets);
   const totalXp = useMetaStore((s) => s.totalXp);
   const prog = xpProgressInLevel(totalXp);
-  const [hasSave, setHasSave] = useState(false);
-  const [saveAge, setSaveAge] = useState<string | null>(null);
-  const [status, setStatus] = useState<string | null>(null);
-
-  const refreshSave = () => {
-    void import("@/game/matchSave").then((m) => {
-      const s = m.readMatchSave();
-      setHasSave(!!s);
-      setSaveAge(s ? m.formatSaveAge(s.savedAt) : null);
-    });
-  };
-
-  useEffect(() => {
-    refreshSave();
-    const onVis = () => refreshSave();
-    document.addEventListener("visibilitychange", onVis);
-    window.addEventListener("focus", onVis);
-    return () => {
-      document.removeEventListener("visibilitychange", onVis);
-      window.removeEventListener("focus", onVis);
-    };
-  }, [phase]);
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-5 pb-4">
@@ -339,68 +313,7 @@ function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
               />
             </div>
 
-            {/* Load game — resume from LX_SAVE_GAME (auto-saved on app close) */}
-            <div className="mt-5 flex flex-col gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  unlockAudio();
-                  playSfx("ui");
-                  void import("@/game/matchSave").then(async (m) => {
-                    await m.hydrateMatchSaveFromDevice();
-                    const exists = m.hasMatchSave();
-                    setHasSave(exists);
-                    if (!exists) {
-                      setStatus(
-                        "No saved match yet. Play a match — closing the app auto-saves to LX_SAVE_GAME.",
-                      );
-                      refreshSave();
-                      return;
-                    }
-                    const ok = continueSavedGame();
-                    if (ok) {
-                      setStatus(null);
-                      setHasSave(false);
-                    } else {
-                      setStatus("Could not load save — file may be damaged.");
-                      refreshSave();
-                    }
-                  });
-                }}
-                className={
-                  "inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border px-4 text-sm font-semibold sm:max-w-sm " +
-                  (hasSave
-                    ? "border-primary/50 bg-primary/20 text-primary shadow-[0_0_24px_rgba(200,208,220,0.12)]"
-                    : "border-white/20 bg-white/10 text-fg")
-                }
-              >
-                <FolderOpen className="h-4 w-4" />
-                Load game
-                {hasSave && saveAge ? ` · ${saveAge}` : ""}
-              </button>
-              <p className="text-[0.65rem] text-fg-subtle">
-                Progress auto-saves to device folder LX_SAVE_GAME when the app closes.
-              </p>
-            </div>
-            {hasSave && (
-              <button
-                type="button"
-                onClick={() => {
-                  clearSavedGame();
-                  setHasSave(false);
-                  setSaveAge(null);
-                  setStatus("Local save discarded.");
-                }}
-                className="mt-1 text-left text-[0.65rem] text-fg-subtle underline-offset-2 hover:underline"
-              >
-                Discard saved match
-              </button>
-            )}
-            {status && (
-              <p className="mt-2 text-xs text-fg-muted">{status}</p>
-            )}
-
-            <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <button
                 type="button"
                 onClick={() => {

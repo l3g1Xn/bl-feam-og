@@ -1,5 +1,5 @@
 /**
- * 5-track menu music rotation — royalty-free LegionX originals (MP3).
+ * 5-track menu music rotation — LegionX originals remixed with EDM hybrid layers.
  * Assets under /music — advances to next track on end.
  */
 
@@ -19,31 +19,31 @@ export const MENU_TRACKS: {
   {
     id: "01_freedom_hyperdrive",
     title: "Freedom Hyperdrive",
-    mood: "LegionX — high-energy open",
+    mood: "Symphonic open · EDM pulse hybrid",
     src: "/music/01_freedom_hyperdrive.mp3",
   },
   {
     id: "02_hidden_frequencies",
     title: "Hidden Frequencies",
-    mood: "Deep atmosphere",
+    mood: "Deep atmosphere · dark club sub",
     src: "/music/02_hidden_frequencies.mp3",
   },
   {
     id: "03_liberty_reign",
     title: "Liberty Reign Freedom Fire",
-    mood: "LegionX — anthem drive",
+    mood: "Anthem drive · festival drop energy",
     src: "/music/03_liberty_reign.mp3",
   },
   {
     id: "04_foreverx",
     title: "ForeverX",
-    mood: "VolkorX Gen — slapped edition",
+    mood: "VolkorX Gen · slapped EDM edge",
     src: "/music/04_foreverx.mp3",
   },
   {
     id: "05_haunting_darkness",
     title: "Haunting Darkness",
-    mood: "WAR_LEGIXN — ominous weight",
+    mood: "Ominous weight · industrial bass hybrid",
     src: "/music/05_haunting_darkness.mp3",
   },
 ];

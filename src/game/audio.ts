@@ -1,6 +1,7 @@
 /**
- * Offline battle SFX via Web Audio (no external files).
- * Clash metals, hero grunts, glory cries — quality-scaled intensity.
+ * Hardcore realistic battle SFX — multi-layer Web Audio synthesis.
+ * Metal impacts, plasma discharges, sub detonations, war cries.
+ * Offline, no external sample files.
  */
 
 export type SfxId =
@@ -21,7 +22,8 @@ export type SfxId =
 
 let ctx: AudioContext | null = null;
 let masterGain: GainNode | null = null;
-let volume = 0.75;
+let compressor: DynamicsCompressorNode | null = null;
+let volume = 0.82;
 let muted = false;
 
 function ac(): AudioContext | null {
@@ -36,7 +38,14 @@ function ac(): AudioContext | null {
       ctx = new Ctor();
       masterGain = ctx.createGain();
       masterGain.gain.value = muted ? 0 : volume;
-      masterGain.connect(ctx.destination);
+      compressor = ctx.createDynamicsCompressor();
+      compressor.threshold.value = -18;
+      compressor.knee.value = 18;
+      compressor.ratio.value = 6;
+      compressor.attack.value = 0.002;
+      compressor.release.value = 0.12;
+      masterGain.connect(compressor);
+      compressor.connect(ctx.destination);
     }
     if (ctx.state === "suspended") void ctx.resume();
     return ctx;
@@ -63,18 +72,45 @@ export function isSfxMuted() {
   return muted;
 }
 
-/** Unlock audio on first user gesture (mobile WebView). */
 export function unlockAudio() {
   const c = ac();
   if (!c) return;
   void c.resume();
 }
 
-function noiseBuffer(c: AudioContext, seconds: number): AudioBuffer {
+function dest(): AudioNode {
+  return masterGain!;
+}
+
+function noiseBuffer(
+  c: AudioContext,
+  seconds: number,
+  color: "white" | "pink" | "brown" = "white",
+): AudioBuffer {
   const len = Math.floor(c.sampleRate * seconds);
   const buf = c.createBuffer(1, len, c.sampleRate);
   const data = buf.getChannelData(0);
-  for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+  let b0 = 0,
+    b1 = 0,
+    b2 = 0;
+  for (let i = 0; i < len; i++) {
+    const w = Math.random() * 2 - 1;
+    if (color === "white") data[i] = w;
+    else if (color === "pink") {
+      b0 = 0.99765 * b0 + w * 0.099046;
+      b1 = 0.963 * b1 + w * 0.2965164;
+      b2 = 0.57 * b2 + w * 1.0526913;
+      data[i] = b0 + b1 + b2 + w * 0.1848;
+    } else {
+      b0 = (b0 + 0.02 * w) / 1.02;
+      data[i] = b0 * 3.5;
+    }
+  }
+  // soft normalize
+  let peak = 0.0001;
+  for (let i = 0; i < len; i++) peak = Math.max(peak, Math.abs(data[i]!));
+  const inv = 0.95 / peak;
+  for (let i = 0; i < len; i++) data[i]! *= inv;
   return buf;
 }
 
@@ -85,160 +121,279 @@ function env(
   attack: number,
   decay: number,
 ) {
+  g.gain.cancelScheduledValues(t0);
   g.gain.setValueAtTime(0.0001, t0);
-  g.gain.exponentialRampToValueAtTime(Math.max(0.0002, peak), t0 + attack);
+  g.gain.exponentialRampToValueAtTime(Math.max(0.0002, peak), t0 + Math.max(0.001, attack));
   g.gain.exponentialRampToValueAtTime(0.0001, t0 + attack + decay);
 }
 
 function tone(
   c: AudioContext,
-  dest: AudioNode,
+  out: AudioNode,
   freq: number,
   t0: number,
   dur: number,
   type: OscillatorType,
   peak: number,
+  slideTo?: number,
 ) {
   const o = c.createOscillator();
   const g = c.createGain();
   o.type = type;
   o.frequency.setValueAtTime(freq, t0);
-  env(g, t0, peak, 0.008, dur);
+  if (slideTo != null) {
+    o.frequency.exponentialRampToValueAtTime(Math.max(20, slideTo), t0 + dur);
+  }
+  env(g, t0, peak, 0.004, dur);
   o.connect(g);
-  g.connect(dest);
+  g.connect(out);
   o.start(t0);
-  o.stop(t0 + dur + 0.05);
+  o.stop(t0 + dur + 0.06);
 }
 
 function noiseBurst(
   c: AudioContext,
-  dest: AudioNode,
+  out: AudioNode,
   t0: number,
   dur: number,
   peak: number,
-  hipass = 400,
+  opts: {
+    hipass?: number;
+    lowpass?: number;
+    color?: "white" | "pink" | "brown";
+  } = {},
 ) {
   const src = c.createBufferSource();
-  src.buffer = noiseBuffer(c, Math.min(0.35, dur + 0.05));
-  const f = c.createBiquadFilter();
-  f.type = "highpass";
-  f.frequency.value = hipass;
+  src.buffer = noiseBuffer(c, Math.min(0.55, dur + 0.08), opts.color ?? "white");
+  let node: AudioNode = src;
+  if (opts.hipass) {
+    const f = c.createBiquadFilter();
+    f.type = "highpass";
+    f.frequency.value = opts.hipass;
+    src.connect(f);
+    node = f;
+  }
+  if (opts.lowpass) {
+    const f = c.createBiquadFilter();
+    f.type = "lowpass";
+    f.frequency.value = opts.lowpass;
+    node.connect(f);
+    node = f;
+  }
   const g = c.createGain();
-  env(g, t0, peak, 0.002, dur);
-  src.connect(f);
-  f.connect(g);
-  g.connect(dest);
+  env(g, t0, peak, 0.0015, dur);
+  node.connect(g);
+  g.connect(out);
   src.start(t0);
-  src.stop(t0 + dur + 0.05);
+  src.stop(t0 + dur + 0.08);
 }
 
-/** Rough formant-style grunt (not speech synthesis — short heroic bark). */
-function grunt(c: AudioContext, dest: AudioNode, t0: number, male: boolean) {
-  const base = male ? 110 : 170;
-  const o = c.createOscillator();
-  const o2 = c.createOscillator();
-  const g = c.createGain();
-  const f = c.createBiquadFilter();
-  o.type = "sawtooth";
-  o2.type = "triangle";
-  o.frequency.setValueAtTime(base, t0);
-  o.frequency.exponentialRampToValueAtTime(base * 0.75, t0 + 0.18);
-  o2.frequency.setValueAtTime(base * 1.5, t0);
-  o2.frequency.exponentialRampToValueAtTime(base, t0 + 0.16);
-  f.type = "bandpass";
-  f.frequency.setValueAtTime(base * 3, t0);
-  f.Q.value = 4;
-  env(g, t0, 0.28, 0.01, 0.2);
-  o.connect(f);
-  o2.connect(f);
-  f.connect(g);
-  g.connect(dest);
-  o.start(t0);
-  o2.start(t0);
-  o.stop(t0 + 0.28);
-  o2.stop(t0 + 0.28);
-  noiseBurst(c, dest, t0, 0.06, 0.12, 200);
+/** Sub-bass thump — body of heavy hits */
+function subThump(c: AudioContext, out: AudioNode, t0: number, peak: number, f0 = 55) {
+  tone(c, out, f0, t0, 0.22, "sine", peak * 0.9, f0 * 0.45);
+  tone(c, out, f0 * 1.5, t0, 0.12, "triangle", peak * 0.35, f0 * 0.6);
+  noiseBurst(c, out, t0, 0.08, peak * 0.25, { color: "brown", lowpass: 180 });
 }
 
-function gloryCry(c: AudioContext, dest: AudioNode, t0: number) {
-  const notes = [392, 494, 587, 784];
-  notes.forEach((f, i) => {
-    tone(c, dest, f, t0 + i * 0.08, 0.35, "triangle", 0.14 - i * 0.02);
-    tone(c, dest, f * 2, t0 + i * 0.08, 0.28, "sine", 0.06);
+/** Layered steel-on-steel impact */
+function metalImpact(c: AudioContext, out: AudioNode, t0: number, k: number, heavy: boolean) {
+  const p = heavy ? 0.55 * k : 0.38 * k;
+  subThump(c, out, t0, p * 0.7, heavy ? 48 : 62);
+  // transient click
+  noiseBurst(c, out, t0, 0.035, p * 0.85, { color: "white", hipass: 1200 });
+  // mid crunch
+  noiseBurst(c, out, t0 + 0.008, heavy ? 0.16 : 0.1, p * 0.55, {
+    color: "pink",
+    hipass: 200,
+    lowpass: 4200,
   });
-  noiseBurst(c, dest, t0, 0.15, 0.08, 800);
+  // ringing harmonics
+  const rings = heavy
+    ? [880, 1320, 1760, 2640, 3520]
+    : [990, 1480, 2100, 2970];
+  rings.forEach((f, i) => {
+    tone(c, out, f + Math.random() * 40, t0 + i * 0.004, heavy ? 0.28 : 0.16, "sine", p * (0.12 - i * 0.015));
+    tone(c, out, f * 1.01, t0 + i * 0.004, heavy ? 0.22 : 0.12, "triangle", p * 0.05);
+  });
+  // shell/debris scatter
+  noiseBurst(c, out, t0 + 0.04, 0.12, p * 0.18, { color: "white", hipass: 3500 });
 }
 
-function defeatMoan(c: AudioContext, dest: AudioNode, t0: number) {
+/** Blade scrape + cut */
+function bladeStrike(c: AudioContext, out: AudioNode, t0: number, k: number) {
+  noiseBurst(c, out, t0, 0.09, 0.4 * k, { color: "pink", hipass: 1800, lowpass: 9000 });
+  tone(c, out, 2200, t0, 0.12, "sawtooth", 0.1 * k, 600);
+  tone(c, out, 3400, t0 + 0.01, 0.08, "square", 0.06 * k, 900);
+  metalImpact(c, out, t0 + 0.02, k * 0.85, false);
+  // trailing ring
+  tone(c, out, 1480, t0 + 0.05, 0.2, "sine", 0.08 * k);
+}
+
+/** Plasma / laser discharge */
+function laserBlast(c: AudioContext, out: AudioNode, t0: number, k: number) {
+  // charge zip
+  tone(c, out, 3200, t0, 0.06, "sawtooth", 0.12 * k, 1800);
+  // main beam downsweep
   const o = c.createOscillator();
   const g = c.createGain();
-  o.type = "sine";
-  o.frequency.setValueAtTime(220, t0);
-  o.frequency.exponentialRampToValueAtTime(90, t0 + 0.55);
-  env(g, t0, 0.22, 0.02, 0.55);
-  o.connect(g);
-  g.connect(dest);
-  o.start(t0);
-  o.stop(t0 + 0.65);
-}
-
-
-function synthBlade(c: AudioContext, dest: AudioNode, intensity: number) {
-  const t0 = c.currentTime;
-  const n = c.createBufferSource();
-  n.buffer = noiseBuffer(c, 0.12);
-  const bp = c.createBiquadFilter();
-  bp.type = "bandpass";
-  bp.frequency.value = 2800 + intensity * 800;
-  bp.Q.value = 2.2;
-  const g = c.createGain();
-  env(g, t0, 0.45 * intensity, 0.002, 0.1);
-  n.connect(bp);
-  bp.connect(g);
-  g.connect(dest);
-  n.start(t0);
-  n.stop(t0 + 0.14);
-  tone(c, dest, 880 + intensity * 200, t0, 0.18, "triangle", 0.12 * intensity);
-  tone(c, dest, 1320, t0 + 0.02, 0.12, "sine", 0.08 * intensity);
-}
-
-function synthLaser(c: AudioContext, dest: AudioNode, intensity: number) {
-  const t0 = c.currentTime;
-  const o = c.createOscillator();
-  const g = c.createGain();
-  o.type = "sawtooth";
-  o.frequency.setValueAtTime(1600, t0);
-  o.frequency.exponentialRampToValueAtTime(220, t0 + 0.22);
-  env(g, t0, 0.35 * intensity, 0.005, 0.2);
   const f = c.createBiquadFilter();
+  o.type = "sawtooth";
+  o.frequency.setValueAtTime(2400, t0 + 0.02);
+  o.frequency.exponentialRampToValueAtTime(180, t0 + 0.28);
   f.type = "lowpass";
-  f.frequency.setValueAtTime(4200, t0);
-  f.frequency.exponentialRampToValueAtTime(600, t0 + 0.22);
+  f.frequency.setValueAtTime(8000, t0);
+  f.frequency.exponentialRampToValueAtTime(400, t0 + 0.28);
+  env(g, t0 + 0.02, 0.42 * k, 0.003, 0.26);
   o.connect(f);
   f.connect(g);
-  g.connect(dest);
-  o.start(t0);
-  o.stop(t0 + 0.25);
+  g.connect(out);
+  o.start(t0 + 0.02);
+  o.stop(t0 + 0.32);
+  // ionization crackle
+  noiseBurst(c, out, t0 + 0.02, 0.18, 0.28 * k, { color: "white", hipass: 2500 });
+  subThump(c, out, t0 + 0.04, 0.22 * k, 70);
 }
 
-function synthBeam(c: AudioContext, dest: AudioNode, intensity: number) {
-  const t0 = c.currentTime;
+/** Continuous heavy beam / rail */
+function beamStrike(c: AudioContext, out: AudioNode, t0: number, k: number) {
   const o = c.createOscillator();
   const o2 = c.createOscillator();
   const g = c.createGain();
   o.type = "square";
-  o2.type = "sine";
-  o.frequency.setValueAtTime(90, t0);
-  o2.frequency.setValueAtTime(180, t0);
-  o.frequency.linearRampToValueAtTime(60, t0 + 0.35);
-  env(g, t0, 0.28 * intensity, 0.02, 0.32);
-  o.connect(g);
-  o2.connect(g);
-  g.connect(dest);
+  o2.type = "sawtooth";
+  o.frequency.setValueAtTime(70, t0);
+  o2.frequency.setValueAtTime(140, t0);
+  o.frequency.linearRampToValueAtTime(48, t0 + 0.42);
+  o2.frequency.linearRampToValueAtTime(90, t0 + 0.42);
+  env(g, t0, 0.32 * k, 0.015, 0.4);
+  const f = c.createBiquadFilter();
+  f.type = "lowpass";
+  f.frequency.value = 900;
+  o.connect(f);
+  o2.connect(f);
+  f.connect(g);
+  g.connect(out);
   o.start(t0);
   o2.start(t0);
-  o.stop(t0 + 0.4);
-  o2.stop(t0 + 0.4);
+  o.stop(t0 + 0.48);
+  o2.stop(t0 + 0.48);
+  noiseBurst(c, out, t0, 0.35, 0.22 * k, { color: "brown", lowpass: 600 });
+  noiseBurst(c, out, t0 + 0.05, 0.2, 0.15 * k, { color: "pink", hipass: 800 });
+  // end snap
+  metalImpact(c, out, t0 + 0.35, k * 0.5, false);
+}
+
+/** Arcane / tech spell detonation */
+function spellDetonation(c: AudioContext, out: AudioNode, t0: number, k: number) {
+  tone(c, out, 520, t0, 0.15, "sine", 0.14 * k, 260);
+  tone(c, out, 780, t0 + 0.02, 0.18, "triangle", 0.12 * k, 400);
+  tone(c, out, 1170, t0 + 0.04, 0.22, "sine", 0.1 * k);
+  noiseBurst(c, out, t0 + 0.03, 0.2, 0.3 * k, { color: "pink", hipass: 600 });
+  subThump(c, out, t0 + 0.05, 0.28 * k, 60);
+  // sparkles
+  for (let i = 0; i < 5; i++) {
+    tone(
+      c,
+      out,
+      1400 + Math.random() * 2200,
+      t0 + 0.06 + i * 0.03,
+      0.08,
+      "sine",
+      0.05 * k,
+    );
+  }
+}
+
+function healPulse(c: AudioContext, out: AudioNode, t0: number, k: number) {
+  [440, 554, 659, 880].forEach((f, i) => {
+    tone(c, out, f, t0 + i * 0.05, 0.28, "sine", 0.1 * k);
+    tone(c, out, f * 2, t0 + i * 0.05, 0.18, "triangle", 0.04 * k);
+  });
+  noiseBurst(c, out, t0, 0.12, 0.06 * k, { color: "pink", hipass: 2000 });
+}
+
+function summonImpact(c: AudioContext, out: AudioNode, t0: number, k: number) {
+  subThump(c, out, t0, 0.35 * k, 50);
+  tone(c, out, 200, t0, 0.2, "triangle", 0.16 * k, 120);
+  tone(c, out, 320, t0 + 0.03, 0.18, "sine", 0.1 * k);
+  noiseBurst(c, out, t0, 0.14, 0.2 * k, { color: "brown", lowpass: 900 });
+  noiseBurst(c, out, t0 + 0.05, 0.1, 0.12 * k, { color: "white", hipass: 1500 });
+}
+
+/** Hardcore war-cry grunt */
+function warGrunt(c: AudioContext, out: AudioNode, t0: number, ally: boolean) {
+  const base = ally ? 105 : 155;
+  const o = c.createOscillator();
+  const o2 = c.createOscillator();
+  const o3 = c.createOscillator();
+  const g = c.createGain();
+  const f = c.createBiquadFilter();
+  o.type = "sawtooth";
+  o2.type = "square";
+  o3.type = "triangle";
+  o.frequency.setValueAtTime(base, t0);
+  o.frequency.exponentialRampToValueAtTime(base * 0.65, t0 + 0.22);
+  o2.frequency.setValueAtTime(base * 1.5, t0);
+  o2.frequency.exponentialRampToValueAtTime(base * 0.9, t0 + 0.2);
+  o3.frequency.setValueAtTime(base * 2.2, t0);
+  o3.frequency.exponentialRampToValueAtTime(base * 1.1, t0 + 0.18);
+  f.type = "bandpass";
+  f.frequency.setValueAtTime(base * 4, t0);
+  f.frequency.linearRampToValueAtTime(base * 2.2, t0 + 0.2);
+  f.Q.value = 5;
+  env(g, t0, ally ? 0.34 : 0.3, 0.008, 0.24);
+  o.connect(f);
+  o2.connect(f);
+  o3.connect(f);
+  f.connect(g);
+  g.connect(out);
+  o.start(t0);
+  o2.start(t0);
+  o3.start(t0);
+  o.stop(t0 + 0.32);
+  o2.stop(t0 + 0.32);
+  o3.stop(t0 + 0.32);
+  noiseBurst(c, out, t0, 0.08, 0.14, { color: "pink", hipass: 300 });
+  // chest thump
+  subThump(c, out, t0 + 0.02, 0.12, 70);
+}
+
+function gloryCry(c: AudioContext, out: AudioNode, t0: number) {
+  const notes = [392, 494, 587, 740, 880];
+  notes.forEach((f, i) => {
+    tone(c, out, f, t0 + i * 0.07, 0.4, "triangle", 0.16 - i * 0.02);
+    tone(c, out, f * 2, t0 + i * 0.07, 0.3, "sine", 0.07);
+  });
+  metalImpact(c, out, t0 + 0.12, 0.7, true);
+  noiseBurst(c, out, t0, 0.2, 0.12, { color: "pink", hipass: 900 });
+}
+
+function defeatMoan(c: AudioContext, out: AudioNode, t0: number) {
+  tone(c, out, 220, t0, 0.55, "sine", 0.24, 70);
+  tone(c, out, 165, t0 + 0.05, 0.5, "triangle", 0.12, 55);
+  noiseBurst(c, out, t0, 0.35, 0.15, { color: "brown", lowpass: 400 });
+  subThump(c, out, t0 + 0.1, 0.2, 40);
+}
+
+function whooshPass(c: AudioContext, out: AudioNode, t0: number, k: number) {
+  noiseBurst(c, out, t0, 0.16, 0.28 * k, { color: "pink", hipass: 400, lowpass: 5000 });
+  tone(c, out, 900, t0, 0.14, "sawtooth", 0.08 * k, 200);
+  const o = c.createOscillator();
+  const g = c.createGain();
+  o.type = "sine";
+  o.frequency.setValueAtTime(600, t0);
+  o.frequency.exponentialRampToValueAtTime(120, t0 + 0.15);
+  env(g, t0, 0.1 * k, 0.01, 0.14);
+  o.connect(g);
+  g.connect(out);
+  o.start(t0);
+  o.stop(t0 + 0.2);
+}
+
+function uiClick(c: AudioContext, out: AudioNode, t0: number) {
+  tone(c, out, 880, t0, 0.05, "sine", 0.1);
+  tone(c, out, 1320, t0 + 0.01, 0.04, "triangle", 0.06);
+  noiseBurst(c, out, t0, 0.03, 0.05, { color: "white", hipass: 2000 });
 }
 
 export function playSfx(id: SfxId, intensity = 1) {
@@ -246,63 +401,52 @@ export function playSfx(id: SfxId, intensity = 1) {
   const c = ac();
   if (!c || !masterGain) return;
   const t0 = c.currentTime + 0.001;
-  const k = Math.max(0.2, Math.min(1.5, intensity));
+  const k = Math.max(0.25, Math.min(1.6, intensity));
+  const out = dest();
 
   switch (id) {
-    case "blade":
-      synthBlade(c, masterGain, k);
-      break;
-    case "laser":
-      synthLaser(c, masterGain, k);
-      break;
-    case "beam":
-      synthBeam(c, masterGain, k);
-      break;
     case "clash":
-      noiseBurst(c, masterGain, t0, 0.08, 0.35 * k, 600);
-      tone(c, masterGain, 180 + Math.random() * 40, t0, 0.09, "square", 0.12 * k);
-      tone(c, masterGain, 900 + Math.random() * 200, t0, 0.05, "triangle", 0.08 * k);
+      metalImpact(c, out, t0, k, false);
       break;
     case "heavy_clash":
-      noiseBurst(c, masterGain, t0, 0.14, 0.45 * k, 300);
-      tone(c, masterGain, 90, t0, 0.18, "sawtooth", 0.18 * k);
-      tone(c, masterGain, 240, t0 + 0.02, 0.12, "square", 0.1 * k);
-      tone(c, masterGain, 1200, t0, 0.06, "sine", 0.1 * k);
+      metalImpact(c, out, t0, k, true);
+      subThump(c, out, t0 + 0.01, 0.35 * k, 42);
+      break;
+    case "blade":
+      bladeStrike(c, out, t0, k);
+      break;
+    case "laser":
+      laserBlast(c, out, t0, k);
+      break;
+    case "beam":
+      beamStrike(c, out, t0, k);
       break;
     case "spell":
-      tone(c, masterGain, 520, t0, 0.2, "sine", 0.12 * k);
-      tone(c, masterGain, 780, t0 + 0.03, 0.18, "triangle", 0.1 * k);
-      tone(c, masterGain, 1040, t0 + 0.06, 0.22, "sine", 0.08 * k);
-      noiseBurst(c, masterGain, t0 + 0.05, 0.12, 0.15 * k, 1200);
+      spellDetonation(c, out, t0, k);
       break;
     case "heal":
-      tone(c, masterGain, 440, t0, 0.25, "sine", 0.1 * k);
-      tone(c, masterGain, 554, t0 + 0.05, 0.25, "sine", 0.09 * k);
-      tone(c, masterGain, 659, t0 + 0.1, 0.3, "triangle", 0.08 * k);
+      healPulse(c, out, t0, k);
       break;
     case "summon":
-      tone(c, masterGain, 200, t0, 0.15, "triangle", 0.12 * k);
-      tone(c, masterGain, 300, t0 + 0.04, 0.18, "sine", 0.1 * k);
-      noiseBurst(c, masterGain, t0, 0.1, 0.1 * k, 400);
+      summonImpact(c, out, t0, k);
       break;
     case "grunt":
-      grunt(c, masterGain, t0, true);
+      warGrunt(c, out, t0, true);
       break;
     case "enemy_grunt":
-      grunt(c, masterGain, t0, false);
+      warGrunt(c, out, t0, false);
       break;
     case "glory":
-      gloryCry(c, masterGain, t0);
+      gloryCry(c, out, t0);
       break;
     case "defeat":
-      defeatMoan(c, masterGain, t0);
+      defeatMoan(c, out, t0);
       break;
     case "whoosh":
-      noiseBurst(c, masterGain, t0, 0.12, 0.18 * k, 200);
-      tone(c, masterGain, 160, t0, 0.1, "sine", 0.06 * k);
+      whooshPass(c, out, t0, k);
       break;
     case "ui":
-      tone(c, masterGain, 660, t0, 0.06, "sine", 0.08 * k);
+      uiClick(c, out, t0);
       break;
   }
 }
@@ -319,39 +463,41 @@ export function playCombatSfx(opts: {
   const dmg = opts.damage ?? 0;
   const school = (opts.school || "").toLowerCase();
   const beam = (opts.beam || "").toLowerCase();
+  const heavy = dmg >= 6;
 
   if (opts.kind === "melee") {
     if (beam === "laser" || school === "arcane" || school === "ember") {
-      playSfx("laser", 0.75 + Math.min(0.5, dmg * 0.05));
-      playSfx(dmg >= 6 ? "heavy_clash" : "clash", 0.45 + Math.min(0.4, dmg * 0.04));
+      playSfx("laser", 0.85 + Math.min(0.55, dmg * 0.06));
+      playSfx(heavy ? "heavy_clash" : "clash", 0.5 + Math.min(0.4, dmg * 0.04));
     } else if (beam === "beam" || school === "frost" || school === "shadow") {
-      playSfx("beam", 0.7 + Math.min(0.5, dmg * 0.05));
-      playSfx("whoosh", 0.4);
+      playSfx("beam", 0.85 + Math.min(0.5, dmg * 0.05));
+      playSfx("whoosh", 0.55);
     } else if (school === "steel" || school === "nature" || beam === "slash") {
-      playSfx("blade", 0.85 + Math.min(0.4, dmg * 0.05));
-      playSfx(dmg >= 5 ? "heavy_clash" : "clash", 0.55 + Math.min(0.45, dmg * 0.05));
+      playSfx("blade", 0.95 + Math.min(0.45, dmg * 0.05));
+      playSfx(heavy ? "heavy_clash" : "clash", 0.65 + Math.min(0.4, dmg * 0.05));
     } else {
-      playSfx(dmg >= 5 ? "heavy_clash" : "clash", 0.7 + Math.min(1, dmg * 0.08));
-      if (dmg >= 4) playSfx("blade", 0.45);
+      playSfx(heavy ? "heavy_clash" : "clash", 0.8 + Math.min(1, dmg * 0.08));
+      if (dmg >= 4) playSfx("blade", 0.55);
     }
     if (dmg >= 3) {
-      playSfx(opts.fromPlayer ? "grunt" : "enemy_grunt", 0.8);
+      playSfx(opts.fromPlayer ? "grunt" : "enemy_grunt", 0.95);
     }
+    if (dmg >= 8) playSfx("heavy_clash", 0.7);
   } else if (opts.kind === "spell") {
-    playSfx("whoosh", 0.7);
+    playSfx("whoosh", 0.8);
     if (beam === "laser" || school === "arcane") {
-      playSfx("laser", 0.85 + Math.min(0.4, dmg * 0.05));
+      playSfx("laser", 0.95 + Math.min(0.4, dmg * 0.05));
     } else if (beam === "beam" || school === "shadow") {
-      playSfx("beam", 0.8);
+      playSfx("beam", 0.95);
     } else {
-      playSfx("spell", 0.7 + Math.min(0.8, dmg * 0.06));
+      playSfx("spell", 0.85 + Math.min(0.8, dmg * 0.06));
     }
     if (opts.toHero && dmg >= 4) {
-      playSfx(opts.fromPlayer === false ? "grunt" : "enemy_grunt", 0.9);
+      playSfx(opts.fromPlayer === false ? "grunt" : "enemy_grunt", 1);
     }
   } else if (opts.kind === "heal") {
-    playSfx("heal", 0.85);
+    playSfx("heal", 0.95);
   } else if (opts.kind === "summon") {
-    playSfx("summon", 0.8);
+    playSfx("summon", 0.95);
   }
 }
