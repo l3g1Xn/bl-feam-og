@@ -178,13 +178,20 @@ export async function runEnemyTurn(
       setState(s);
       const summoned = s.enemy.board[s.enemy.board.length - 1];
       if (summoned) {
+        const def = getCard(summoned.defId);
         await playFx(
           summonFx({
             toKey: entityKeyMinion(summoned.uid),
             artSrc: cardArtSrc(summoned.defId),
+            cardId: def.id,
+            cardName: def.name,
+            cardText: def.text,
+            school: def.art,
+            keywords: def.keywords,
           }),
         );
       }
+
     } else if (playFx && handDiff > 0) {
       const beforeHand = [...s.enemy.hand];
       const afterHand = new Set(trial.enemy.hand);
@@ -200,10 +207,25 @@ export async function runEnemyTurn(
           toKey: entityKeyHero("player"),
           school: def.art,
           artSrc: cardArtSrc(def.id),
+          cardId: def.id,
+          cardName: def.name,
+          cardText: def.text,
+          spell: def.spell,
           damage:
             def.spell && def.spell.kind === "damage"
               ? def.spell.amount + (s.enemy.spellPower || 0)
-              : undefined,
+              : def.spell && def.spell.kind === "damage_and_draw"
+                ? def.spell.damage + (s.enemy.spellPower || 0)
+                : def.spell && def.spell.kind === "damage_heal"
+                  ? def.spell.damage + (s.enemy.spellPower || 0)
+                  : undefined,
+          heal:
+            def.spell && def.spell.kind === "heal" ? def.spell.amount : undefined,
+          aoe:
+            !!def.spell &&
+            def.spell.kind === "damage" &&
+            (def.spell.target === "all_enemies" ||
+              def.spell.target === "all_enemy_minions"),
         }),
       );
       s = trial;
@@ -239,6 +261,7 @@ export async function runEnemyTurn(
       continue;
     }
     if (playFx) {
+      const atkDef = getCard(attacker.defId);
       await playFx(
         meleeFx({
           fromKey: entityKeyMinion(attacker.uid),
@@ -252,6 +275,11 @@ export async function runEnemyTurn(
               ? s.player.board.find((m) => m.uid === target.uid)?.attack ?? 0
               : 0,
           artSrc: cardArtSrc(attacker.defId),
+          cardId: atkDef.id,
+          cardName: atkDef.name,
+          cardText: atkDef.text,
+          keywords: attacker.keywords,
+          school: atkDef.art,
         }),
       );
     }

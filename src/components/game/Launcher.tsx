@@ -425,8 +425,21 @@ function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
 
 function PlayPanel() {
   const startGame = useGameStore((s) => s.startGame);
+  const continueSavedGame = useGameStore((s) => s.continueSavedGame);
+  const clearSavedGame = useGameStore((s) => s.clearSavedGame);
   const deck = useMetaStore((s) => s.deck);
   const owned = useMetaStore((s) => s.owned);
+  const [hasSave, setHasSave] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    void import("@/game/matchSave").then((m) => {
+      if (alive) setHasSave(m.hasMatchSave());
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   return (
     <div className="mx-auto max-w-lg space-y-4 pb-4">
@@ -445,6 +458,31 @@ function PlayPanel() {
           </p>
         </div>
       </div>
+      {hasSave && (
+        <div className="space-y-2">
+          <button
+            type="button"
+            onClick={() => {
+              unlockAudio();
+              ensureMusicUnlocked();
+              if (continueSavedGame()) setHasSave(false);
+            }}
+            className="flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl border border-success/40 bg-success/15 text-base font-semibold text-success shadow-lg active:scale-[0.99]"
+          >
+            Continue saved match
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              clearSavedGame();
+              setHasSave(false);
+            }}
+            className="w-full text-center text-xs text-fg-subtle underline-offset-2 hover:underline"
+          >
+            Discard local save
+          </button>
+        </div>
+      )}
       <button
         type="button"
         onClick={() => {

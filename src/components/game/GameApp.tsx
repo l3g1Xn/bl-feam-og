@@ -1,5 +1,5 @@
 import { useGameStore } from "@/game/store";
-import { getCard } from "@/game/cards";
+import { cardArtSrc, getCard, keywordLabel } from "@/game/cards";
 import { describeSpellMath, hasTaunt, spellNeedsTarget } from "@/game/math";
 import { CardView } from "./CardView";
 import { MinionToken } from "./MinionToken";
@@ -17,7 +17,7 @@ import { playSfx, unlockAudio } from "@/game/audio";
 import { setBattleMusicDuck, ensureMusicUnlocked } from "@/game/music";
 import { cn } from "@/lib/utils";
 import { Menu, RotateCcw, SkipForward, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { SpellEffect } from "@/game/types";
 
 export function GameApp() {
@@ -30,28 +30,155 @@ export function GameApp() {
 
 function GameAppInner() {
   const phase = useGameStore((s) => s.phase);
+  const cancelSelection = useGameStore((s) => s.cancelSelection);
+  const selection = useGameStore((s) => s.selection);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [backHint, setBackHint] = useState<string | null>(null);
+  const lastBack = useRef(0);
 
   useEffect(() => {
     if (phase === "menu" || phase === "victory" || phase === "defeat") {
       setBattleMusicDuck(false);
+      setMenuOpen(false);
     } else {
       setBattleMusicDuck(true);
     }
   }, [phase]);
 
-  if (phase === "menu") return <Launcher />;
-  if (phase === "mulligan") return <MulliganScreen />;
-  if (phase === "victory" || phase === "defeat") return <EndScreen />;
-  return <BattleScreen />;
+  /** Double system Back → Exit menu (game lock). Single back cancels / arms timer. */
+  const handleHardwareBack = useCallback(() => {
+    const now = Date.now();
+    const inMatch =
+      phase === "mulligan" ||
+      phase === "player_turn" ||
+      phase === "enemy_turn";
+
+    if (!inMatch) {
+      // On launcher: double-back tries to exit WebView / app
+      if (now - lastBack.current < 1600) {
+        lastBack.current = 0;
+        setBackHint(null);
+        tryExitApp();
+        return true;
+      }
+      lastBack.current = now;
+      setBackHint("Tap Back again to exit app");
+      window.setTimeout(() => setBackHint(null), 1600);
+      return true;
+    }
+
+    if (menuOpen) {
+      setMenuOpen(false);
+      lastBack.current = 0;
+      setBackHint(null);
+      return true;
+    }
+
+    if (selection.kind !== "none") {
+      cancelSelection();
+      return true;
+    }
+
+    if (now - lastBack.current < 1600) {
+      lastBack.current = 0;
+      setBackHint(null);
+      unlockAudio();
+      playSfx("ui");
+      setMenuOpen(true);
+      return true;
+    }
+
+    lastBack.current = now;
+    setBackHint("Tap Back again for Exit menu");
+    window.setTimeout(() => setBackHint(null), 1600);
+    return true;
+  }, [phase, menuOpen, selection.kind, cancelSelection]);
+
+  useEffect(() => {
+    // History trap so Android WebView Back doesn't kill the WebView immediately
+    const push = () => {
+      try {
+        window.history.pushState({ blGuard: 1 }, "");
+      } catch {
+        /* ignore */
+      }
+    };
+    push();
+    const onPop = () => {
+      const handled = handleHardwareBack();
+      if (handled) push();
+    };
+    window.addEventListener("popstate", onPop);
+
+    // Capacitor App plugin if present
+    type CapApp = {
+      addListener: (
+        e: string,
+        cb: (data: { canGoBack: boolean }) => void,
+      ) => Promise<{ remove: () => void }>;
+      exitApp?: () => void;
+    };
+    let removeCap: (() => void) | undefined;
+    const w = window as unknown as {
+      Capacitor?: { Plugins?: { App?: CapApp }; isNativePlatform?: () => boolean };
+    };
+    const app = w.Capacitor?.Plugins?.App;
+    if (app?.addListener) {
+      void app.addListener("backButton", () => {
+        handleHardwareBack();
+      }).then((h) => {
+        removeCap = () => h.remove();
+      });
+    }
+
+    return () => {
+      window.removeEventListener("popstate", onPop);
+      removeCap?.();
+    };
+  }, [handleHardwareBack]);
+
+  return (
+    <>
+      {phase === "menu" && <Launcher />}
+      {phase === "mulligan" && (
+        <MulliganScreen menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
+      )}
+      {(phase === "victory" || phase === "defeat") && <EndScreen />}
+      {(phase === "player_turn" || phase === "enemy_turn") && (
+        <BattleScreen menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
+      )}
+      {backHint && (
+        <div className="pointer-events-none fixed bottom-6 left-1/2 z-[90] -translate-x-1/2 rounded-full border border-white/15 bg-black/80 px-4 py-2 text-xs text-fg shadow-lg backdrop-blur">
+          {backHint}
+        </div>
+      )}
+    </>
+  );
 }
 
-function MulliganScreen() {
+function tryExitApp() {
+  const w = window as unknown as {
+    Capacitor?: { Plugins?: { App?: { exitApp?: () => void } } };
+  };
+  try {
+    w.Capacitor?.Plugins?.App?.exitApp?.();
+  } catch {
+    /* web: ignore */
+  }
+}
+
+function MulliganScreen({
+  menuOpen,
+  setMenuOpen,
+}: {
+  menuOpen: boolean;
+  setMenuOpen: (v: boolean) => void;
+}) {
   const hand = useGameStore((s) => s.player.hand);
   const selected = useGameStore((s) => s.mulliganSelected);
   const toggle = useGameStore((s) => s.toggleMulligan);
   const confirm = useGameStore((s) => s.confirmMulligan);
   const enemyName = useGameStore((s) => s.enemyName);
-  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <div className="relative flex h-dvh flex-col items-center justify-center overflow-y-auto bg-bg px-3 py-6 sm:px-4">
@@ -208,22 +335,112 @@ function useIsNarrow(max = 640) {
   return narrow;
 }
 
-function useIsShort(maxH = 480) {
+function useIsShort(max = 560) {
   const [short, setShort] = useState(false);
   useEffect(() => {
-    const apply = () => setShort(window.innerHeight <= maxH);
+    const mq = window.matchMedia(`(max-height: ${max}px)`);
+    const apply = () => setShort(mq.matches);
     apply();
-    window.addEventListener("resize", apply);
-    window.addEventListener("orientationchange", apply);
-    return () => {
-      window.removeEventListener("resize", apply);
-      window.removeEventListener("orientationchange", apply);
-    };
-  }, [maxH]);
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, [max]);
   return short;
 }
 
-function BattleScreen() {
+function BattleInspect() {
+  const selection = useGameStore((s) => s.selection);
+  const player = useGameStore((s) => s.player);
+  const activeFx = useGameStore((s) => s.activeFx);
+  const preview = useGameStore((s) => s.hoverPreview ?? s.lastPreview);
+
+  // Prefer live combat FX card details
+  if (activeFx?.cardName) {
+    return (
+      <div className="flex items-center gap-2 overflow-hidden">
+        {activeFx.artSrc && (
+          <img
+            src={activeFx.artSrc}
+            alt=""
+            className="h-9 w-9 shrink-0 rounded-md object-cover"
+          />
+        )}
+        <div className="min-w-0">
+          <div className="truncate text-[0.7rem] font-semibold text-primary">
+            {activeFx.banner ?? activeFx.cardName}
+          </div>
+          {activeFx.detail && (
+            <div className="line-clamp-1 text-[0.58rem] text-fg-muted">
+              {activeFx.detail}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (selection.kind === "minion") {
+    const m = player.board.find((x) => x.uid === selection.uid);
+    if (!m) return null;
+    const def = getCard(m.defId);
+    return (
+      <div className="flex items-center gap-2 overflow-hidden">
+        <img
+          src={cardArtSrc(def.id)}
+          alt=""
+          className="h-9 w-9 shrink-0 rounded-md object-cover"
+        />
+        <div className="min-w-0">
+          <div className="truncate text-[0.7rem] font-semibold text-fg">
+            {def.name} · {m.attack}/{m.health}
+            {m.shield ? " · Shield" : ""}
+            {m.immuneThisTurn ? " · Immune" : ""}
+          </div>
+          <div className="line-clamp-1 text-[0.58rem] text-fg-muted">{def.text}</div>
+          {(m.keywords.length > 0 || preview) && (
+            <div className="truncate text-[0.55rem] text-fg-subtle">
+              {m.keywords.map(keywordLabel).join(" · ")}
+              {preview ? ` · ${preview.formula}` : ""}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (selection.kind === "spell_target") {
+    const id = player.hand[selection.handIndex];
+    const def = id ? getCard(id) : null;
+    if (!def) return null;
+    return (
+      <div className="flex items-center gap-2 overflow-hidden">
+        <img
+          src={cardArtSrc(def.id)}
+          alt=""
+          className="h-9 w-9 shrink-0 rounded-md object-cover"
+        />
+        <div className="min-w-0">
+          <div className="truncate text-[0.7rem] font-semibold text-fg">
+            {def.name} · {def.cost} mana
+          </div>
+          <div className="line-clamp-1 text-[0.58rem] text-fg-muted">{def.text}</div>
+          <div className="truncate font-mono text-[0.55rem] text-primary">
+            {describeSpellMath(selection.spell)}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+}
+
+function BattleScreen({
+  menuOpen,
+  setMenuOpen,
+}: {
+  menuOpen: boolean;
+  setMenuOpen: (v: boolean) => void;
+}) {
   const narrow = useIsNarrow(1100);
   const short = useIsShort(560);
   const player = useGameStore((s) => s.player);
@@ -250,7 +467,6 @@ function BattleScreen() {
   const cancelSelection = useGameStore((s) => s.cancelSelection);
   const hoverEnemyMinion = useGameStore((s) => s.hoverEnemyMinion);
   const hoverEnemyHero = useGameStore((s) => s.hoverEnemyHero);
-  const [menuOpen, setMenuOpen] = useState(false);
 
   const targeting =
     selection.kind === "minion" || selection.kind === "spell_target";
@@ -268,10 +484,13 @@ function BattleScreen() {
       !hasTaunt(enemy.board)) ||
     (spellTargeting && isSpellHeroTargetable(selection.spell, "enemy"));
 
-  // Landscape phones always use compact hand so cards are fully on-screen
   const handSize: "xxs" | "xs" | "md" = short ? "xxs" : narrow ? "xs" : "md";
   const foeLabel = enemyName || "Enemy";
   const showSidePanel = !narrow && !short;
+  const showInspect =
+    !!activeFx?.cardName ||
+    selection.kind === "minion" ||
+    selection.kind === "spell_target";
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -285,12 +504,12 @@ function BattleScreen() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [cancelSelection, endTurn, phase, animating, menuOpen]);
+  }, [cancelSelection, endTurn, phase, animating, menuOpen, setMenuOpen]);
 
   return (
     <div
       id="battle-stage"
-      className="battle-stage relative grid h-[100dvh] max-h-[100dvh] grid-rows-[auto_auto_minmax(0,1fr)_auto_auto] overflow-hidden bg-bg text-fg will-change-transform"
+      className="battle-stage relative grid h-[100dvh] max-h-[100dvh] grid-rows-[auto_auto_auto_minmax(0,1fr)_auto_auto] overflow-hidden bg-bg text-fg will-change-transform"
     >
       <AmbientStage variant="battle" />
       <div
@@ -305,7 +524,6 @@ function BattleScreen() {
       <CombatFxLayer fx={activeFx} onDone={completeFx} />
       <GameMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
 
-      {/* Row 1 — header */}
       <header className="relative z-10 flex shrink-0 items-center justify-between gap-2 border-b border-white/5 bg-black/30 px-2 py-0.5 backdrop-blur-sm sm:px-3 sm:py-1">
         <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
           <span className="truncate text-xs font-semibold tracking-wide sm:text-sm">
@@ -363,7 +581,16 @@ function BattleScreen() {
         </div>
       </header>
 
-      {/* Row 2 — message (collapses when empty) */}
+      {/* Card battle detail strip */}
+      <div
+        className={cn(
+          "relative z-10 shrink-0 border-b border-white/5 bg-black/45 px-2 backdrop-blur-sm",
+          showInspect ? "py-1" : "h-0 overflow-hidden border-0 p-0",
+        )}
+      >
+        <BattleInspect />
+      </div>
+
       <div
         className={cn(
           "relative z-10 shrink-0 border-b border-border/50 bg-bg-panel/80 px-3 text-center text-[0.65rem] text-fg-muted backdrop-blur-sm sm:text-xs",
@@ -373,7 +600,6 @@ function BattleScreen() {
         {message}
       </div>
 
-      {/* Row 3 — playfield (boards + heroes) grows/shrinks; never eats the hand */}
       <div className="relative z-10 flex min-h-0 min-w-0 overflow-hidden">
         <div className="grid min-h-0 min-w-0 flex-1 grid-rows-[auto_minmax(0,1fr)_auto_minmax(0,1fr)_auto] overflow-hidden">
           <div className="flex shrink-0 items-center justify-center px-2 py-0.5">
@@ -457,7 +683,6 @@ function BattleScreen() {
         )}
       </div>
 
-      {/* Row 4 — HAND always fully visible (reserved auto row, never clipped) */}
       <div
         className={cn(
           "battle-hand relative z-20 flex shrink-0 items-end justify-center gap-0.5 overflow-x-auto overflow-y-visible border-t border-white/10 bg-black/55 px-1.5 backdrop-blur-md sm:gap-1.5 sm:px-2",
@@ -490,7 +715,6 @@ function BattleScreen() {
         })}
       </div>
 
-      {/* Row 5 — compact math strip on phone/landscape */}
       {(narrow || short) && (
         <div className="relative z-10 max-h-10 shrink-0 overflow-y-auto border-t border-white/5 bg-black/60 px-2 py-0.5 text-[0.58rem] leading-tight text-fg-muted backdrop-blur sm:max-h-14 sm:text-[0.65rem]">
           {preview && (

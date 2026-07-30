@@ -8,7 +8,7 @@ export const APK_DOWNLOAD_NAME = "BattleLegions.apk";
 /** Local / site-relative path (preview + hosts that allow large binaries). */
 export const APK_DOWNLOAD_PATH = "/downloads/BattleLegions.apk";
 /** Semantic version printed on the site and in the Android package. */
-export const APK_VERSION = "1.0.1";
+export const APK_VERSION = "1.0.2";
 /** Approx size for UI copy (release build ~40.3 MiB). */
 export const APK_SIZE_LABEL = "~41 MB";
 /**
@@ -16,11 +16,11 @@ export const APK_SIZE_LABEL = "~41 MB";
  * Private repo: must be signed into GitHub as the owner to fetch.
  */
 export const GITHUB_REPO = "l3g1Xn/bl-feam-og";
-export const GITHUB_RELEASE_TAG = "apk-release-1.0.1";
+export const GITHUB_RELEASE_TAG = "apk-release-1.0.2";
 export const GITHUB_APK_URL =
-  "https://github.com/l3g1Xn/bl-feam-og/releases/download/apk-release-1.0.1/BattleLegions.apk";
+  "https://github.com/l3g1Xn/bl-feam-og/releases/download/apk-release-1.0.2/BattleLegions.apk";
 export const GITHUB_RELEASE_PAGE =
-  "https://github.com/l3g1Xn/bl-feam-og/releases/tag/apk-release-1.0.1";
+  "https://github.com/l3g1Xn/bl-feam-og/releases/tag/apk-release-1.0.2";
 
 /** Bump when shipping site+APK together so players can confirm sync. */
-export const BUILD_ID = "2026.07.30-release-1.0.1";
+export const BUILD_ID = "2026.07.30-release-1.0.2";

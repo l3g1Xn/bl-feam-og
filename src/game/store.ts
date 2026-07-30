@@ -18,11 +18,23 @@ import {
   entityKeyMinion,
   meleeFx,
   spellFx,
+  summonFx,
   waitFrames,
   type FxEvent,
 } from "./fx";
 import { computeCombatPreview, computeMathSnapshot, hasTaunt } from "./math";
-import type { CombatPreview, GameState, MathSnapshot, SpellEffect, TargetRef } from "./types";
+import {
+  clearMatchSave,
+  readMatchSave,
+  writeMatchSave,
+} from "./matchSave";
+import type {
+  CombatPreview,
+  GameState,
+  MathSnapshot,
+  SpellEffect,
+  TargetRef,
+} from "./types";
 import { useMetaStore } from "./meta";
 
 export type { MathSnapshot };
@@ -31,8 +43,12 @@ interface GameStore extends GameState {
   math: MathSnapshot;
   activeFx: FxEvent | null;
   mulliganSelected: number[];
+  saveNotice: string | null;
   startGame: (difficulty?: "normal" | "hard") => void;
-  returnToMenu: () => void;
+  continueSavedGame: () => boolean;
+  saveGameLocal: () => { ok: true } | { ok: false; error: string };
+  clearSavedGame: () => void;
+  returnToMenu: (opts?: { keepSave?: boolean }) => void;
   toggleMulligan: (index: number) => void;
   confirmMulligan: () => void;
   clickHand: (index: number) => void;
@@ -61,6 +77,13 @@ function spellDamage(spell: SpellEffect | undefined, spellPower = 0): number | u
   return undefined;
 }
 
+function spellHeal(spell: SpellEffect | undefined): number | undefined {
+  if (!spell) return undefined;
+  if (spell.kind === "heal") return spell.amount;
+  if (spell.kind === "damage_heal") return spell.heal;
+  return undefined;
+}
+
 function isInstantSpell(spell: SpellEffect): boolean {
   if (spell.kind === "draw") return true;
   if (spell.kind === "spell_power") return true;
@@ -74,6 +97,33 @@ function isInstantSpell(spell: SpellEffect): boolean {
 
 function unlocked(s: GameState): GameState {
   return { ...s, animating: false };
+}
+
+function spellFxFromCard(
+  def: ReturnType<typeof getCard>,
+  fromKey: string,
+  toKey: string,
+  spellPower: number,
+  spell?: SpellEffect,
+): FxEvent {
+  const sp = spell ?? def.spell;
+  const aoe =
+    sp?.kind === "damage" &&
+    (sp.target === "all_enemies" || sp.target === "all_enemy_minions");
+  return spellFx({
+    fromKey,
+    toKey,
+    school: def.art,
+    artSrc: cardArtSrc(def.id),
+    cardId: def.id,
+    cardName: def.name,
+    cardText: def.text,
+    keywords: def.keywords,
+    spell: sp,
+    damage: spellDamage(sp, spellPower),
+    heal: spellHeal(sp),
+    aoe: !!aoe || sp?.kind === "buff_all_friendly" || sp?.kind === "dominus_reximus",
+  });
 }
 
 let fxWaiters: Array<{ id: number; resolve: () => void }> = [];
@@ -103,6 +153,7 @@ export const useGameStore = create<GameStore>((set, get) => {
     math: computeMathSnapshot(menuState),
     activeFx: null,
     mulliganSelected: [],
+    saveNotice: null,
 
     playFx,
 
@@ -116,20 +167,77 @@ export const useGameStore = create<GameStore>((set, get) => {
     startGame: (difficulty = "normal") => {
       actionLock = false;
       fxWaiters = [];
+      clearMatchSave();
       const deck = useMetaStore.getState().buildActiveDeck();
       const g = createNewGame(difficulty, deck);
       set({
         ...withMath(g),
         activeFx: null,
         mulliganSelected: [],
+        saveNotice: null,
       });
     },
 
-    returnToMenu: () => {
+    continueSavedGame: () => {
+      const saved = readMatchSave();
+      if (!saved) return false;
       actionLock = false;
       fxWaiters = [];
+      const g: GameState = {
+        ...saved.state,
+        animating: false,
+        selection: { kind: "none" },
+        hoverPreview: null,
+        message: "Match resumed from local save.",
+      };
+      set({
+        ...withMath(g),
+        activeFx: null,
+        mulliganSelected: [],
+        saveNotice: null,
+      });
+      return true;
+    },
+
+    saveGameLocal: () => {
+      const s = get();
+      const result = writeMatchSave({
+        phase: s.phase,
+        turn: s.turn,
+        player: s.player,
+        enemy: s.enemy,
+        enemyName: s.enemyName,
+        selection: { kind: "none" },
+        log: s.log,
+        logSeq: s.logSeq,
+        lastPreview: s.lastPreview,
+        hoverPreview: null,
+        animating: false,
+        message: s.message,
+        difficulty: s.difficulty,
+      });
+      if (result.ok) {
+        set({ saveNotice: "Match saved on this device." });
+      }
+      return result;
+    },
+
+    clearSavedGame: () => {
+      clearMatchSave();
+      set({ saveNotice: null });
+    },
+
+    returnToMenu: (opts) => {
+      actionLock = false;
+      fxWaiters = [];
+      if (!opts?.keepSave) clearMatchSave();
       const g = { ...createNewGame("normal"), phase: "menu" as const, message: null };
-      set({ ...withMath(g), activeFx: null, mulliganSelected: [] });
+      set({
+        ...withMath(g),
+        activeFx: null,
+        mulliganSelected: [],
+        saveNotice: null,
+      });
     },
 
     toggleMulligan: (index) => {
@@ -146,6 +254,7 @@ export const useGameStore = create<GameStore>((set, get) => {
       if (s.phase !== "mulligan") return;
       const next = confirmMulligan(s, s.mulliganSelected);
       set({ ...withMath(next), mulliganSelected: [] });
+      writeMatchSave(next);
     },
 
     clickHand: async (index) => {
@@ -160,16 +269,51 @@ export const useGameStore = create<GameStore>((set, get) => {
         actionLock = true;
         try {
           await playFx(
-            spellFx({
-              fromKey: entityKeyHero("player"),
-              toKey: entityKeyHero("enemy"),
-              school: def.art,
-              artSrc: cardArtSrc(def.id),
-              damage: spellDamage(def.spell, s.player.spellPower),
-            }),
+            spellFxFromCard(
+              def,
+              entityKeyHero("player"),
+              entityKeyHero("enemy"),
+              s.player.spellPower,
+            ),
           );
           const next = playSpell(unlocked(get()), index, null);
           set(withMath(next));
+          writeMatchSave(next);
+        } finally {
+          actionLock = false;
+        }
+        return;
+      }
+
+      if (def.type === "minion") {
+        if (def.cost > s.player.mana) {
+          set({ message: `Need ${def.cost} mana (have ${s.player.mana}).` });
+          return;
+        }
+        if (s.player.board.length >= 7) {
+          set({ message: "Board is full (7)." });
+          return;
+        }
+        actionLock = true;
+        try {
+          const next = selectHandCard(s, index);
+          const summoned = next.player.board[next.player.board.length - 1];
+          set(withMath({ ...next, animating: true }));
+          if (summoned && next.player.board.length > s.player.board.length) {
+            await playFx(
+              summonFx({
+                toKey: entityKeyMinion(summoned.uid),
+                artSrc: cardArtSrc(def.id),
+                cardId: def.id,
+                cardName: def.name,
+                cardText: def.text,
+                school: def.art,
+                keywords: def.keywords,
+              }),
+            );
+          }
+          set(withMath({ ...unlocked(get()) }));
+          writeMatchSave(get());
         } finally {
           actionLock = false;
         }
@@ -188,20 +332,21 @@ export const useGameStore = create<GameStore>((set, get) => {
       if (s.selection.kind === "spell_target") {
         const target: TargetRef = { kind: "minion", uid, side: "player" };
         const cardId = s.player.hand[s.selection.handIndex];
-        const def = cardId ? getCard(cardId) : null;
+        const def = cardId ? getCard(cardId) : getCard("mend");
         actionLock = true;
         try {
           await playFx(
-            spellFx({
-              fromKey: entityKeyHero("player"),
-              toKey: entityKeyMinion(uid),
-              school: def?.art ?? "arcane",
-              artSrc: def ? cardArtSrc(def.id) : undefined,
-              damage: spellDamage(s.selection.spell, s.player.spellPower),
-            }),
+            spellFxFromCard(
+              def,
+              entityKeyHero("player"),
+              entityKeyMinion(uid),
+              s.player.spellPower,
+              s.selection.spell,
+            ),
           );
           const next = resolveSpellTarget(unlocked(get()), target);
           set(withMath(next));
+          writeMatchSave(next);
         } finally {
           actionLock = false;
         }
@@ -218,9 +363,10 @@ export const useGameStore = create<GameStore>((set, get) => {
         set({ message: "That minion cannot attack yet." });
         return;
       }
+      const def = getCard(minion.defId);
       set({
         selection: { kind: "minion", uid },
-        message: "Choose a target — Taunt blocks face if present.",
+        message: `${def.name} ready — ${def.text}`,
       });
     },
 
@@ -234,20 +380,21 @@ export const useGameStore = create<GameStore>((set, get) => {
       if (s.selection.kind === "spell_target") {
         const target: TargetRef = { kind: "minion", uid, side: "enemy" };
         const cardId = s.player.hand[s.selection.handIndex];
-        const def = cardId ? getCard(cardId) : null;
+        const def = cardId ? getCard(cardId) : getCard("bolt");
         actionLock = true;
         try {
           await playFx(
-            spellFx({
-              fromKey: entityKeyHero("player"),
-              toKey: entityKeyMinion(uid),
-              school: def?.art ?? "arcane",
-              artSrc: def ? cardArtSrc(def.id) : undefined,
-              damage: spellDamage(s.selection.spell, s.player.spellPower),
-            }),
+            spellFxFromCard(
+              def,
+              entityKeyHero("player"),
+              entityKeyMinion(uid),
+              s.player.spellPower,
+              s.selection.spell,
+            ),
           );
           const next = resolveSpellTarget(unlocked(get()), target);
           set(withMath(next));
+          writeMatchSave(next);
         } finally {
           actionLock = false;
         }
@@ -263,6 +410,7 @@ export const useGameStore = create<GameStore>((set, get) => {
         return;
       }
 
+      const atkDef = getCard(attacker.defId);
       actionLock = true;
       try {
         await playFx(
@@ -272,6 +420,11 @@ export const useGameStore = create<GameStore>((set, get) => {
             damage: attacker.attack,
             returnDamage: defender.attack,
             artSrc: cardArtSrc(attacker.defId),
+            cardId: atkDef.id,
+            cardName: atkDef.name,
+            cardText: atkDef.text,
+            keywords: attacker.keywords,
+            school: atkDef.art,
           }),
         );
         const next = performAttack(unlocked(get()), attacker.uid, {
@@ -280,6 +433,7 @@ export const useGameStore = create<GameStore>((set, get) => {
           side: "enemy",
         });
         set(withMath(next));
+        writeMatchSave(next);
       } finally {
         actionLock = false;
       }
@@ -293,20 +447,21 @@ export const useGameStore = create<GameStore>((set, get) => {
       if (s.selection.kind === "spell_target") {
         const target: TargetRef = { kind: "hero", side: "enemy" };
         const cardId = s.player.hand[s.selection.handIndex];
-        const def = cardId ? getCard(cardId) : null;
+        const def = cardId ? getCard(cardId) : getCard("bolt");
         actionLock = true;
         try {
           await playFx(
-            spellFx({
-              fromKey: entityKeyHero("player"),
-              toKey: entityKeyHero("enemy"),
-              school: def?.art ?? "arcane",
-              artSrc: def ? cardArtSrc(def.id) : undefined,
-              damage: spellDamage(s.selection.spell, s.player.spellPower),
-            }),
+            spellFxFromCard(
+              def,
+              entityKeyHero("player"),
+              entityKeyHero("enemy"),
+              s.player.spellPower,
+              s.selection.spell,
+            ),
           );
           const next = resolveSpellTarget(unlocked(get()), target);
           set(withMath(next));
+          writeMatchSave(next);
         } finally {
           actionLock = false;
         }
@@ -326,6 +481,7 @@ export const useGameStore = create<GameStore>((set, get) => {
         return;
       }
 
+      const atkDef = getCard(attacker.defId);
       actionLock = true;
       try {
         await playFx(
@@ -335,6 +491,11 @@ export const useGameStore = create<GameStore>((set, get) => {
             damage: attacker.attack,
             returnDamage: 0,
             artSrc: cardArtSrc(attacker.defId),
+            cardId: atkDef.id,
+            cardName: atkDef.name,
+            cardText: atkDef.text,
+            keywords: attacker.keywords,
+            school: atkDef.art,
           }),
         );
         const next = performAttack(unlocked(get()), attacker.uid, {
@@ -342,6 +503,7 @@ export const useGameStore = create<GameStore>((set, get) => {
           side: "enemy",
         });
         set(withMath(next));
+        writeMatchSave(next);
       } finally {
         actionLock = false;
       }
@@ -354,20 +516,21 @@ export const useGameStore = create<GameStore>((set, get) => {
       if (s.selection.kind !== "spell_target") return;
       const target: TargetRef = { kind: "hero", side: "player" };
       const cardId = s.player.hand[s.selection.handIndex];
-      const def = cardId ? getCard(cardId) : null;
+      const def = cardId ? getCard(cardId) : getCard("mend");
       actionLock = true;
       try {
         await playFx(
-          spellFx({
-            fromKey: entityKeyHero("player"),
-            toKey: entityKeyHero("player"),
-            school: def?.art ?? "nature",
-            artSrc: def ? cardArtSrc(def.id) : undefined,
-            heal: def?.spell?.kind === "heal" ? def.spell.amount : undefined,
-          }),
+          spellFxFromCard(
+            def,
+            entityKeyHero("player"),
+            entityKeyHero("player"),
+            s.player.spellPower,
+            s.selection.spell,
+          ),
         );
         const next = resolveSpellTarget(unlocked(get()), target);
         set(withMath(next));
+        writeMatchSave(next);
       } finally {
         actionLock = false;
       }
@@ -381,7 +544,10 @@ export const useGameStore = create<GameStore>((set, get) => {
       try {
         let next = endPlayerTurn(s);
         set(withMath(next));
-        if (next.phase === "victory" || next.phase === "defeat") return;
+        if (next.phase === "victory" || next.phase === "defeat") {
+          clearMatchSave();
+          return;
+        }
 
         await runEnemyTurn(
           () => get(),
@@ -391,9 +557,14 @@ export const useGameStore = create<GameStore>((set, get) => {
         );
 
         const after = get();
-        if (after.phase === "victory" || after.phase === "defeat") return;
+        if (after.phase === "victory" || after.phase === "defeat") {
+          clearMatchSave();
+          return;
+        }
         next = afterEnemyTurn(after);
         set(withMath(next));
+        if (next.phase === "victory" || next.phase === "defeat") clearMatchSave();
+        else writeMatchSave(next);
       } finally {
         actionLock = false;
       }

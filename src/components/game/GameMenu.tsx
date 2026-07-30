@@ -3,7 +3,7 @@ import { useGameStore } from "@/game/store";
 import { GAME_TITLE_SHORT } from "@/game/brand";
 import { SettingsPanel } from "./SettingsPanel";
 import { cn } from "@/lib/utils";
-import { DoorOpen, Settings2, X } from "lucide-react";
+import { DoorOpen, Lock, Save, Settings2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 type Panel = "root" | "settings";
@@ -16,10 +16,20 @@ export function GameMenu({
   onClose: () => void;
 }) {
   const returnToMenu = useGameStore((s) => s.returnToMenu);
+  const saveGameLocal = useGameStore((s) => s.saveGameLocal);
+  const saveNotice = useGameStore((s) => s.saveNotice);
+  const phase = useGameStore((s) => s.phase);
   const [panel, setPanel] = useState<Panel>("root");
+  const [saveMsg, setSaveMsg] = useState<string | null>(null);
+
+  const canSave =
+    phase === "mulligan" || phase === "player_turn" || phase === "enemy_turn";
 
   useEffect(() => {
-    if (open) setPanel("root");
+    if (open) {
+      setPanel("root");
+      setSaveMsg(null);
+    }
   }, [open]);
 
   useEffect(() => {
@@ -50,8 +60,9 @@ export function GameMenu({
       >
         <header className="flex shrink-0 items-center justify-between border-b border-white/10 px-4 py-3">
           <div>
-            <div className="text-sm font-semibold text-fg">
-              {panel === "settings" ? "Settings" : "Exit menu"}
+            <div className="flex items-center gap-1.5 text-sm font-semibold text-fg">
+              <Lock className="h-3.5 w-3.5 text-fg-subtle" />
+              {panel === "settings" ? "Settings" : "Exit menu · Game lock"}
             </div>
             <div className="text-[0.65rem] text-fg-subtle">{GAME_TITLE_SHORT}</div>
           </div>
@@ -83,6 +94,27 @@ export function GameMenu({
               >
                 Resume battle
               </button>
+
+              {canSave && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    unlockAudio();
+                    playSfx("ui");
+                    const r = saveGameLocal();
+                    setSaveMsg(
+                      r.ok
+                        ? "Saved locally on this device."
+                        : r.error || "Save failed.",
+                    );
+                  }}
+                  className="flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-success/40 bg-success/10 px-4 py-3 text-sm font-semibold text-success"
+                >
+                  <Save className="h-4 w-4" />
+                  Save game locally
+                </button>
+              )}
+
               <button
                 type="button"
                 onClick={() => {
@@ -100,8 +132,9 @@ export function GameMenu({
                 onClick={() => {
                   unlockAudio();
                   playSfx("ui");
+                  // Keep save if they saved; still clear only when abandon without save intent
                   onClose();
-                  returnToMenu();
+                  returnToMenu({ keepSave: true });
                 }}
                 className="flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-danger/40 bg-danger/10 px-4 py-3 text-sm font-semibold text-danger"
               >
@@ -109,8 +142,14 @@ export function GameMenu({
                 Exit to launcher
               </button>
               <p className="mt-1 text-center text-[0.65rem] text-fg-subtle">
-                Match progress is not saved when you exit.
+                Use <strong className="text-fg-muted">Save game locally</strong> before
+                exit to resume later. Double-tap system Back opens this menu.
               </p>
+              {(saveMsg || saveNotice) && (
+                <p className="text-center text-xs text-success">
+                  {saveMsg || saveNotice}
+                </p>
+              )}
             </div>
           ) : (
             <SettingsPanel compact showBuild={false} />
