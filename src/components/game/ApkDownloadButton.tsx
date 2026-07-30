@@ -155,7 +155,7 @@ export function ApkDownloadButton({
         <p className="text-center text-[0.6rem] text-fg-subtle">
           {APK_DOWNLOAD_NAME} v{APK_VERSION} · {APK_SIZE_LABEL} · build {BUILD_ID}
           <br />
-          Same package as GitHub release apk-release-1.0.1
+          Same package as GitHub release apk-release-{APK_VERSION}
         </p>
       )}
     </div>

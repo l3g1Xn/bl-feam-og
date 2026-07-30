@@ -103,7 +103,7 @@ const installHtml = `<!DOCTYPE html>
     <div class="card">
       <h1>Battle Legions — Android APK v${APP_VERSION}</h1>
       <p>
-        Release package matching GitHub <code>apk-release-1.0.1</code>
+        Release package matching GitHub <code>apk-release-${APP_VERSION}</code>
         (${BUILD_ID}). Assembles from <code>/pkg/</code> chunks.
       </p>
       <button type="button" id="go">Download BattleLegions.apk</button>
