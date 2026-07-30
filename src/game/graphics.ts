@@ -45,8 +45,9 @@ function detectWebGlVendor(): string {
 function tierFromVendor(v: string): GpuTier {
   const s = v.toLowerCase();
   if (!s || s === "none" || s === "unknown") return "unknown";
+  /* Adreno peak (6xx/7xx/8xx) + peers → high tier for max DPR/FX */
   if (
-    /adreno \(tm\) (6|7|8)|adreno 7|mali-g7|mali-g8|xclipse|apple gpu|nvidia|radeon|geforce|intel.*iris/.test(
+    /adreno \(tm\) (6|7|8)|adreno 7|adreno 6|mali-g7|mali-g8|xclipse|apple gpu|nvidia|radeon|geforce|intel.*iris/.test(
       s,
     )
   ) {

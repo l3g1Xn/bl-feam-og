@@ -35,6 +35,8 @@ export function HeroPortrait({
     <button
       type="button"
       data-entity={entityKeyHero(side)}
+      data-drop={side === "enemy" ? "enemy-hero" : "player-hero"}
+      data-side={side}
       onClick={onClick}
       onMouseEnter={() => onHover?.(true)}
       onMouseLeave={() => onHover?.(false)}

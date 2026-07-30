@@ -7,6 +7,7 @@ import { HeroPortrait } from "./HeroPortrait";
 import { MathPanel } from "./MathPanel";
 import { BattleLog } from "./BattleLog";
 import { CombatFxLayer } from "./CombatFxLayer";
+import { BattleHand } from "./BattleHand";
 import { Launcher } from "./Launcher";
 import { AmbientStage } from "./AmbientStage";
 import { GameMenu } from "./GameMenu";
@@ -16,7 +17,7 @@ import { GAME_TITLE_SHORT } from "@/game/brand";
 import { playSfx, unlockAudio } from "@/game/audio";
 import { setBattleMusicDuck, ensureMusicUnlocked } from "@/game/music";
 import { cn } from "@/lib/utils";
-import { Menu, RotateCcw, SkipForward, X } from "lucide-react";
+import { Menu, RotateCcw, Save, SkipForward, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { SpellEffect } from "@/game/types";
 
@@ -243,11 +244,13 @@ function EndScreen() {
   const phase = useGameStore((s) => s.phase);
   const startGame = useGameStore((s) => s.startGame);
   const returnToMenu = useGameStore((s) => s.returnToMenu);
+  const saveGameLocal = useGameStore((s) => s.saveGameLocal);
   const math = useGameStore((s) => s.math);
   const enemyName = useGameStore((s) => s.enemyName);
   const rewardMatch = useMetaStore((s) => s.rewardMatch);
   const victory = phase === "victory";
   const [reward, setReward] = useState<MatchRewardResult | null>(null);
+  const [saveMsg, setSaveMsg] = useState<string | null>(null);
   const paid = useRef(false);
 
   useEffect(() => {
@@ -302,6 +305,19 @@ function EndScreen() {
             type="button"
             onClick={() => {
               unlockAudio();
+              playSfx("ui");
+              const r = saveGameLocal();
+              setSaveMsg(r.ok ? "Match saved to device cache." : (r.error || "Save failed"));
+            }}
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-success/40 bg-success/15 px-6 py-3 text-sm font-semibold text-success"
+          >
+            <Save className="h-4 w-4" />
+            Save game
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              unlockAudio();
               ensureMusicUnlocked();
               startGame("normal");
             }}
@@ -318,6 +334,9 @@ function EndScreen() {
             Launcher
           </button>
         </div>
+        {saveMsg && (
+          <p className="mt-3 text-center text-xs text-success">{saveMsg}</p>
+        )}
       </div>
     </div>
   );
@@ -602,7 +621,7 @@ function BattleScreen({
 
       <div className="relative z-10 flex min-h-0 min-w-0 overflow-hidden">
         <div className="grid min-h-0 min-w-0 flex-1 grid-rows-[auto_minmax(0,1fr)_auto_minmax(0,1fr)_auto] overflow-hidden">
-          <div className="flex shrink-0 items-center justify-center px-2 py-0.5">
+          <div className="flex shrink-0 items-center justify-center px-2 py-0.5" data-drop="enemy-hero" data-side="enemy">
             <HeroPortrait
               name={foeLabel}
               hp={enemy.heroHp}
@@ -617,13 +636,16 @@ function BattleScreen({
             />
           </div>
 
-          <div className="flex min-h-0 items-center justify-center gap-1 overflow-x-auto overflow-y-hidden px-2 sm:gap-2">
+          <div
+            className="flex min-h-0 items-center justify-center gap-1 overflow-x-auto overflow-y-hidden px-2 sm:gap-2"
+            data-drop="enemy-board"
+          >
             {enemy.board.length === 0 && (
               <span className="text-[0.65rem] text-fg-subtle sm:text-xs">Empty board</span>
             )}
             {enemy.board.map((m) => (
+              <div key={m.uid} data-drop="enemy-minion" data-uid={m.uid} data-side="enemy" className="contents">
               <MinionToken
-                key={m.uid}
                 minion={m}
                 side="enemy"
                 compact={short}
@@ -634,18 +656,22 @@ function BattleScreen({
                 onClick={() => clickEnemyMinion(m.uid)}
                 onHover={(on) => hoverEnemyMinion(on ? m.uid : null)}
               />
+              </div>
             ))}
           </div>
 
-          <div className="mx-auto h-px w-3/4 shrink-0 bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent" />
+          <div className="mx-auto h-px w-3/4 shrink-0 bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent" data-drop="field" />
 
-          <div className="flex min-h-0 items-center justify-center gap-1 overflow-x-auto overflow-y-hidden px-2 sm:gap-2">
+          <div
+            className="flex min-h-0 items-center justify-center gap-1 overflow-x-auto overflow-y-hidden px-2 sm:gap-2"
+            data-drop="player-board"
+          >
             {player.board.length === 0 && (
-              <span className="text-[0.65rem] text-fg-subtle sm:text-xs">Your board</span>
+              <span className="text-[0.65rem] text-fg-subtle sm:text-xs">Drop minions here</span>
             )}
             {player.board.map((m) => (
+              <div key={m.uid} data-drop="player-minion" data-uid={m.uid} data-side="player" className="contents">
               <MinionToken
-                key={m.uid}
                 minion={m}
                 side="player"
                 compact={short}
@@ -655,10 +681,11 @@ function BattleScreen({
                 }
                 onClick={() => clickPlayerMinion(m.uid)}
               />
+              </div>
             ))}
           </div>
 
-          <div className="flex shrink-0 items-center justify-center px-2 py-0.5">
+          <div className="flex shrink-0 items-center justify-center px-2 py-0.5" data-drop="player-hero" data-side="player">
             <HeroPortrait
               name="You"
               hp={player.heroHp}
@@ -683,39 +710,9 @@ function BattleScreen({
         )}
       </div>
 
-      <div
-        className={cn(
-          "battle-hand relative z-20 flex shrink-0 items-end justify-center gap-0.5 overflow-x-auto overflow-y-visible border-t border-white/10 bg-black/55 px-1.5 backdrop-blur-md sm:gap-1.5 sm:px-2",
-          short ? "py-1" : "py-1.5 sm:py-2",
-        )}
-        style={{
-          paddingBottom: "max(0.35rem, env(safe-area-inset-bottom, 0px))",
-        }}
-      >
-        {player.hand.map((id, i) => {
-          const def = getCard(id);
-          const playable =
-            phase === "player_turn" &&
-            !animating &&
-            def.cost <= player.mana &&
-            (def.type === "spell" || player.board.length < 7);
-          return (
-            <CardView
-              key={`${id}-${i}`}
-              defId={id}
-              size={handSize}
-              playable={playable}
-              dimmed={!playable}
-              selected={
-                selection.kind === "spell_target" && selection.handIndex === i
-              }
-              onClick={() => clickHand(i)}
-            />
-          );
-        })}
-      </div>
+            <BattleHand handSize={handSize} short={short} />
 
-      {(narrow || short) && (
+{(narrow || short) && (
         <div className="relative z-10 max-h-10 shrink-0 overflow-y-auto border-t border-white/5 bg-black/60 px-2 py-0.5 text-[0.58rem] leading-tight text-fg-muted backdrop-blur sm:max-h-14 sm:text-[0.65rem]">
           {preview && (
             <div className="truncate font-mono text-primary">{preview.formula}</div>

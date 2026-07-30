@@ -68,6 +68,9 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
   const [shock, setShock] = useState<Shockwave[]>([]);
   const [flash, setFlash] = useState<string | null>(null);
   const [banner, setBanner] = useState<Banner | null>(null);
+  const [slashes, setSlashes] = useState<
+    Array<{ id: string; x: number; y: number; ang: number; color: string; len: number }>
+  >([]);
   const [beams, setBeams] = useState<
     Array<{ id: string; x0: number; y0: number; x1: number; y1: number; color: string; thick: number }>
   >([]);
@@ -228,6 +231,24 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
       window.setTimeout(() => {
         setProjectiles((p) => p.filter((x) => x.id !== proj.id));
       }, proj.dur + 40);
+
+      // Animated weaponry strike (blade / beam arc)
+      if (fx.kind === "melee" || fx.beam === "slash" || fx.beam === "laser") {
+        const ang = (Math.atan2(to.y - from.y, to.x - from.x) * 180) / Math.PI;
+        const len = Math.hypot(to.x - from.x, to.y - from.y);
+        const slash = {
+          id: `sl-${fx.id}`,
+          x: (from.x + to.x) / 2,
+          y: (from.y + to.y) / 2,
+          ang,
+          color,
+          len: Math.min(len, 220),
+        };
+        setSlashes((s) => [...s.slice(-4), slash]);
+        window.setTimeout(() => {
+          setSlashes((s) => s.filter((x) => x.id !== slash.id));
+        }, 380);
+      }
     }
 
     if (!reduced && to && profile.battleDetail >= 0.55) {
@@ -457,6 +478,25 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
         );
       })}
 
+      {slashes.map((s) => (
+        <div
+          key={s.id}
+          className="fx-weapon-slash absolute"
+          style={{
+            left: s.x,
+            top: s.y,
+            width: s.len,
+            height: 4,
+            marginLeft: -s.len / 2,
+            marginTop: -2,
+            // @ts-expect-error CSS var
+            "--ang": `${s.ang}deg`,
+            transform: `rotate(${s.ang}deg)`,
+            background: `linear-gradient(90deg, transparent, #fff, ${s.color}, #fff, transparent)`,
+            boxShadow: `0 0 16px ${s.color}, 0 0 28px ${s.color}`,
+          }}
+        />
+      ))}
       {floats.map((f) => (
         <div
           key={f.id}
@@ -478,6 +518,15 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
         @keyframes fx-shock {
           from { transform: scale(0.4); opacity: 0.9; }
           to { transform: scale(var(--fx-scale, 6)); opacity: 0; }
+        }
+        .fx-weapon-slash {
+          animation: fx-slash 360ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+          border-radius: 99px;
+        }
+        @keyframes fx-slash {
+          0% { opacity: 0; transform: rotate(var(--ang, 0deg)) scaleX(0.2); filter: brightness(2.2); }
+          35% { opacity: 1; transform: rotate(var(--ang, 0deg)) scaleX(1.05); filter: brightness(1.6); }
+          100% { opacity: 0; transform: rotate(var(--ang, 0deg)) scaleX(1.15); filter: brightness(1); }
         }
         .fx-beam {
           animation: fx-beam-fade 380ms ease-out forwards;

@@ -30,6 +30,9 @@ export function MinionToken({
     <button
       type="button"
       data-entity={entityKeyMinion(minion.uid)}
+      data-drop={side === "enemy" ? "enemy-minion" : "player-minion"}
+      data-uid={minion.uid}
+      data-side={side}
       onClick={onClick}
       onMouseEnter={() => onHover?.(true)}
       onMouseLeave={() => onHover?.(false)}
