@@ -17,3 +17,9 @@ screenshots/
 artifacts/
 !public/downloads/BattleLegions.apk
 !releases/BattleLegions.apk
+
+# APK binaries live on GitHub Releases only (>100MB)
+public/downloads/*.apk
+public/downloads/*.bin
+releases/*.apk
+artifacts/

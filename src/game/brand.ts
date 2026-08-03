@@ -10,7 +10,7 @@ export const APK_DOWNLOAD_PATH = "/downloads/BattleLegions.apk";
 /** Semantic version printed on the site and in the Android package. */
 export const APK_VERSION = "1.06.666";
 /** Approx size for UI copy — TraX soundtrack included (2 suites). */
-export const APK_SIZE_LABEL = "~175 MB";
+export const APK_SIZE_LABEL = "~101 MB";
 /** Hard APK size ceiling (bytes) — VFX/SFX headroom without bloat. */
 export const APK_MAX_BYTES = 300 * 1024 * 1024;
 /**

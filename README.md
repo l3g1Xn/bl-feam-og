@@ -11,7 +11,7 @@ Welcome, commander. This is the short, slightly sarcastic field manual for **Bat
 **Direct APK (recommended):**  
 **[Download BattleLegions.apk — Release 1.06.666](https://github.com/l3g1Xn/bl-feam-og/releases/download/apk-release-1.06.666/BattleLegions.apk)**
 
-- **Size:** ~175 MB (TraX included) (300 MB hard cap)  
+- **Size:** ~101 MB (TraX included · 300 MB hard cap)  
 - **Platform:** Android (signed offline package, landscape)  
 - **Release page:** [apk-release-1.06.666](https://github.com/l3g1Xn/bl-feam-og/releases/tag/apk-release-1.06.666)  
 - **Web / site practice:** play in browser at the Grok-hosted site (same rules, no PIN vault)
@@ -53,7 +53,8 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, and an oppone
 
 ### Audio & graphics
 
-- **No menu soundtrack** — combat kinetic SFX only (clashes, beams, hero grunts, victory/defeat)  
+- **Legion TraX soundtrack** — Part 1 & Part 2 only (old 10-track set removed)  
+- Combat SFX stay layered; music ducks during battle  
 - School-colored multi-layer battle VFX (beams, particles, hit-stop, residual trails)  
 - Graphics quality live: **Low → UltraHD** (Adreno-first defaults, Galaxy panels welcome)  
 - Canvas-drawn menu chrome on launcher panels, store, and in-match exit menu
