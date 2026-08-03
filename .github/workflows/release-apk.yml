@@ -1,0 +1,79 @@
+name: Build and publish BattleLegions.apk
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "android/**"
+      - "src/**"
+      - "public/music/**"
+      - "scripts/**"
+      - "package.json"
+      - "vite.mobile.config.ts"
+      - ".github/workflows/release-apk.yml"
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Accept licenses and install platform
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platforms;android-36" "build-tools;35.0.0" "platform-tools"
+
+      - name: Ensure targetSdk 34
+        run: |
+          sed -i 's/targetSdkVersion = 36/targetSdkVersion = 34/' android/variables.gradle || true
+          grep targetSdkVersion android/variables.gradle
+
+      - name: Build release APK
+        env:
+          BL_STORE_PASS: BL4WeAreMany!
+          BL_KEY_PASS: BL4WeAreMany!
+        run: |
+          export ANDROID_SDK_ROOT="$ANDROID_HOME"
+          npm run build:mobile
+          npx cap sync android
+          chmod +x android/gradlew
+          cd android
+          ./gradlew assembleRelease --no-daemon
+
+      - name: Verify APK alignment
+        run: |
+          APK=android/app/build/outputs/apk/release/app-release.apk
+          ls -lh "$APK"
+          "$ANDROID_HOME/build-tools/35.0.0/zipalign" -c -p 4 "$APK"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | head -5
+
+      - name: Publish to release apk-release-1.06.666
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cp android/app/build/outputs/apk/release/app-release.apk /tmp/BattleLegions.apk
+          # Delete broken asset if present, then upload fixed APK
+          gh release view apk-release-1.06.666 >/dev/null 2>&1 || \
+            gh release create apk-release-1.06.666 --title "Battle Legions v1.06.666 — Legion TraX" --notes "Official Gradle build · TraX only · targetSdk 34 · aligned resources.arsc"
+          gh release upload apk-release-1.06.666 /tmp/BattleLegions.apk --clobber
+          gh release upload v1.06.666 /tmp/BattleLegions.apk --clobber || true
+          echo "Uploaded fixed BattleLegions.apk"
