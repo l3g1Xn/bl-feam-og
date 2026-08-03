@@ -16,7 +16,7 @@ Welcome, commander. This is the short, slightly sarcastic field manual for **Bat
 - **Release page:** [apk-release-1.06.666](https://github.com/l3g1Xn/bl-feam-og/releases/tag/apk-release-1.06.666)  
 - **Web / site practice:** play in browser at the Grok-hosted site (same rules, no PIN vault)
 
-Install the APK, unlock the PIN vault once if prompted, and you’re in **LEGIXN COMMAND**. The web build lands straight on command — PIN is APK-only, because your phone is the only vault that matters.
+Install the APK, unlock the PIN vault once if prompted, and you’re in **LEGIXN COMMAND**. The web build lands straight on command — PIN is APK-only (local vault, no cloud).
 
 ---
 
@@ -48,7 +48,7 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, and an oppone
 | **Ranked practice** | Normal / Hard AI — same rules, different pain |
 | **Ticket store** | Spend tickets on exclusives (prices ×2 rebalance, level-gated) |
 | **Collection** | Own cards, build the deck, look at pretty portraits |
-| **LX_SAVE_GAME** | Auto-save on close; load from the main menu (device-local) |
+| **LX_SAVE_GAME** | Auto-save on close; load from the main menu (local only) |
 | **PIN vault (APK)** | Local lock on reopen — no cloud, no “forgot password” email |
 
 ### Audio & graphics
@@ -56,7 +56,7 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, and an oppone
 - **Legion TraX soundtrack** — Part 1 & Part 2 only (old 10-track set removed)  
 - Combat SFX stay layered; music ducks during battle  
 - School-colored multi-layer battle VFX (beams, particles, hit-stop, residual trails)  
-- Graphics quality live: **Low → UltraHD** (Adreno-first defaults, Galaxy panels welcome)  
+- Graphics quality live: **Low → UltraHD**  
 - Canvas-drawn menu chrome on launcher panels, store, and in-match exit menu
 
 ---
@@ -68,6 +68,7 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, and an oppone
 - Legion TraX Part 1 & Part 2 soundtrack (replaces old 10-track set)  
 - Typed combat engine, denser VFX, canvas-framed menus  
 - Doubled store ticket prices · fixed board minion display  
+- Official Gradle release build · targetSdk 34  
 - 300 MB APK ceiling retained  
 
 
