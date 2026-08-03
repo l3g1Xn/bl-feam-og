@@ -1,6 +1,7 @@
 /**
- * Warhammer-scale battle SFX — multi-stage kinetic / energy / war-cry synthesis.
- * Offline Web Audio only. Peak-limited bus with heavy layering.
+ * Battle Legions battle SFX — multi-stage kinetic / energy / war-cry synthesis.
+ * Offline Web Audio only. Peak-limited bus with school-colored layers + reverb.
+ * Zero binary audio assets → free APK headroom under the 300 MB cap.
  */
 
 export type SfxId =
@@ -17,13 +18,20 @@ export type SfxId =
   | "glory"
   | "defeat"
   | "ui"
-  | "whoosh";
+  | "whoosh"
+  | "frost"
+  | "void"
+  | "nature"
+  | "plasma"
+  | "impact_tail";
 
 let ctx: AudioContext | null = null;
 let masterGain: GainNode | null = null;
 let bus: GainNode | null = null;
 let compressor: DynamicsCompressorNode | null = null;
 let limiter: DynamicsCompressorNode | null = null;
+let reverbSend: GainNode | null = null;
+let reverbNode: ConvolverNode | null = null;
 let volume = 1.0;
 let muted = false;
 
@@ -40,19 +48,28 @@ function ac(): AudioContext | null {
       masterGain = ctx.createGain();
       masterGain.gain.value = muted ? 0 : volume;
       bus = ctx.createGain();
-      bus.gain.value = 1.35; // headroom into compressor
+      bus.gain.value = 1.28;
       compressor = ctx.createDynamicsCompressor();
-      compressor.threshold.value = -22;
-      compressor.knee.value = 12;
-      compressor.ratio.value = 10;
+      compressor.threshold.value = -20;
+      compressor.knee.value = 14;
+      compressor.ratio.value = 9;
       compressor.attack.value = 0.001;
-      compressor.release.value = 0.18;
+      compressor.release.value = 0.16;
       limiter = ctx.createDynamicsCompressor();
-      limiter.threshold.value = -3;
+      limiter.threshold.value = -2.5;
       limiter.knee.value = 0;
       limiter.ratio.value = 20;
       limiter.attack.value = 0.001;
       limiter.release.value = 0.05;
+
+      // Short impulse reverb for combat space (synth — no assets)
+      reverbNode = ctx.createConvolver();
+      reverbNode.buffer = makeImpulse(ctx, 0.55, 2.2);
+      reverbSend = ctx.createGain();
+      reverbSend.gain.value = 0.22;
+      reverbSend.connect(reverbNode);
+      reverbNode.connect(compressor);
+
       masterGain.connect(bus);
       bus.connect(compressor);
       compressor.connect(limiter);
@@ -63,6 +80,23 @@ function ac(): AudioContext | null {
   } catch {
     return null;
   }
+}
+
+function makeImpulse(
+  c: AudioContext,
+  seconds: number,
+  decay: number,
+): AudioBuffer {
+  const len = Math.max(1, Math.floor(c.sampleRate * seconds));
+  const buf = c.createBuffer(2, len, c.sampleRate);
+  for (let ch = 0; ch < 2; ch++) {
+    const data = buf.getChannelData(ch);
+    for (let i = 0; i < len; i++) {
+      data[i] =
+        (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay) * (ch ? 0.9 : 1);
+    }
+  }
+  return buf;
 }
 
 export function setSfxVolume(v: number) {
@@ -91,6 +125,10 @@ export function unlockAudio() {
 
 function out(): AudioNode {
   return masterGain!;
+}
+
+function wet(): AudioNode {
+  return reverbSend ?? masterGain!;
 }
 
 function noiseBuffer(
@@ -207,7 +245,6 @@ function noiseShot(
   src.stop(t0 + dur + 0.1);
 }
 
-/** Distorted drive via waveshaper */
 function driveNode(c: AudioContext, amount = 8): WaveShaperNode {
   const ws = c.createWaveShaper();
   const n = 1024;
@@ -221,7 +258,6 @@ function driveNode(c: AudioContext, amount = 8): WaveShaperNode {
   return ws;
 }
 
-/** Seismic / bolter body */
 function seismicThump(
   c: AudioContext,
   dest: AudioNode,
@@ -238,7 +274,6 @@ function seismicThump(
   });
 }
 
-/** Multi-stage explosion (40K scale) */
 function detonation(
   c: AudioContext,
   dest: AudioNode,
@@ -247,22 +282,18 @@ function detonation(
   huge: boolean,
 ) {
   const p = huge ? 1.1 * k : 0.75 * k;
-  // flash
   noiseShot(c, dest, t0, 0.04, p * 1.1, { color: "white", hipass: 1500 });
-  // blast wave
   seismicThump(c, dest, t0 + 0.005, p * 0.95, huge ? 32 : 48);
   noiseShot(c, dest, t0 + 0.01, huge ? 0.45 : 0.28, p * 0.85, {
     color: "pink",
     hipass: 80,
     lowpass: 2800,
   });
-  // debris
   noiseShot(c, dest, t0 + 0.05, 0.35, p * 0.4, {
     color: "white",
     hipass: 2200,
     lowpass: 9000,
   });
-  // metal rain
   for (let i = 0; i < (huge ? 8 : 5); i++) {
     tone(
       c,
@@ -274,7 +305,6 @@ function detonation(
       p * 0.08,
     );
   }
-  // delayed boom tail
   seismicThump(c, dest, t0 + 0.08, p * 0.55, huge ? 28 : 40);
   noiseShot(c, dest, t0 + 0.12, 0.5, p * 0.35, {
     color: "brown",
@@ -282,7 +312,6 @@ function detonation(
   });
 }
 
-/** Chainsword / power-weapon metal impact */
 function powerMetal(
   c: AudioContext,
   dest: AudioNode,
@@ -291,9 +320,7 @@ function powerMetal(
   heavy: boolean,
 ) {
   const p = heavy ? 1.0 * k : 0.72 * k;
-  // initial crack
   noiseShot(c, dest, t0, 0.028, p * 1.15, { color: "white", hipass: 1800 });
-  // grinding blade body
   const drive = driveNode(c, heavy ? 14 : 9);
   const gDrive = c.createGain();
   env(gDrive, t0, p * 0.55, 0.002, heavy ? 0.22 : 0.14);
@@ -311,7 +338,6 @@ function powerMetal(
   src.start(t0);
   src.stop(t0 + 0.35);
 
-  // harmonic ring shower
   const rings = heavy
     ? [520, 780, 1040, 1560, 2340, 3120, 4160]
     : [660, 990, 1480, 2220, 3330];
@@ -327,7 +353,6 @@ function powerMetal(
     );
   });
   seismicThump(c, dest, t0 + 0.008, p * 0.7, heavy ? 36 : 55);
-  // secondary bounce
   noiseShot(c, dest, t0 + 0.06, 0.1, p * 0.35, {
     color: "white",
     hipass: 2500,
@@ -336,7 +361,6 @@ function powerMetal(
 }
 
 function chainBlade(c: AudioContext, dest: AudioNode, t0: number, k: number) {
-  // rev
   tone(c, dest, 90, t0, 0.08, "sawtooth", 0.25 * k, 140);
   noiseShot(c, dest, t0, 0.1, 0.35 * k, {
     color: "pink",
@@ -344,7 +368,6 @@ function chainBlade(c: AudioContext, dest: AudioNode, t0: number, k: number) {
     lowpass: 7000,
   });
   powerMetal(c, dest, t0 + 0.03, k * 1.05, false);
-  // teeth chatter
   for (let i = 0; i < 6; i++) {
     noiseShot(c, dest, t0 + 0.02 + i * 0.012, 0.02, 0.2 * k, {
       color: "white",
@@ -353,12 +376,9 @@ function chainBlade(c: AudioContext, dest: AudioNode, t0: number, k: number) {
   }
 }
 
-/** Plasma / melta discharge */
 function plasmaBlast(c: AudioContext, dest: AudioNode, t0: number, k: number) {
-  // charge whine
   tone(c, dest, 1800, t0, 0.08, "sawtooth", 0.22 * k, 3200);
   tone(c, dest, 2400, t0 + 0.02, 0.06, "square", 0.12 * k, 4000);
-  // main plasma bolt
   const o = c.createOscillator();
   const g = c.createGain();
   const f = c.createBiquadFilter();
@@ -376,22 +396,17 @@ function plasmaBlast(c: AudioContext, dest: AudioNode, t0: number, k: number) {
   g.connect(dest);
   o.start(t0 + 0.05);
   o.stop(t0 + 0.42);
-  // ionization
   noiseShot(c, dest, t0 + 0.05, 0.28, 0.55 * k, {
     color: "white",
     hipass: 2000,
   });
   seismicThump(c, dest, t0 + 0.08, 0.55 * k, 55);
-  // aftershock
   detonation(c, dest, t0 + 0.12, k * 0.55, false);
 }
 
-/** Heavy energy beam / lascannon */
 function heavyBeam(c: AudioContext, dest: AudioNode, t0: number, k: number) {
-  // spool
   tone(c, dest, 60, t0, 0.12, "sawtooth", 0.3 * k, 90);
   noiseShot(c, dest, t0, 0.15, 0.25 * k, { color: "pink", lowpass: 800 });
-  // sustained roar
   const o = c.createOscillator();
   const o2 = c.createOscillator();
   const o3 = c.createOscillator();
@@ -431,16 +446,76 @@ function heavyBeam(c: AudioContext, dest: AudioNode, t0: number, k: number) {
     hipass: 600,
     lowpass: 4000,
   });
-  // terminal crack
   powerMetal(c, dest, t0 + 0.48, k * 0.7, true);
   detonation(c, dest, t0 + 0.5, k * 0.6, true);
 }
 
-function spellCataclysm(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+function frostLayer(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  tone(c, dest, 2200, t0, 0.12, "sine", 0.2 * k, 900);
+  tone(c, dest, 3400, t0 + 0.02, 0.1, "triangle", 0.14 * k, 1400);
+  noiseShot(c, dest, t0, 0.22, 0.35 * k, {
+    color: "white",
+    hipass: 4000,
+    lowpass: 12000,
+  });
+  for (let i = 0; i < 5; i++) {
+    tone(
+      c,
+      dest,
+      1800 + i * 220,
+      t0 + i * 0.018,
+      0.08,
+      "sine",
+      0.08 * k,
+      600,
+    );
+  }
+  seismicThump(c, dest, t0 + 0.04, 0.3 * k, 70);
+}
+
+function voidLayer(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  tone(c, dest, 55, t0, 0.4, "sine", 0.45 * k, 28);
+  tone(c, dest, 80, t0, 0.35, "sawtooth", 0.2 * k, 40);
+  noiseShot(c, dest, t0, 0.4, 0.4 * k, {
+    color: "brown",
+    lowpass: 400,
+  });
+  for (let i = 0; i < 4; i++) {
+    tone(
+      c,
+      dest,
+      90 + i * 40,
+      t0 + 0.05 + i * 0.04,
+      0.2,
+      "triangle",
+      0.12 * k,
+      50,
+    );
+  }
+  detonation(c, dest, t0 + 0.1, k * 0.4, false);
+}
+
+function natureLayer(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  [330, 392, 494, 587].forEach((f, i) => {
+    tone(c, dest, f, t0 + i * 0.03, 0.28, "sine", 0.14 * k);
+  });
+  noiseShot(c, dest, t0, 0.18, 0.22 * k, {
+    color: "pink",
+    hipass: 800,
+    lowpass: 5000,
+  });
+  tone(c, dest, 140, t0, 0.2, "triangle", 0.18 * k, 90);
+}
+
+function spellCataclysm(
+  c: AudioContext,
+  dest: AudioNode,
+  t0: number,
+  k: number,
+) {
   tone(c, dest, 400, t0, 0.12, "sine", 0.25 * k, 180);
   tone(c, dest, 600, t0 + 0.03, 0.15, "triangle", 0.22 * k, 280);
   tone(c, dest, 900, t0 + 0.05, 0.2, "sine", 0.18 * k, 450);
-  // rising chaos
   for (let i = 0; i < 7; i++) {
     tone(
       c,
@@ -486,7 +561,6 @@ function summonRift(c: AudioContext, dest: AudioNode, t0: number, k: number) {
   detonation(c, dest, t0 + 0.1, k * 0.5, false);
 }
 
-/** Battlefield war-cry — guttural, layered */
 function warCry(c: AudioContext, dest: AudioNode, t0: number, ally: boolean) {
   const base = ally ? 95 : 140;
   const o = c.createOscillator();
@@ -553,6 +627,16 @@ function whooshPass(c: AudioContext, dest: AudioNode, t0: number, k: number) {
   tone(c, dest, 700, t0 + 0.02, 0.14, "sine", 0.12 * k, 100);
 }
 
+function impactTail(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  noiseShot(c, dest, t0, 0.35, 0.28 * k, {
+    color: "pink",
+    hipass: 200,
+    lowpass: 1800,
+  });
+  seismicThump(c, dest, t0, 0.35 * k, 48);
+  tone(c, dest, 200, t0, 0.4, "sine", 0.12 * k, 60);
+}
+
 function uiClick(c: AudioContext, dest: AudioNode, t0: number) {
   tone(c, dest, 980, t0, 0.045, "sine", 0.14);
   tone(c, dest, 1480, t0 + 0.01, 0.035, "triangle", 0.08);
@@ -564,35 +648,56 @@ export function playSfx(id: SfxId, intensity = 1) {
   const c = ac();
   if (!c || !masterGain) return;
   const t0 = c.currentTime + 0.001;
-  // Push intensity hard — 40K scale
   const k = Math.max(0.4, Math.min(2.0, intensity * 1.25));
   const dest = out();
+  const room = wet();
 
   switch (id) {
     case "clash":
       powerMetal(c, dest, t0, k, false);
+      powerMetal(c, room, t0, k * 0.35, false);
       break;
     case "heavy_clash":
       powerMetal(c, dest, t0, k * 1.15, true);
       detonation(c, dest, t0 + 0.02, k * 0.7, true);
+      detonation(c, room, t0 + 0.02, k * 0.4, true);
       break;
     case "blade":
       chainBlade(c, dest, t0, k);
+      chainBlade(c, room, t0, k * 0.3);
       break;
     case "laser":
+    case "plasma":
       plasmaBlast(c, dest, t0, k);
+      plasmaBlast(c, room, t0, k * 0.4);
       break;
     case "beam":
       heavyBeam(c, dest, t0, k);
+      heavyBeam(c, room, t0, k * 0.35);
       break;
     case "spell":
       spellCataclysm(c, dest, t0, k);
+      spellCataclysm(c, room, t0, k * 0.4);
+      break;
+    case "frost":
+      frostLayer(c, dest, t0, k);
+      frostLayer(c, room, t0, k * 0.5);
+      break;
+    case "void":
+      voidLayer(c, dest, t0, k);
+      voidLayer(c, room, t0, k * 0.55);
+      break;
+    case "nature":
+      natureLayer(c, dest, t0, k);
+      natureLayer(c, room, t0, k * 0.4);
       break;
     case "heal":
       healPulse(c, dest, t0, k);
+      healPulse(c, room, t0, k * 0.5);
       break;
     case "summon":
       summonRift(c, dest, t0, k);
+      summonRift(c, room, t0, k * 0.35);
       break;
     case "grunt":
       warCry(c, dest, t0, true);
@@ -602,12 +707,18 @@ export function playSfx(id: SfxId, intensity = 1) {
       break;
     case "glory":
       gloryFanfare(c, dest, t0);
+      gloryFanfare(c, room, t0);
       break;
     case "defeat":
       defeatCollapse(c, dest, t0);
+      defeatCollapse(c, room, t0);
       break;
     case "whoosh":
       whooshPass(c, dest, t0, k);
+      break;
+    case "impact_tail":
+      impactTail(c, dest, t0, k);
+      impactTail(c, room, t0, k * 0.6);
       break;
     case "ui":
       uiClick(c, dest, t0);
@@ -627,17 +738,28 @@ export function playCombatSfx(opts: {
   const dmg = opts.damage ?? 0;
   const school = (opts.school || "").toLowerCase();
   const beam = (opts.beam || "").toLowerCase();
-  // Scale presence by damage so big hits feel apocalyptic
   const power = 0.85 + Math.min(1.2, dmg * 0.12);
 
   if (opts.kind === "melee") {
-    if (beam === "laser" || school === "arcane" || school === "ember") {
+    // School identity first
+    if (school === "frost" || beam === "frost_bolt") {
+      playSfx("frost", power);
+      playSfx("whoosh", power * 0.45);
+    } else if (school === "shadow" || beam === "shadow_bolt") {
+      playSfx("void", power);
+      playSfx("whoosh", power * 0.4);
+    } else if (school === "nature" || beam === "nature_vine") {
+      playSfx("nature", power);
+      playSfx("clash", power * 0.4);
+    } else if (
+      beam === "laser" ||
+      school === "arcane" ||
+      school === "ember" ||
+      beam === "ember_orb"
+    ) {
       playSfx("laser", power);
-      playSfx(dmg >= 6 ? "heavy_clash" : "clash", power * 0.55);
-    } else if (beam === "beam" || school === "frost" || school === "shadow") {
-      playSfx("beam", power);
-      playSfx("whoosh", power * 0.5);
-    } else if (school === "steel" || school === "nature" || beam === "slash") {
+      playSfx(dmg >= 6 ? "heavy_clash" : "clash", power * 0.5);
+    } else if (school === "steel" || beam === "slash") {
       playSfx("blade", power * 1.1);
       playSfx(dmg >= 5 ? "heavy_clash" : "clash", power * 0.75);
     } else {
@@ -645,18 +767,34 @@ export function playCombatSfx(opts: {
       if (dmg >= 4) playSfx("blade", power * 0.65);
     }
     if (dmg >= 2) {
-      playSfx(opts.fromPlayer ? "grunt" : "enemy_grunt", 0.9 + Math.min(0.6, dmg * 0.05));
+      playSfx(
+        opts.fromPlayer ? "grunt" : "enemy_grunt",
+        0.9 + Math.min(0.6, dmg * 0.05),
+      );
     }
+    if (dmg >= 5) playSfx("impact_tail", power * 0.85);
     if (dmg >= 8) playSfx("heavy_clash", power * 0.9);
   } else if (opts.kind === "spell") {
     playSfx("whoosh", power * 0.7);
-    if (beam === "laser" || school === "arcane") {
+    if (school === "frost" || beam === "frost_bolt") {
+      playSfx("frost", power * 1.1);
+    } else if (school === "shadow" || beam === "shadow_bolt" || beam === "dominus_ring") {
+      playSfx("void", power * 1.15);
+      playSfx("spell", power * 0.55);
+    } else if (school === "nature" || beam === "nature_vine") {
+      playSfx("nature", power * 1.05);
+    } else if (
+      beam === "laser" ||
+      school === "arcane" ||
+      school === "ember"
+    ) {
       playSfx("laser", power * 1.1);
-    } else if (beam === "beam" || school === "shadow") {
+    } else if (beam === "beam") {
       playSfx("beam", power * 1.1);
     } else {
       playSfx("spell", power * 1.05);
     }
+    if (dmg >= 4) playSfx("impact_tail", power * 0.7);
     if (opts.toHero && dmg >= 3) {
       playSfx(opts.fromPlayer === false ? "grunt" : "enemy_grunt", 1.1);
     }

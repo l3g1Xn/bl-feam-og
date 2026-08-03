@@ -6,14 +6,14 @@ Welcome, commander. This is the short, slightly sarcastic field manual for **Bat
 
 ---
 
-## Download the game (v1.05)
+## Download the game (v1.06.666)
 
 **Direct APK (recommended):**  
-**[Download BattleLegions.apk — Release 1.05](https://github.com/l3g1Xn/bl-feam-og/releases/download/apk-release-1.05/BattleLegions.apk)**
+**[Download BattleLegions.apk — Release 1.06.666](https://github.com/l3g1Xn/bl-feam-og/releases/download/apk-release-1.06.666/BattleLegions.apk)**
 
-- **Size:** ~88 MB  
+- **Size:** ~175 MB (TraX included) (300 MB hard cap)  
 - **Platform:** Android (signed offline package, landscape)  
-- **Release page:** [apk-release-1.05](https://github.com/l3g1Xn/bl-feam-og/releases/tag/apk-release-1.05) · also [Battle-Legion-105](https://github.com/l3g1Xn/bl-feam-og/releases/tag/Battle-Legion-105)  
+- **Release page:** [apk-release-1.06.666](https://github.com/l3g1Xn/bl-feam-og/releases/tag/apk-release-1.06.666)  
 - **Web / site practice:** play in browser at the Grok-hosted site (same rules, no PIN vault)
 
 Install the APK, unlock the PIN vault once if prompted, and you’re in **LEGIXN COMMAND**. The web build lands straight on command — PIN is APK-only, because your phone is the only vault that matters.
@@ -46,38 +46,36 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, and an oppone
 | Thing | What it does |
 | --- | --- |
 | **Ranked practice** | Normal / Hard AI — same rules, different pain |
-| **Ticket store** | Spend tickets on exclusives (level-gated, no FOMO accounts) |
+| **Ticket store** | Spend tickets on exclusives (prices ×2 rebalance, level-gated) |
 | **Collection** | Own cards, build the deck, look at pretty portraits |
 | **LX_SAVE_GAME** | Auto-save on close; load from the main menu (device-local) |
 | **PIN vault (APK)** | Local lock on reopen — no cloud, no “forgot password” email |
 
-### Audio & graphics (because war needs a soundtrack)
+### Audio & graphics
 
-- **10-track** menu score: 5 LegionX originals + 5 EDM — tap any track, skip when the vibe fails  
-- Warhammer-scale multi-layer battle SFX (power weapons, plasma, beams, war cries)  
-- Graphics quality live: **Low → UltraHD** (Adreno-first defaults, Galaxy panels welcome)
+- **No menu soundtrack** — combat kinetic SFX only (clashes, beams, hero grunts, victory/defeat)  
+- School-colored multi-layer battle VFX (beams, particles, hit-stop, residual trails)  
+- Graphics quality live: **Low → UltraHD** (Adreno-first defaults, Galaxy panels welcome)  
+- Canvas-drawn menu chrome on launcher panels, store, and in-match exit menu
 
 ---
 
 ## Version notes
 
-**1.05** — *#App Icon Swap*  
-Only meaningful change over late 1.05 packaging: APK / launcher icon is the **LEGIXN shield crest**. Gameplay, soundtrack, and store content stay the full 1.05 package.
+**1.06.666** — *Legion TraX + combat polish*  
+- Brand stamp **1.06.666** (versionCode 106666)  
+- Legion TraX Part 1 & Part 2 soundtrack (replaces old 10-track set)  
+- Typed combat engine, denser VFX, canvas-framed menus  
+- Doubled store ticket prices · fixed board minion display  
+- 300 MB APK ceiling retained  
+
 
 ---
 
 ## Quick start checklist
 
-1. Grab the APK: [BattleLegions.apk (1.05)](https://github.com/l3g1Xn/bl-feam-og/releases/download/apk-release-1.05/BattleLegions.apk)  
+1. Grab the APK: [BattleLegions.apk (1.06.666)](https://github.com/l3g1Xn/bl-feam-og/releases/download/apk-release-1.06.666/BattleLegions.apk)  
 2. Install → open → set PIN if asked  
 3. Hit **Play** (or continue a save)  
 4. Deploy, trade, read the math HUD, don’t face into Taunt  
 5. Spend tickets in the store like a civilized warlord  
-
----
-
-## License / notes
-
-Personal offline build. Soundtrack originals by **LegionX**; EDM tracks generated for the pack. No login required. For We Are Many — and so are the minions on the board.
-
-*Build stamp on site home after publish confirms the live shell. If the crest is missing, hard-refresh; if math is missing, something has gone terribly wrong.*

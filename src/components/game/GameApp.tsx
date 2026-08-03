@@ -13,11 +13,12 @@ import { AmbientStage } from "./AmbientStage";
 import { GameMenu } from "./GameMenu";
 import { BiometricGate } from "./BiometricGate";
 import { PermissionsGate } from "./PermissionsGate";
+import { CanvasChrome } from "./CanvasChrome";
 import { installAppLifecycleHooks } from "@/game/appLifecycle";
 import { useMetaStore, type MatchRewardResult } from "@/game/meta";
 import { GAME_TITLE_SHORT } from "@/game/brand";
 import { playSfx, unlockAudio } from "@/game/audio";
-import { setBattleMusicDuck, ensureMusicUnlocked } from "@/game/music";
+import { ensureMusicUnlocked, setBattleMusicDuck } from "@/game/music";
 import { cn } from "@/lib/utils";
 import { Menu, RotateCcw, Save, SkipForward, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -63,7 +64,6 @@ function GameAppInner() {
       phase === "enemy_turn";
 
     if (!inMatch) {
-      // On launcher: double-back tries to exit WebView / app
       if (now - lastBack.current < 1600) {
         lastBack.current = 0;
         setBackHint(null);
@@ -104,7 +104,6 @@ function GameAppInner() {
   }, [phase, menuOpen, selection.kind, cancelSelection]);
 
   useEffect(() => {
-    // History trap so Android WebView Back doesn't kill the WebView immediately
     const push = () => {
       try {
         window.history.pushState({ blGuard: 1 }, "");
@@ -119,7 +118,6 @@ function GameAppInner() {
     };
     window.addEventListener("popstate", onPop);
 
-    // Capacitor App plugin if present
     type CapApp = {
       addListener: (
         e: string,
@@ -212,37 +210,40 @@ function MulliganScreen({
         Menu
       </button>
       <GameMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
-      <div className="relative z-10 flex flex-col items-center">
-        <h2 className="text-2xl font-semibold text-fg">Opening hand</h2>
-        <p className="mt-1 font-mono text-xs text-enemy">vs {enemyName || "???"}</p>
-        <p className="mt-2 max-w-md text-center text-sm text-fg-muted">
-          Tap cards to redraw. High-tech units and laser protocols — keep a curve you
-          can afford.
-        </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-3 sm:mt-8 sm:gap-4">
-          {hand.map((id, i) => (
-            <CardView
-              key={`${id}-${i}`}
-              defId={id}
-              size="lg"
-              selected={selected.includes(i)}
-              showValue
-              onClick={() => toggle(i)}
-              badge={selected.includes(i) ? "Redraw" : undefined}
-            />
-          ))}
+      <div className="relative z-10 mx-auto w-full max-w-3xl overflow-hidden rounded-3xl border border-white/10 p-5 sm:p-8">
+        <CanvasChrome variant="panel" />
+        <div className="relative z-[1] flex flex-col items-center">
+          <h2 className="text-2xl font-semibold text-fg">Opening hand</h2>
+          <p className="mt-1 font-mono text-xs text-enemy">vs {enemyName || "???"}</p>
+          <p className="mt-2 max-w-md text-center text-sm text-fg-muted">
+            Tap cards to redraw. High-tech units and laser protocols — keep a curve you
+            can afford.
+          </p>
+          <div className="mt-6 flex flex-wrap justify-center gap-3 sm:mt-8 sm:gap-4">
+            {hand.map((id, i) => (
+              <CardView
+                key={`${id}-${i}`}
+                defId={id}
+                size="lg"
+                selected={selected.includes(i)}
+                showValue
+                onClick={() => toggle(i)}
+                badge={selected.includes(i) ? "Redraw" : undefined}
+              />
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              unlockAudio();
+              playSfx("ui");
+              confirm();
+            }}
+            className="mt-6 min-h-11 rounded-xl bg-primary px-8 py-3 text-sm font-semibold text-primary-fg hover:opacity-90 sm:mt-8"
+          >
+            Ready — keep {hand.length - selected.length}, redraw {selected.length}
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={() => {
-            unlockAudio();
-            playSfx("ui");
-            confirm();
-          }}
-          className="mt-6 min-h-11 rounded-xl bg-primary px-8 py-3 text-sm font-semibold text-primary-fg hover:opacity-90 sm:mt-8"
-        >
-          Ready — keep {hand.length - selected.length}, redraw {selected.length}
-        </button>
       </div>
     </div>
   );
@@ -272,79 +273,81 @@ function EndScreen() {
   return (
     <div className="relative flex h-dvh flex-col items-center justify-center overflow-hidden bg-bg px-4">
       <AmbientStage variant="launcher" />
-      <div className="relative z-10 flex flex-col items-center">
-        <h2
-          className={cn(
-            "text-3xl font-semibold",
-            victory ? "text-success" : "text-danger",
-          )}
-        >
-          {victory ? "Victory" : "Defeat"}
-        </h2>
-        <p className="mt-1 font-mono text-xs text-enemy">
-          {victory ? "Crushed" : "Fell to"} {enemyName || "enemy"}
-        </p>
-        <p className="mt-2 max-w-sm text-center text-fg-muted">
-          {victory
-            ? "Enemy core offline. The math checked out."
-            : "Your core hit 0. Review the log and re-tune your curve."}
-        </p>
-        {reward && (
-          <div className="mt-4 flex max-w-sm flex-col items-center gap-1.5 text-center">
-            <div className="rounded-full border border-attack/40 bg-attack/15 px-4 py-1.5 text-sm font-semibold text-attack">
-              +{reward.tickets} tickets · +{reward.xp} XP
-            </div>
-            {reward.leveledUp && (
-              <div className="text-sm font-semibold text-primary">
-                Legion level {reward.newLevel}!
+      <div className="relative z-10 w-full max-w-md overflow-hidden rounded-3xl border border-white/12 p-6 sm:p-8">
+        <CanvasChrome variant="hero" />
+        <div className="relative z-[1] flex flex-col items-center">
+          <h2
+            className={cn(
+              "text-3xl font-semibold",
+              victory ? "text-success" : "text-danger",
+            )}
+          >
+            {victory ? "Victory" : "Defeat"}
+          </h2>
+          <p className="mt-1 font-mono text-xs text-enemy">
+            {victory ? "Crushed" : "Fell to"} {enemyName || "enemy"}
+          </p>
+          <p className="mt-2 max-w-sm text-center text-fg-muted">
+            {victory
+              ? "Enemy core offline. The math checked out."
+              : "Your core hit 0. Review the log and re-tune your curve."}
+          </p>
+          {reward && (
+            <div className="mt-4 flex max-w-sm flex-col items-center gap-1.5 text-center">
+              <div className="rounded-full border border-attack/40 bg-attack/15 px-4 py-1.5 text-sm font-semibold text-attack">
+                +{reward.tickets} tickets · +{reward.xp} XP
               </div>
-            )}
-            {reward.bonusNote && (
-              <div className="text-xs text-fg-muted">{reward.bonusNote}</div>
-            )}
+              {reward.leveledUp && (
+                <div className="text-sm font-semibold text-primary">
+                  Legion level {reward.newLevel}!
+                </div>
+              )}
+              {reward.bonusNote && (
+                <div className="text-xs text-fg-muted">{reward.bonusNote}</div>
+              )}
+            </div>
+          )}
+          <div className="mt-6 rounded-xl border border-border bg-bg-panel/90 px-5 py-3 text-sm text-fg-muted backdrop-blur">
+            Final board power: you {math.playerBoardAttack} ATK · enemy{" "}
+            {math.enemyBoardAttack} ATK
           </div>
-        )}
-        <div className="mt-6 rounded-xl border border-border bg-bg-panel/90 px-5 py-3 text-sm text-fg-muted backdrop-blur">
-          Final board power: you {math.playerBoardAttack} ATK · enemy{" "}
-          {math.enemyBoardAttack} ATK
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                unlockAudio();
+                playSfx("ui");
+                const r = saveGameLocal();
+                setSaveMsg(r.ok ? "Match saved to device cache." : (r.error || "Save failed"));
+              }}
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-success/40 bg-success/15 px-6 py-3 text-sm font-semibold text-success"
+            >
+              <Save className="h-4 w-4" />
+              Save game
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                unlockAudio();
+                startGame("normal");
+              }}
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-fg"
+            >
+              <RotateCcw className="h-4 w-4" />
+              Play again
+            </button>
+            <button
+              type="button"
+              onClick={() => returnToMenu()}
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border bg-bg-elevated px-6 py-3 text-sm font-medium text-fg"
+            >
+              Launcher
+            </button>
+          </div>
+          {saveMsg && (
+            <p className="mt-3 text-center text-xs text-success">{saveMsg}</p>
+          )}
         </div>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <button
-            type="button"
-            onClick={() => {
-              unlockAudio();
-              playSfx("ui");
-              const r = saveGameLocal();
-              setSaveMsg(r.ok ? "Match saved to device cache." : (r.error || "Save failed"));
-            }}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-success/40 bg-success/15 px-6 py-3 text-sm font-semibold text-success"
-          >
-            <Save className="h-4 w-4" />
-            Save game
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              unlockAudio();
-              ensureMusicUnlocked();
-              startGame("normal");
-            }}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-fg"
-          >
-            <RotateCcw className="h-4 w-4" />
-            Play again
-          </button>
-          <button
-            type="button"
-            onClick={() => returnToMenu()}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border bg-bg-elevated px-6 py-3 text-sm font-medium text-fg"
-          >
-            Launcher
-          </button>
-        </div>
-        {saveMsg && (
-          <p className="mt-3 text-center text-xs text-success">{saveMsg}</p>
-        )}
       </div>
     </div>
   );
@@ -380,7 +383,6 @@ function BattleInspect() {
   const activeFx = useGameStore((s) => s.activeFx);
   const preview = useGameStore((s) => s.hoverPreview ?? s.lastPreview);
 
-  // Prefer live combat FX card details
   if (activeFx?.cardName) {
     return (
       <div className="flex items-center gap-2 overflow-hidden">
@@ -495,6 +497,9 @@ function BattleScreen({
   const hoverEnemyMinion = useGameStore((s) => s.hoverEnemyMinion);
   const hoverEnemyHero = useGameStore((s) => s.hoverEnemyHero);
 
+  // silence unused — hand clicks go through BattleHand
+  void clickHand;
+
   const targeting =
     selection.kind === "minion" || selection.kind === "spell_target";
   const spellTargeting = selection.kind === "spell_target";
@@ -540,7 +545,7 @@ function BattleScreen({
     >
       <AmbientStage variant="battle" />
       <div
-        className="pointer-events-none absolute inset-0 z-0 opacity-25"
+        className="pointer-events-none absolute inset-0 z-0 opacity-36"
         style={{
           backgroundImage: "url(/ui/bg_battlefield_hd.jpg)",
           backgroundSize: "cover",
@@ -551,7 +556,7 @@ function BattleScreen({
       <CombatFxLayer fx={activeFx} onDone={completeFx} />
       <GameMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
 
-      <header className="relative z-10 flex shrink-0 items-center justify-between gap-2 border-b border-white/5 bg-black/30 px-2 py-0.5 backdrop-blur-sm sm:px-3 sm:py-1">
+      <header className="relative z-10 flex shrink-0 items-center justify-between gap-2 border-b border-white/5 bg-black/35 px-2 py-0.5 backdrop-blur-sm sm:px-3 sm:py-1">
         <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
           <span className="truncate text-xs font-semibold tracking-wide sm:text-sm">
             {GAME_TITLE_SHORT}
@@ -608,7 +613,6 @@ function BattleScreen({
         </div>
       </header>
 
-      {/* Card battle detail strip */}
       <div
         className={cn(
           "relative z-10 shrink-0 border-b border-white/5 bg-black/45 px-2 backdrop-blur-sm",
@@ -628,8 +632,12 @@ function BattleScreen({
       </div>
 
       <div className="relative z-10 flex min-h-0 min-w-0 overflow-hidden">
-        <div className="grid min-h-0 min-w-0 flex-1 grid-rows-[auto_minmax(0,1fr)_auto_minmax(0,1fr)_auto] overflow-hidden">
-          <div className="flex shrink-0 items-center justify-center px-2 py-0.5" data-drop="enemy-hero" data-side="enemy">
+        <div className="grid min-h-0 min-w-0 flex-1 grid-rows-[auto_minmax(8rem,1fr)_auto_minmax(8rem,1fr)_auto] overflow-hidden">
+          <div
+            className="flex shrink-0 items-center justify-center px-2 py-0.5"
+            data-drop="enemy-hero"
+            data-side="enemy"
+          >
             <HeroPortrait
               name={foeLabel}
               hp={enemy.heroHp}
@@ -645,15 +653,18 @@ function BattleScreen({
           </div>
 
           <div
-            className="flex min-h-0 items-center justify-center gap-1 overflow-x-auto overflow-y-hidden px-2 sm:gap-2"
+            className="board-row relative flex min-h-[8rem] items-center justify-center gap-2 overflow-x-auto overflow-y-visible px-3 py-2 sm:min-h-[8.75rem] sm:gap-3"
             data-drop="enemy-board"
           >
+            <div className="pointer-events-none absolute inset-x-4 inset-y-1 rounded-2xl border border-enemy/15 bg-enemy/[0.04]" />
             {enemy.board.length === 0 && (
-              <span className="text-[0.65rem] text-fg-subtle sm:text-xs">Empty board</span>
+              <span className="relative text-[0.65rem] text-fg-subtle sm:text-xs">
+                Empty board
+              </span>
             )}
             {enemy.board.map((m) => (
-              <div key={m.uid} data-drop="enemy-minion" data-uid={m.uid} data-side="enemy" className="contents">
               <MinionToken
+                key={m.uid}
                 minion={m}
                 side="enemy"
                 compact={short}
@@ -664,22 +675,27 @@ function BattleScreen({
                 onClick={() => clickEnemyMinion(m.uid)}
                 onHover={(on) => hoverEnemyMinion(on ? m.uid : null)}
               />
-              </div>
             ))}
           </div>
 
-          <div className="mx-auto h-px w-3/4 shrink-0 bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent" data-drop="field" />
+          <div
+            className="mx-auto h-px w-3/4 shrink-0 bg-gradient-to-r from-transparent via-cyan-400/45 to-transparent"
+            data-drop="field"
+          />
 
           <div
-            className="flex min-h-0 items-center justify-center gap-1 overflow-x-auto overflow-y-hidden px-2 sm:gap-2"
+            className="board-row relative flex min-h-[8rem] items-center justify-center gap-2 overflow-x-auto overflow-y-visible px-3 py-2 sm:min-h-[8.75rem] sm:gap-3"
             data-drop="player-board"
           >
+            <div className="pointer-events-none absolute inset-x-4 inset-y-1 rounded-2xl border border-primary/15 bg-primary/[0.04]" />
             {player.board.length === 0 && (
-              <span className="text-[0.65rem] text-fg-subtle sm:text-xs">Drop minions here</span>
+              <span className="relative text-[0.65rem] text-fg-subtle sm:text-xs">
+                Drop minions here
+              </span>
             )}
             {player.board.map((m) => (
-              <div key={m.uid} data-drop="player-minion" data-uid={m.uid} data-side="player" className="contents">
               <MinionToken
+                key={m.uid}
                 minion={m}
                 side="player"
                 compact={short}
@@ -689,11 +705,14 @@ function BattleScreen({
                 }
                 onClick={() => clickPlayerMinion(m.uid)}
               />
-              </div>
             ))}
           </div>
 
-          <div className="flex shrink-0 items-center justify-center px-2 py-0.5" data-drop="player-hero" data-side="player">
+          <div
+            className="flex shrink-0 items-center justify-center px-2 py-0.5"
+            data-drop="player-hero"
+            data-side="player"
+          >
             <HeroPortrait
               name="You"
               hp={player.heroHp}
@@ -718,9 +737,9 @@ function BattleScreen({
         )}
       </div>
 
-            <BattleHand handSize={handSize} short={short} />
+      <BattleHand handSize={handSize} short={short} />
 
-{(narrow || short) && (
+      {(narrow || short) && (
         <div className="relative z-10 max-h-10 shrink-0 overflow-y-auto border-t border-white/5 bg-black/60 px-2 py-0.5 text-[0.58rem] leading-tight text-fg-muted backdrop-blur sm:max-h-14 sm:text-[0.65rem]">
           {preview && (
             <div className="truncate font-mono text-primary">{preview.formula}</div>

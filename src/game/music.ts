@@ -1,19 +1,9 @@
 /**
- * 10-track menu rotation:
- * 01–05 LegionX originals · 06–10 EDM industrial hybrids (standalone).
+ * Legion TraX soundtrack — two long-form suites replacing the old 10-track set.
+ * Part 1 → Part 2 rotation (menu + battle-ducked).
  */
 
-export type MusicTrackId =
-  | "01_freedom_hyperdrive"
-  | "02_hidden_frequencies"
-  | "03_liberty_reign"
-  | "04_foreverx"
-  | "05_haunting_darkness"
-  | "06_legion_pulse"
-  | "07_void_drop"
-  | "08_iron_requiem"
-  | "09_nova_siege"
-  | "10_eternal_march";
+export type MusicTrackId = "01_legionx_trax_part1" | "02_legion_trax_part2";
 
 export const MENU_TRACKS: {
   id: MusicTrackId;
@@ -23,74 +13,18 @@ export const MENU_TRACKS: {
   group: "original" | "edm";
 }[] = [
   {
-    id: "01_freedom_hyperdrive",
-    title: "Freedom Hyperdrive",
-    mood: "LegionX original — high-energy open",
-    src: "/music/01_freedom_hyperdrive.mp3",
+    id: "01_legionx_trax_part1",
+    title: "LegionX TraX Part 1",
+    mood: "LegionX suite — command open & march",
+    src: "/music/01_legionx_trax_part1.mp3",
     group: "original",
   },
   {
-    id: "02_hidden_frequencies",
-    title: "Hidden Frequencies",
-    mood: "LegionX original — deep atmosphere",
-    src: "/music/02_hidden_frequencies.mp3",
+    id: "02_legion_trax_part2",
+    title: "Legion TraX Part 2",
+    mood: "Legion TraX suite — war anthem extension",
+    src: "/music/02_legion_trax_part2.mp3",
     group: "original",
-  },
-  {
-    id: "03_liberty_reign",
-    title: "Liberty Reign Freedom Fire",
-    mood: "LegionX original — anthem drive",
-    src: "/music/03_liberty_reign.mp3",
-    group: "original",
-  },
-  {
-    id: "04_foreverx",
-    title: "ForeverX",
-    mood: "LegionX original — slapped edition",
-    src: "/music/04_foreverx.mp3",
-    group: "original",
-  },
-  {
-    id: "05_haunting_darkness",
-    title: "Haunting Darkness",
-    mood: "LegionX original — ominous weight",
-    src: "/music/05_haunting_darkness.mp3",
-    group: "original",
-  },
-  {
-    id: "06_legion_pulse",
-    title: "Legion Pulse",
-    mood: "EDM · 128 BPM industrial pulse",
-    src: "/music/06_legion_pulse.mp3",
-    group: "edm",
-  },
-  {
-    id: "07_void_drop",
-    title: "Void Drop",
-    mood: "EDM · 140 BPM void club drop",
-    src: "/music/07_void_drop.mp3",
-    group: "edm",
-  },
-  {
-    id: "08_iron_requiem",
-    title: "Iron Requiem",
-    mood: "EDM · 110 BPM iron march hybrid",
-    src: "/music/08_iron_requiem.mp3",
-    group: "edm",
-  },
-  {
-    id: "09_nova_siege",
-    title: "Nova Siege",
-    mood: "EDM · 150 BPM siege assault",
-    src: "/music/09_nova_siege.mp3",
-    group: "edm",
-  },
-  {
-    id: "10_eternal_march",
-    title: "Eternal March",
-    mood: "EDM · 120 BPM eternal war march",
-    src: "/music/10_eternal_march.mp3",
-    group: "edm",
   },
 ];
 
@@ -105,10 +39,11 @@ function el(): HTMLAudioElement | null {
   if (typeof window === "undefined") return null;
   if (!audio) {
     audio = new Audio();
-    audio.preload = "auto";
+    audio.preload = "metadata";
     audio.loop = false;
     audio.volume = muted ? 0 : volume;
     audio.addEventListener("ended", () => {
+      if (MENU_TRACKS.length === 0) return;
       index = (index + 1) % MENU_TRACKS.length;
       void playIndex(index);
     });
@@ -118,7 +53,7 @@ function el(): HTMLAudioElement | null {
 
 async function playIndex(i: number) {
   const a = el();
-  if (!a || mode === "off") return;
+  if (!a || mode === "off" || MENU_TRACKS.length === 0) return;
   const track = MENU_TRACKS[i]!;
   index = i;
   try {
@@ -153,7 +88,15 @@ export function isMusicMuted() {
 }
 
 export function currentTrack() {
-  return MENU_TRACKS[index]!;
+  return (
+    MENU_TRACKS[index] ?? {
+      id: "01_legionx_trax_part1" as MusicTrackId,
+      title: "LegionX TraX",
+      mood: "",
+      src: "",
+      group: "original" as const,
+    }
+  );
 }
 
 export function startMenuMusic() {
@@ -175,11 +118,13 @@ export function stopMusic() {
 }
 
 export function skipTrack() {
+  if (MENU_TRACKS.length === 0) return;
   index = (index + 1) % MENU_TRACKS.length;
   void playIndex(index);
 }
 
 export function playTrackAt(i: number) {
+  if (MENU_TRACKS.length === 0) return;
   index = ((i % MENU_TRACKS.length) + MENU_TRACKS.length) % MENU_TRACKS.length;
   mode = "menu";
   void playIndex(index);

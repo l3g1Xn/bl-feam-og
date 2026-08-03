@@ -66,8 +66,10 @@ export function ticketPrice(cardId: string, level: number): number {
   let base = 30 + c.cost * 18;
   if (exclusive) base = 90 + c.cost * 35;
   if (cardId === "dominus_reximus") base = 420;
+  // Store costs doubled for economy rebalance
+  base *= 2;
   const discount = Math.min(0.35, (lv - 1) * 0.012);
-  return safeInt(Math.round(base * (1 - discount)), 10, 9999, base);
+  return safeInt(Math.round(base * (1 - discount)), 20, 9999, base);
 }
 
 type StoreOffer = {

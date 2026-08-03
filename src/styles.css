@@ -9,7 +9,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* LEGIXN / Battle Legions 1.05 — steel + blaze brand */
+/* LEGIXN / Battle Legions 1.06.666 — steel + blaze brand */
 @theme inline {
   --color-bg: #07080c;
   --color-bg-elevated: #10131a;
@@ -173,4 +173,64 @@
   .legixn-pulse {
     animation: none;
   }
+}
+
+/* Board minion rows — fixed footprint, never squash tokens */
+.board-row {
+  flex-wrap: nowrap;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 160, 220, 0.35) transparent;
+}
+
+.board-row::-webkit-scrollbar {
+  height: 4px;
+}
+.board-row::-webkit-scrollbar-thumb {
+  background: rgba(100, 160, 220, 0.3);
+  border-radius: 99px;
+}
+
+.minion-token {
+  flex: 0 0 auto !important;
+  contain: layout style;
+}
+
+.minion-token.can-strike {
+  animation: minion-ready 1.6s ease-in-out infinite;
+}
+
+@keyframes minion-ready {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.12);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .minion-token.can-strike {
+    animation: none;
+  }
+}
+
+/* Battle stage depth */
+.battle-stage {
+  isolation: isolate;
+}
+
+.gfx-ultra .battle-stage {
+  --fx-bloom: 1.15;
+}
+
+.gfx-low .minion-token {
+  filter: none !important;
+}
+
+.aspect-cinema body,
+.aspect-cinema #root {
+  max-width: min(100vw, calc(100dvh * 16 / 9));
+  margin-inline: auto;
 }

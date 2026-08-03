@@ -4,7 +4,7 @@
  * + split download parts for the site.
  */
 import { spawnSync } from "node:child_process";
-import { copyFileSync, existsSync, mkdirSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 const root = process.cwd();
@@ -69,4 +69,15 @@ copyFileSync(apk, dest);
 mkdirSync(join(root, "public/downloads"), { recursive: true });
 copyFileSync(apk, join(root, "public/downloads/BattleLegions.apk"));
 run("node", ["scripts/split-apk.mjs", dest], { env });
+
+// Enforce 300 MB package ceiling (immersion budget without bloat)
+const APK_MAX = 300 * 1024 * 1024;
+const size = statSync(dest).size;
+const mb = (size / (1024 * 1024)).toFixed(1);
+console.log(`APK size: ${mb} MB / max 300 MB`);
+if (size > APK_MAX) {
+  console.error(`APK exceeds 300 MB ceiling (${mb} MB). Trim assets.`);
+  process.exit(1);
+}
 console.log("Release APK ready:", dest);
+

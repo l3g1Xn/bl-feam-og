@@ -2,6 +2,7 @@ import { playSfx, unlockAudio } from "@/game/audio";
 import { useGameStore } from "@/game/store";
 import { GAME_TITLE_SHORT } from "@/game/brand";
 import { SettingsPanel } from "./SettingsPanel";
+import { CanvasChrome } from "./CanvasChrome";
 import { cn } from "@/lib/utils";
 import { DoorOpen, Lock, Save, Settings2, X } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -44,21 +45,40 @@ export function GameMenu({
     return () => window.removeEventListener("keydown", onKey);
   }, [open, panel, onClose]);
 
+  // Lock body scroll while menu open so battle board doesn't scroll under overlay
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
+
   if (!open) return null;
 
   return (
     <div
-      className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 p-3 backdrop-blur-md"
+      className="fixed inset-0 z-[80] flex items-center justify-center bg-black/75 p-3 backdrop-blur-md"
       role="dialog"
       aria-modal="true"
       aria-label="Game menu"
+      onClick={() => {
+        playSfx("ui");
+        onClose();
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") onClose();
+      }}
     >
       <div
         className={cn(
-          "relative flex max-h-[min(90dvh,640px)] w-full max-w-md flex-col overflow-hidden rounded-3xl border border-white/10 bg-bg-elevated shadow-2xl",
+          "relative flex max-h-[min(90dvh,640px)] w-full max-w-md flex-col overflow-hidden rounded-3xl border border-white/12 bg-bg-elevated/95 shadow-2xl",
         )}
+        onClick={(e) => e.stopPropagation()}
       >
-        <header className="flex shrink-0 items-center justify-between border-b border-white/10 px-4 py-3">
+        <CanvasChrome variant="menu" />
+        <header className="relative z-[1] flex shrink-0 items-center justify-between border-b border-white/10 px-4 py-3">
           <div>
             <div className="flex items-center gap-1.5 text-sm font-semibold text-fg">
               <Lock className="h-3.5 w-3.5 text-fg-subtle" />
@@ -80,7 +100,7 @@ export function GameMenu({
           </button>
         </header>
 
-        <div className="min-h-0 flex-1 overflow-y-auto p-4">
+        <div className="relative z-[1] min-h-0 flex-1 overflow-y-auto p-4">
           {panel === "root" ? (
             <div className="flex flex-col gap-3">
               <button
@@ -132,7 +152,6 @@ export function GameMenu({
                 onClick={() => {
                   unlockAudio();
                   playSfx("ui");
-                  // Keep save if they saved; still clear only when abandon without save intent
                   onClose();
                   returnToMenu({ keepSave: true });
                 }}

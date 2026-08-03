@@ -1,6 +1,8 @@
 /**
  * Graphics adapter for Battle Legions — real-time quality switches.
  * Uses Chromium WebView compositor + ANGLE (not a kernel GPU driver).
+ * Particle budgets sized for immersive VFX while staying APK-code-only
+ * (under the 300 MB package ceiling).
  */
 
 export type GpuTier = "high" | "mid" | "low" | "unknown";
@@ -45,7 +47,6 @@ function detectWebGlVendor(): string {
 function tierFromVendor(v: string): GpuTier {
   const s = v.toLowerCase();
   if (!s || s === "none" || s === "unknown") return "unknown";
-  /* Adreno peak (6xx/7xx/8xx) + peers → high tier for max DPR/FX */
   if (
     /adreno \(tm\) (6|7|8)|adreno 7|adreno 6|mali-g7|mali-g8|xclipse|apple gpu|nvidia|radeon|geforce|intel.*iris/.test(
       s,
@@ -58,7 +59,7 @@ function tierFromVendor(v: string): GpuTier {
 }
 
 let cached: GraphicsProfile | null = null;
-let userQuality: GraphicsQuality = "high"; // Adreno-first default
+let userQuality: GraphicsQuality = "high";
 let userHz = 60;
 let userAspect: "auto" | "16:9" = "auto";
 let userReducedShake = false;
@@ -124,7 +125,7 @@ export function getGraphicsProfile(): GraphicsProfile {
       tier: "mid",
       quality: userQuality,
       maxDpr: 2,
-      particleBudget: 24,
+      particleBudget: 64,
       enableBlur: true,
       enableShake: true,
       targetFps: 60,
@@ -144,9 +145,11 @@ export function getGraphicsProfile(): GraphicsProfile {
   const vendor = detectWebGlVendor();
   const tier = tierFromVendor(vendor);
   const cores = navigator.hardwareConcurrency || 4;
-  const mem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 4;
+  const mem =
+    (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 4;
   const reduced =
-    userReducedShake || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    userReducedShake ||
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   let targetFps = Math.min(userHz, 144);
   if (userQuality === "low") targetFps = Math.min(targetFps, 30);
@@ -161,6 +164,10 @@ export function getGraphicsProfile(): GraphicsProfile {
   }
 
   const q = userQuality;
+  // Higher particle budgets for immersion — still code-only, no APK binary cost
+  const particleBudget =
+    q === "ultra" ? 200 : q === "high" ? 120 : q === "medium" ? 56 : 20;
+
   cached = {
     tier,
     quality: q,
@@ -170,7 +177,7 @@ export function getGraphicsProfile(): GraphicsProfile {
         : q === "high"
           ? Math.min(window.devicePixelRatio || 1, 2.5)
           : Math.min(window.devicePixelRatio || 1, 1.5),
-    particleBudget: q === "ultra" ? 96 : q === "high" ? 56 : q === "medium" ? 28 : 12,
+    particleBudget,
     enableBlur: q !== "low" && !reduced,
     enableShake: !reduced && q !== "low",
     targetFps,
@@ -179,9 +186,9 @@ export function getGraphicsProfile(): GraphicsProfile {
     renderer: "css-compositor",
     vendorHint: vendor,
     ambientDepth: q !== "low",
-    fxScale: q === "low" ? 0.55 : q === "medium" ? 0.85 : q === "high" ? 1.05 : 1.25,
-    battleDetail: q === "low" ? 0.4 : q === "medium" ? 0.75 : q === "high" ? 1 : 1.35,
-    sparklines: q === "high" || q === "ultra",
+    fxScale: q === "low" ? 0.55 : q === "medium" ? 0.95 : q === "high" ? 1.2 : 1.4,
+    battleDetail: q === "low" ? 0.5 : q === "medium" ? 0.85 : q === "high" ? 1.2 : 1.5,
+    sparklines: q === "high" || q === "ultra" || q === "medium",
     rimLight: q !== "low",
   };
   return cached;

@@ -3,6 +3,7 @@
  * - Prefer /pkg/*.txt chunked base64 (small files) for APK download
  * - Strip full APK from deploy (duplicate of /pkg; keeps upload under platform caps)
  * - Drop WAVs / .bin / accidental SDK trees
+ * - Soundtrack removed — strip any residual audio media
  */
 import {
   existsSync,
@@ -42,9 +43,17 @@ function walkFiles(dir, fn) {
   }
 }
 
-// Always remove WAVs and .bin
+// Always remove audio leftovers + binaries (soundtrack removed from product)
 walkFiles(staticDir, (p, name) => {
-  if (name.endsWith(".wav") || name.endsWith(".bin")) {
+  if (
+    name.endsWith(".wav") ||
+    name.endsWith(".bin") ||
+    name.endsWith(".mp3") ||
+    name.endsWith(".ogg") ||
+    name.endsWith(".flac") ||
+    p.includes(`${join("music")}`) ||
+    p.includes("/music/")
+  ) {
     unlinkSync(p);
     console.log("[prune-vercel] removed", p.replace(staticDir, ""));
   }
@@ -72,8 +81,7 @@ if (existsSync(downloads)) {
 walkFiles(staticDir, (p, name, size) => {
   if (p.includes(`${join("pkg")}`) || p.includes("/pkg/")) return;
   if (size > MAX_FILE) {
-    // Keep music under 12MB each if possible; strip if somehow huge
-    if (name.endsWith(".mp3") || name.endsWith(".ogg") || name.endsWith(".jpg")) {
+    if (name.endsWith(".jpg") || name.endsWith(".png") || name.endsWith(".webp")) {
       if (size > 12 * 1024 * 1024) {
         unlinkSync(p);
         console.log(

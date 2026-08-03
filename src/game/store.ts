@@ -8,6 +8,7 @@ import {
   performAttack,
   playSpell,
   resolveSpellTarget,
+  sanitizeGameState,
   selectHandCard,
   setHoverPreview,
 } from "./engine";
@@ -137,7 +138,8 @@ export const useGameStore = create<GameStore>((set, get) => {
     new Promise<void>((resolve) => {
       set({ activeFx: fx, animating: true });
       fxWaiters.push({ id: fx.id, resolve });
-      void waitFrames(fx.durationMs + 200).then(() => {
+      const extra = (fx.hitStopMs ?? 0) + 220;
+      void waitFrames(fx.durationMs + extra).then(() => {
         const s = get();
         if (s.activeFx?.id === fx.id) {
           set({ activeFx: null });
@@ -168,7 +170,6 @@ export const useGameStore = create<GameStore>((set, get) => {
       actionLock = false;
       fxWaiters = [];
       clearMatchSave();
-      clearMatchSave();
       const deck = useMetaStore.getState().buildActiveDeck();
       const g = createNewGame(difficulty, deck);
       set({
@@ -184,13 +185,13 @@ export const useGameStore = create<GameStore>((set, get) => {
       if (!saved) return false;
       actionLock = false;
       fxWaiters = [];
-      const g: GameState = {
+      const g = sanitizeGameState({
         ...saved.state,
         animating: false,
         selection: { kind: "none" },
         hoverPreview: null,
         message: "Match resumed from local save.",
-      };
+      });
       set({
         ...withMath(g),
         activeFx: null,
@@ -231,7 +232,6 @@ export const useGameStore = create<GameStore>((set, get) => {
     returnToMenu: (opts) => {
       actionLock = false;
       fxWaiters = [];
-      // Default KEEP save so Load game works after Exit to launcher
       const keep = opts?.keepSave !== false;
       const cur = get();
       if (

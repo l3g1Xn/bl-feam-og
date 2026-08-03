@@ -11,15 +11,16 @@ import { playSfx, setSfxMuted, setSfxVolume, unlockAudio } from "@/game/audio";
 import {
   currentTrack,
   ensureMusicUnlocked,
+  MENU_TRACKS,
   setMusicMuted,
   setMusicVolume,
   skipTrack,
   startMenuMusic,
-  MENU_TRACKS,
 } from "@/game/music";
 import { useGameStore } from "@/game/store";
 import { APK_VERSION, BUILD_ID, GAME_TITLE, GAME_TITLE_SHORT } from "@/game/brand";
 import { AmbientStage } from "./AmbientStage";
+import { CanvasChrome } from "./CanvasChrome";
 import { ApkDownloadButton } from "./ApkDownloadButton";
 import { CardView } from "./CardView";
 import { SettingsPanel } from "./SettingsPanel";
@@ -28,7 +29,6 @@ import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 import {
   BookOpen,
-  Save,
   Home,
   Music2,
   Package,
@@ -93,15 +93,15 @@ export function Launcher() {
     }
     unlockAudio();
     ensureMusicUnlocked();
+    playSfx("ui");
     setTab(t);
   };
 
   return (
     <div className="app-shell relative flex h-dvh min-h-[100vh] flex-col overflow-hidden bg-bg text-fg">
       <AmbientStage variant="launcher" />
-      {/* Art layers */}
       <div
-        className="pointer-events-none absolute inset-0 z-[1] opacity-40"
+        className="pointer-events-none absolute inset-0 z-[1] opacity-50"
         style={{
           backgroundImage: "url(/ui/bg_battlefield_hd.jpg)",
           backgroundSize: "cover",
@@ -111,7 +111,7 @@ export function Launcher() {
         aria-hidden
       />
       <div
-        className="pointer-events-none absolute inset-0 z-[1] opacity-[0.22]"
+        className="pointer-events-none absolute inset-0 z-[1] opacity-[0.32]"
         style={{
           backgroundImage: "url(/ui/bg_command_hd.jpg)",
           backgroundSize: "cover",
@@ -154,7 +154,7 @@ export function Launcher() {
             className="hidden items-center gap-1.5 rounded-full border border-primary/25 bg-bg-elevated/90 px-2.5 py-1.5 text-[0.65rem] text-fg-muted sm:inline-flex"
           >
             <Music2 className="h-3.5 w-3.5 text-primary" />
-            <span className="max-w-[7rem] truncate">{trackTitle}</span>
+            <span className="max-w-[8rem] truncate">{trackTitle}</span>
             <SkipForward className="h-3 w-3" />
           </button>
           <div className="rounded-full border border-primary/30 bg-bg-elevated/90 px-2.5 py-1.5 text-xs font-semibold tabular text-primary">
@@ -175,15 +175,17 @@ export function Launcher() {
 
       <div className="relative z-10 flex min-h-0 flex-1">
         <nav className="hidden w-48 shrink-0 flex-col gap-1 border-r border-white/10 bg-black/35 p-2 backdrop-blur-sm sm:flex">
-          <div
-            className="mb-2 overflow-hidden rounded-xl border border-white/10"
-            style={{
-              backgroundImage: "url(/ui/hero_legion_hd.jpg)",
-              backgroundSize: "cover",
-              backgroundPosition: "center top",
-              height: 96,
-            }}
-          />
+          <div className="relative mb-2 h-24 overflow-hidden rounded-xl border border-white/10">
+            <CanvasChrome variant="panel" />
+            <div
+              className="absolute inset-0"
+              style={{
+                backgroundImage: "url(/ui/hero_legion_hd.jpg)",
+                backgroundSize: "cover",
+                backgroundPosition: "center top",
+              }}
+            />
+          </div>
           {NAV.map((n) => (
             <NavBtn
               key={n.id}
@@ -194,40 +196,60 @@ export function Launcher() {
               {n.label}
             </NavBtn>
           ))}
-          <div className="mt-auto max-h-52 overflow-y-auto rounded-xl border border-white/10 bg-black/40 p-2 text-[0.58rem] text-fg-subtle">
-            <div className="mb-1 flex items-center gap-1 font-medium text-primary">
-              <Music2 className="h-3 w-3" /> Soundtrack · 10
+          <div className="relative mt-auto max-h-44 overflow-hidden rounded-xl border border-white/10 bg-black/40 p-2 text-[0.58rem] text-fg-subtle">
+            <CanvasChrome variant="panel" />
+            <div className="relative z-[1]">
+              <div className="mb-1 flex items-center gap-1 font-medium text-primary">
+                <Music2 className="h-3 w-3" /> TraX · 2
+              </div>
+              {MENU_TRACKS.map((tr, i) => (
+                <button
+                  key={tr.id}
+                  type="button"
+                  onClick={() => {
+                    unlockAudio();
+                    ensureMusicUnlocked();
+                    void import("@/game/music").then((m) => {
+                      m.playTrackAt(i);
+                      setTrackTitle(m.currentTrack().title);
+                    });
+                  }}
+                  className={
+                    tr.title === trackTitle
+                      ? "block w-full truncate py-0.5 text-left font-semibold text-fg"
+                      : "block w-full truncate py-0.5 text-left text-fg-subtle hover:text-fg"
+                  }
+                  title={tr.mood}
+                >
+                  {i + 1}. {tr.title}
+                </button>
+              ))}
+              <div className="mt-1.5 border-t border-white/10 pt-1 font-medium text-primary">
+                v{APK_VERSION}
+              </div>
             </div>
-            {MENU_TRACKS.map((t, i) => (
-              <button
-                key={t.id}
-                type="button"
-                onClick={() => {
-                  unlockAudio();
-                  ensureMusicUnlocked();
-                  void import("@/game/music").then((m) => m.playTrackAt(i));
-                }}
-                className={cn(
-                  "block w-full truncate py-0.5 text-left hover:text-fg",
-                  t.title === trackTitle ? "font-semibold text-fg" : "text-fg-subtle",
-                )}
-                title={t.mood}
-              >
-                {i + 1}. {t.title}
-                <span className="ml-1 opacity-60">
-                  {t.group === "edm" ? "· EDM" : "· LX"}
-                </span>
-              </button>
-            ))}
           </div>
         </nav>
 
         <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-5">
-          {tab === "home" && <HomePanel onNavigate={selectTab} />}
+          {tab === "home" && (
+            <HomePanel
+              onNavigate={selectTab}
+              trackTitle={trackTitle}
+              setTrackTitle={setTrackTitle}
+            />
+          )}
           {tab === "play" && <PlayPanel />}
           {tab === "store" && <StorePanel />}
           {tab === "collection" && <CollectionPanel />}
-          {tab === "settings" && <SettingsPanel />}
+          {tab === "settings" && (
+            <div className="relative mx-auto max-w-lg overflow-hidden rounded-3xl border border-white/10 p-4 sm:p-5">
+              <CanvasChrome variant="menu" />
+              <div className="relative z-[1]">
+                <SettingsPanel />
+              </div>
+            </div>
+          )}
         </main>
       </div>
 
@@ -282,7 +304,15 @@ function NavBtn({
   );
 }
 
-function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
+function HomePanel({
+  onNavigate,
+  trackTitle,
+  setTrackTitle,
+}: {
+  onNavigate: (t: LauncherTab) => void;
+  trackTitle: string;
+  setTrackTitle: (t: string) => void;
+}) {
   const startGame = useGameStore((s) => s.startGame);
   const claim = useMetaStore((s) => s.claimDailyTickets);
   const tickets = useMetaStore((s) => s.tickets);
@@ -314,6 +344,7 @@ function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-5 pb-6">
       <div className="relative overflow-hidden rounded-3xl border border-white/12 shadow-2xl legixn-ring">
+        <CanvasChrome variant="hero" />
         <div
           className="absolute inset-0"
           style={{
@@ -324,7 +355,7 @@ function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 to-black/35" />
         <div className="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-accent/20 blur-3xl legixn-pulse" />
-        <div className="relative flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:p-8">
+        <div className="relative z-[1] flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:p-8">
           <div className="relative mx-auto shrink-0 sm:mx-0">
             <img
               src="/ui/legixn_icon.png"
@@ -358,7 +389,7 @@ function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
               </span>
               <span className="tabular text-attack">{tickets} tickets</span>
               <span className="rounded-full border border-white/15 bg-white/5 px-2 py-1 text-fg-subtle">
-                10-track score
+                Legion TraX · 2 suites
               </span>
             </div>
             <div className="mx-auto mt-2 h-1.5 w-full max-w-sm overflow-hidden rounded-full bg-black/50 sm:mx-0">
@@ -400,57 +431,60 @@ function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
               )}
             </div>
             <p className="mt-3 text-xs text-fg-subtle">
-              Build {BUILD_ID} · APK 1.05 graphics · offline play
+              Build {BUILD_ID} · APK v{APK_VERSION} · Legion TraX soundtrack
             </p>
           </div>
         </div>
       </div>
 
-      <section className="legixn-panel rounded-2xl p-4">
-        <div className="mb-3 flex items-end justify-between gap-2">
-          <div>
-            <h2 className="text-sm font-semibold text-fg">Legion roster · live art</h2>
-            <p className="text-[0.65rem] text-fg-subtle">
-              Same portraits and exclusives as the 1.05 APK package
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => onNavigate("collection")}
-            className="text-[0.65rem] font-medium text-accent hover:underline"
-          >
-            Full collection
-          </button>
-        </div>
-        <div className="feat-card-scroll flex gap-3 overflow-x-auto pb-1">
-          {showcase.map((c) => (
-            <div
-              key={c.id}
-              className="w-[7.25rem] shrink-0 overflow-hidden rounded-xl border border-white/12 bg-black/40 shadow-lg"
-            >
-              <div className="relative aspect-[3/4] overflow-hidden">
-                <img
-                  src={cardArtSrc(c.id)}
-                  alt={c.name}
-                  className="card-art h-full w-full"
-                  loading="lazy"
-                />
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/70 to-transparent p-2 pt-8">
-                  <div className="truncate text-[0.65rem] font-semibold text-fg">
-                    {c.name}
-                  </div>
-                  <div className="truncate text-[0.55rem] text-fg-subtle">
-                    {typeLabel(c.type)} · {classLabel(c.art)} · {c.cost} mana
-                  </div>
-                </div>
-                {c.id === "dominus_reximus" && (
-                  <span className="absolute right-1 top-1 rounded bg-accent px-1.5 py-0.5 text-[0.5rem] font-bold text-primary-fg">
-                    EX
-                  </span>
-                )}
-              </div>
+      <section className="relative overflow-hidden rounded-2xl border border-white/10 p-4">
+        <CanvasChrome variant="panel" />
+        <div className="relative z-[1]">
+          <div className="mb-3 flex items-end justify-between gap-2">
+            <div>
+              <h2 className="text-sm font-semibold text-fg">Legion roster · live art</h2>
+              <p className="text-[0.65rem] text-fg-subtle">
+                Same portraits and exclusives as the v{APK_VERSION} APK package
+              </p>
             </div>
-          ))}
+            <button
+              type="button"
+              onClick={() => onNavigate("collection")}
+              className="text-[0.65rem] font-medium text-accent hover:underline"
+            >
+              Full collection
+            </button>
+          </div>
+          <div className="feat-card-scroll flex gap-3 overflow-x-auto pb-1">
+            {showcase.map((c) => (
+              <div
+                key={c.id}
+                className="w-[7.25rem] shrink-0 overflow-hidden rounded-xl border border-white/12 bg-black/40 shadow-lg"
+              >
+                <div className="relative aspect-[3/4] overflow-hidden">
+                  <img
+                    src={cardArtSrc(c.id)}
+                    alt={c.name}
+                    className="card-art h-full w-full"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/70 to-transparent p-2 pt-8">
+                    <div className="truncate text-[0.65rem] font-semibold text-fg">
+                      {c.name}
+                    </div>
+                    <div className="truncate text-[0.55rem] text-fg-subtle">
+                      {typeLabel(c.type)} · {classLabel(c.art)} · {c.cost} mana
+                    </div>
+                  </div>
+                  {c.id === "dominus_reximus" && (
+                    <span className="absolute right-1 top-1 rounded bg-accent px-1.5 py-0.5 text-[0.5rem] font-bold text-primary-fg">
+                      EX
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -470,7 +504,7 @@ function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
           },
           {
             t: "Settings",
-            d: "UltraHD · 40K SFX · 10-track score",
+            d: "UltraHD · TraX BGM · combat SFX",
             tab: "settings" as const,
             img: "/ui/hero_legion_hd.jpg",
           },
@@ -481,6 +515,7 @@ function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
             onClick={() => onNavigate(c.tab)}
             className="group relative overflow-hidden rounded-2xl border border-white/12 text-left shadow-lg transition hover:border-accent/50"
           >
+            <CanvasChrome variant="panel" />
             <div
               className="absolute inset-0 opacity-55 transition group-hover:opacity-75"
               style={{
@@ -489,7 +524,7 @@ function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
                 backgroundPosition: "center",
               }}
             />
-            <div className="relative bg-gradient-to-t from-black/95 via-black/55 to-black/15 p-4 pt-16">
+            <div className="relative z-[1] bg-gradient-to-t from-black/95 via-black/55 to-black/15 p-4 pt-16">
               <div className="text-sm font-semibold text-fg">{c.t}</div>
               <div className="mt-0.5 text-xs text-fg-muted">{c.d}</div>
             </div>
@@ -497,56 +532,73 @@ function HomePanel({ onNavigate }: { onNavigate: (t: LauncherTab) => void }) {
         ))}
       </div>
 
-      <section className="legixn-panel rounded-2xl p-4">
-        <div className="mb-2 flex items-center gap-2">
-          <Music2 className="h-4 w-4 text-accent" />
-          <h2 className="text-sm font-semibold text-fg">Soundtrack · 10 tracks</h2>
-        </div>
-        <div className="grid gap-1.5 sm:grid-cols-2">
-          {MENU_TRACKS.map((tr, i) => (
-            <button
-              key={tr.id}
-              type="button"
-              onClick={() => {
-                unlockAudio();
-                ensureMusicUnlocked();
-                void import("@/game/music").then((m) => m.playTrackAt(i));
-              }}
-              className="flex items-center gap-2 rounded-xl border border-white/8 bg-black/30 px-2.5 py-2 text-left text-[0.7rem] transition hover:border-accent/40 hover:bg-black/50"
-            >
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent/15 text-[0.6rem] font-bold text-accent">
-                {i + 1}
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block truncate font-medium text-fg">{tr.title}</span>
-                <span className="block truncate text-[0.55rem] text-fg-subtle">
-                  {tr.group === "edm" ? "EDM" : "LegionX"} · {tr.mood}
+      <div className="relative overflow-hidden rounded-2xl border border-accent/25 p-4">
+        <CanvasChrome variant="panel" />
+        <div className="relative z-[1]">
+          <h2 className="mb-1 flex items-center gap-2 text-sm font-semibold text-fg">
+            <Music2 className="h-4 w-4 text-accent" />
+            Legion TraX soundtrack
+          </h2>
+          <p className="mb-3 text-[0.65rem] text-fg-subtle">
+            Two long-form suites replace the old 10-track set. Tap to play · header Skip
+            advances. Battle ducks volume so combat SFX stay clear.
+          </p>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {MENU_TRACKS.map((tr, i) => (
+              <button
+                key={tr.id}
+                type="button"
+                onClick={() => {
+                  unlockAudio();
+                  ensureMusicUnlocked();
+                  void import("@/game/music").then((m) => {
+                    m.playTrackAt(i);
+                    setTrackTitle(m.currentTrack().title);
+                  });
+                }}
+                className={
+                  tr.title === trackTitle
+                    ? "flex items-center gap-2 rounded-xl border border-accent/50 bg-accent/15 px-3 py-2.5 text-left text-[0.75rem] shadow-[0_0_20px_rgba(255,106,26,0.15)]"
+                    : "flex items-center gap-2 rounded-xl border border-white/10 bg-black/35 px-3 py-2.5 text-left text-[0.75rem] transition hover:border-accent/35 hover:bg-black/50"
+                }
+              >
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent/20 text-sm font-bold text-accent">
+                  {i + 1}
                 </span>
-              </span>
-            </button>
-          ))}
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate font-medium text-fg">{tr.title}</span>
+                  <span className="block truncate text-[0.55rem] text-fg-subtle">
+                    {tr.mood}
+                  </span>
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
-      </section>
+      </div>
 
-      <div className="rounded-2xl border border-white/10 bg-bg-panel/90 p-4 backdrop-blur">
-        <h2 className="flex items-center gap-2 text-sm font-semibold text-fg">
-          <BookOpen className="h-4 w-4 text-accent" />
-          Overall Gameplay
-        </h2>
-        <ul className="mt-2 list-inside list-disc space-y-1.5 text-xs text-fg-muted sm:text-sm">
-          <li>Spend mana to deploy minions and cast high-tech spell protocols.</li>
-          <li>Taunt forces attacks; Immune / Reborn rewrite lethal math live.</li>
-          <li>
-            Drag cards from the fanned hand onto the field — trails show strike
-            direction.
-          </li>
-          <li>
-            Menu score rotates ten soundtrack tracks (5 LegionX originals + 5 EDM).
-          </li>
-          <li>
-            Warhammer-scale battle SFX on every clash, beam, and war-cry — same as APK.
-          </li>
-        </ul>
+      <div className="relative overflow-hidden rounded-2xl border border-white/10 p-4">
+        <CanvasChrome variant="panel" />
+        <div className="relative z-[1]">
+          <h2 className="flex items-center gap-2 text-sm font-semibold text-fg">
+            <BookOpen className="h-4 w-4 text-accent" />
+            Overall Gameplay
+          </h2>
+          <ul className="mt-2 list-inside list-disc space-y-1.5 text-xs text-fg-muted sm:text-sm">
+            <li>Spend mana to deploy minions and cast high-tech spell protocols.</li>
+            <li>Taunt forces attacks; Immune / Reborn rewrite lethal math live.</li>
+            <li>
+              Drag cards from the fanned hand onto the field — trails show strike
+              direction.
+            </li>
+            <li>
+              Legion TraX Part 1 & 2 score the command shell; battle ducks the volume.
+            </li>
+            <li>
+              School-colored beams, particles, and layered battle SFX — same as APK.
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   );
@@ -572,15 +624,17 @@ function PlayPanel() {
 
   return (
     <div className="mx-auto max-w-lg space-y-4 pb-4">
-      <div
-        className="overflow-hidden rounded-2xl border border-white/10"
-        style={{
-          backgroundImage: "url(/ui/bg_command_hd.jpg)",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        <div className="bg-black/65 p-5 backdrop-blur-sm">
+      <div className="relative overflow-hidden rounded-2xl border border-white/10">
+        <CanvasChrome variant="menu" />
+        <div
+          className="absolute inset-0 opacity-50"
+          style={{
+            backgroundImage: "url(/ui/bg_command_hd.jpg)",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        />
+        <div className="relative z-[1] bg-black/55 p-5 backdrop-blur-sm">
           <h2 className="text-xl font-semibold">Play</h2>
           <p className="mt-1 text-sm text-fg-muted">
             Deck {deck.length} · Owned {owned.length}. Same rules as the Android APK.
@@ -665,6 +719,7 @@ function StorePanel() {
   return (
     <div className="mx-auto max-w-4xl space-y-4 pb-4">
       <div className="relative overflow-hidden rounded-2xl border border-accent/25 legixn-ring">
+        <CanvasChrome variant="store" />
         <div
           className="absolute inset-0 opacity-40"
           style={{
@@ -674,15 +729,15 @@ function StorePanel() {
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-black/50" />
-        <div className="relative flex flex-wrap items-end justify-between gap-3 p-4 sm:p-5">
+        <div className="relative z-[1] flex flex-wrap items-end justify-between gap-3 p-4 sm:p-5">
           <div>
             <p className="text-[0.6rem] font-bold uppercase tracking-widest text-accent">
               LEGIXN armory
             </p>
             <h2 className="text-xl font-semibold">Ticket store</h2>
             <p className="text-sm text-fg-muted">
-              High-tech exclusives not in the free starter deck. Spell Power stacks onto
-              every damage protocol.
+              High-tech exclusives not in the free starter deck. Prices rebalanced (×2).
+              Spell Power stacks onto every damage protocol.
             </p>
             <p className="mt-1 text-xs tabular text-attack">
               {tickets} tickets · Legion Lv {level}
@@ -719,7 +774,7 @@ function StorePanel() {
             <div
               key={o.id}
               className={cn(
-                "flex flex-col overflow-hidden rounded-2xl border bg-bg-elevated/90 shadow-lg",
+                "relative flex flex-col overflow-hidden rounded-2xl border bg-bg-elevated/90 shadow-lg",
                 o.exclusive
                   ? "border-accent/50 shadow-[0_0_28px_rgba(255,106,26,0.2)]"
                   : o.featured
@@ -727,7 +782,8 @@ function StorePanel() {
                     : "border-white/10",
               )}
             >
-              <div className="relative aspect-[3/4] overflow-hidden">
+              <CanvasChrome variant="store" />
+              <div className="relative z-[1] aspect-[3/4] overflow-hidden">
                 <img
                   src={cardArtSrc(c.id)}
                   alt=""
@@ -750,7 +806,7 @@ function StorePanel() {
                   <div className="line-clamp-3 text-[0.65rem] text-white/75">{c.text}</div>
                 </div>
               </div>
-              <div className="flex items-center justify-between gap-2 p-2.5">
+              <div className="relative z-[1] flex items-center justify-between gap-2 p-2.5">
                 <span className="inline-flex items-center gap-1 text-xs font-semibold tabular text-attack">
                   <Ticket className="h-3.5 w-3.5" />
                   {price}
@@ -792,36 +848,39 @@ function CollectionPanel() {
   const remove = useMetaStore((s) => s.removeFromDeck);
 
   return (
-    <div className="mx-auto max-w-4xl space-y-4 pb-4">
-      <h2 className="text-xl font-semibold">Collection & deck</h2>
-      <p className="text-sm text-fg-muted">
-        Deck {deck.length}/34 · tap card to add (max 2) · use − to remove
-      </p>
-      <div className="flex flex-wrap gap-2">
-        {owned.map((id) => {
-          const copies = deck.filter((x) => x === id).length;
-          return (
-            <div key={id} className="relative">
-              <button type="button" onClick={() => add(id)} className="block">
-                <CardView defId={id} size="sm" />
-              </button>
-              <div className="absolute -right-1 -top-1 flex gap-0.5">
-                <span className="rounded bg-bg-elevated px-1 text-[0.6rem] font-bold tabular">
-                  ×{copies}
-                </span>
-                {copies > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => remove(id)}
-                    className="rounded bg-danger/90 px-1 text-[0.6rem] font-bold text-white"
-                  >
-                    −
-                  </button>
-                )}
+    <div className="relative mx-auto max-w-4xl space-y-4 overflow-hidden rounded-3xl border border-white/10 p-4 pb-6 sm:p-5">
+      <CanvasChrome variant="panel" />
+      <div className="relative z-[1] space-y-4">
+        <h2 className="text-xl font-semibold">Collection & deck</h2>
+        <p className="text-sm text-fg-muted">
+          Deck {deck.length}/34 · tap card to add (max 2) · use − to remove
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {owned.map((id) => {
+            const copies = deck.filter((x) => x === id).length;
+            return (
+              <div key={id} className="relative">
+                <button type="button" onClick={() => add(id)} className="block">
+                  <CardView defId={id} size="sm" />
+                </button>
+                <div className="absolute -right-1 -top-1 flex gap-0.5">
+                  <span className="rounded bg-bg-elevated px-1 text-[0.6rem] font-bold tabular">
+                    ×{copies}
+                  </span>
+                  {copies > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => remove(id)}
+                      className="rounded bg-danger/90 px-1 text-[0.6rem] font-bold text-white"
+                    >
+                      −
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );
