@@ -12,6 +12,12 @@ import {
   persistUnlockedSnapshot,
   type MetaSnapshot,
 } from "./deviceVault";
+import {
+  getWeeklyFeaturedIds,
+  isWeeklyFeatured,
+  storeRotationLabel,
+  weeklySpotlightDiscount,
+} from "./storeRotation";
 
 export type LauncherTab = "home" | "play" | "store" | "collection" | "settings";
 
@@ -58,7 +64,7 @@ export function xpProgressInLevel(totalXp: number): {
 
 const STARTER_OWNED = [...new Set(buildStarterDeck())];
 
-/** Level-scaled ticket price for store purchases. */
+/** Level-scaled ticket price for store purchases (weekly spotlight discounts apply). */
 export function ticketPrice(cardId: string, level: number): number {
   const c = getCard(cardId);
   const lv = safeInt(level, 1, 100, 1);
@@ -69,40 +75,58 @@ export function ticketPrice(cardId: string, level: number): number {
   // Store costs doubled for economy rebalance
   base *= 2;
   const discount = Math.min(0.35, (lv - 1) * 0.012);
-  return safeInt(Math.round(base * (1 - discount)), 20, 9999, base);
+  const weekly = weeklySpotlightDiscount(cardId);
+  const mult = (1 - discount) * (1 - weekly);
+  return safeInt(Math.round(base * mult), 20, 9999, base);
 }
 
-type StoreOffer = {
+export type StoreOffer = {
   id: string;
   cardId: string;
   price: number;
   minLevel: number;
   featured?: boolean;
   exclusive?: boolean;
+  weekly?: boolean;
+  spotlight?: boolean;
 };
 
 function buildOffers(): StoreOffer[] {
+  const weekly = new Set(getWeeklyFeaturedIds());
   const offers: StoreOffer[] = [];
   for (const c of CARD_POOL) {
     const exclusive = isStoreExclusive(c.id);
     const starter = STARTER_OWNED.includes(c.id);
     if (!exclusive && starter) continue;
+    const isWeekly = weekly.has(c.id);
     offers.push({
       id: `offer_${c.id}`,
       cardId: c.id,
       price: ticketPrice(c.id, 1),
-      minLevel: exclusive ? (c.id === "dominus_reximus" ? 5 : 2) : 1,
-      featured: exclusive || c.cost >= 5,
+      minLevel: exclusive
+        ? c.id === "dominus_reximus"
+          ? 5
+          : c.id === "aegis_phalanx" || c.id === "void_sovereign"
+            ? 4
+            : 2
+        : 1,
+      featured: exclusive || isWeekly || c.cost >= 5,
       exclusive,
+      weekly: isWeekly,
+      spotlight: isWeekly && c.id !== "dominus_reximus",
     });
   }
   return offers.sort((a, b) => {
+    // Weekly rotation first, then exclusives, then price
+    if (!!a.weekly !== !!b.weekly) return a.weekly ? -1 : 1;
     if (!!a.exclusive !== !!b.exclusive) return a.exclusive ? -1 : 1;
     return a.price - b.price || a.minLevel - b.minLevel;
   });
 }
 
 export const STORE_OFFERS = buildOffers();
+export const STORE_ROTATION_LABEL = storeRotationLabel();
+export { isWeeklyFeatured, getWeeklyFeaturedIds, storeRotationLabel };
 
 function rollInt(min: number, max: number): number {
   const lo = Math.min(min, max);
@@ -360,10 +384,15 @@ export const useMetaStore = create<MetaState>()(
           set({ lastMessage: "Not enough tickets." });
           return false;
         }
+        const weeklyNote = offer.spotlight
+          ? " (weekly spotlight)"
+          : offer.weekly
+            ? " (rotation)"
+            : "";
         set({
           tickets: s.tickets - price,
           owned: [...s.owned, cardId],
-          lastMessage: `Acquired ${getCard(cardId).name}.`,
+          lastMessage: `Acquired ${getCard(cardId).name}${weeklyNote}.`,
         });
         flushVaultSoon();
         return true;
@@ -411,12 +440,15 @@ export const useMetaStore = create<MetaState>()(
       }),
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<MetaState>;
+        // Merge new starter cards into owned without wiping progression
+        const baseOwned = Array.isArray(p.owned) ? p.owned : current.owned;
+        const mergedOwned = [...new Set([...baseOwned, ...STARTER_OWNED])];
         return {
           ...current,
           ...p,
           tickets: safeInt(Number(p.tickets ?? current.tickets), 0, 9_999_999, 220),
           totalXp: safeInt(Number(p.totalXp ?? 0), 0, 50_000_000, 0),
-          owned: Array.isArray(p.owned) ? p.owned : current.owned,
+          owned: mergedOwned,
           deck: Array.isArray(p.deck) ? p.deck : current.deck,
           sfxVolume:
             typeof p.sfxVolume === "number" && Number.isFinite(p.sfxVolume)

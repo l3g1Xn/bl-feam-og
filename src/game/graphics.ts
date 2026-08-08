@@ -2,7 +2,7 @@
  * Graphics adapter for Battle Legions — real-time quality switches.
  * Uses Chromium WebView compositor + ANGLE (not a kernel GPU driver).
  * Particle budgets sized for immersive VFX while staying APK-code-only
- * (under the 300 MB package ceiling).
+ * (under the 350 MB package ceiling).
  */
 
 export type GpuTier = "high" | "mid" | "low" | "unknown";

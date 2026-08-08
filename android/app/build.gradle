@@ -16,17 +16,27 @@ android {
     }
     signingConfigs {
         release {
-            storeFile file("../../mobile/signing/battlelegions-release.jks")
-            storePassword System.getenv("BL_STORE_PASS") ?: "BL4WeAreMany!"
-            keyAlias "battlelegions"
-            keyPassword System.getenv("BL_KEY_PASS") ?: "BL4WeAreMany!"
+            // Passwords ONLY via CI env — never commit secrets.
+            def storePass = System.getenv("BL_STORE_PASS")
+            def keyPass = System.getenv("BL_KEY_PASS")
+            if (storePass == null || keyPass == null) {
+                // Unsigned local builds still compile; release CI must inject secrets.
+                println "WARNING: BL_STORE_PASS / BL_KEY_PASS not set — release signing skipped"
+            } else {
+                storeFile file("../../mobile/signing/battlelegions-release.jks")
+                storePassword storePass
+                keyAlias "battlelegions"
+                keyPassword keyPass
+            }
         }
     }
     buildTypes {
         release {
             minifyEnabled false
             debuggable false
-            signingConfig signingConfigs.release
+            if (System.getenv("BL_STORE_PASS") != null) {
+                signingConfig signingConfigs.release
+            }
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {

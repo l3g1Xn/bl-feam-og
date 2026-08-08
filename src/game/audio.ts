@@ -1,7 +1,7 @@
 /**
  * Battle Legions battle SFX — multi-stage kinetic / energy / war-cry synthesis.
  * Offline Web Audio only. Peak-limited bus with school-colored layers + reverb.
- * Zero binary audio assets → free APK headroom under the 300 MB cap.
+ * Zero binary audio assets → free APK headroom under the 350 MB cap.
  */
 
 export type SfxId =
@@ -23,7 +23,11 @@ export type SfxId =
   | "void"
   | "nature"
   | "plasma"
-  | "impact_tail";
+  | "impact_tail"
+  | "shield_break"
+  | "overkill"
+  | "charge_rush"
+  | "crit";
 
 let ctx: AudioContext | null = null;
 let masterGain: GainNode | null = null;
@@ -643,6 +647,71 @@ function uiClick(c: AudioContext, dest: AudioNode, t0: number) {
   noiseShot(c, dest, t0, 0.025, 0.08, { color: "white", hipass: 2500 });
 }
 
+function shieldBreak(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  // Crystal shatter + energy discharge
+  noiseShot(c, dest, t0, 0.05, 0.7 * k, { color: "white", hipass: 2800 });
+  for (let i = 0; i < 7; i++) {
+    tone(
+      c,
+      dest,
+      1600 + i * 280 + Math.random() * 120,
+      t0 + i * 0.012,
+      0.09,
+      "triangle",
+      0.14 * k,
+      400,
+    );
+  }
+  noiseShot(c, dest, t0 + 0.02, 0.18, 0.4 * k, {
+    color: "pink",
+    hipass: 1200,
+    lowpass: 9000,
+  });
+  tone(c, dest, 90, t0 + 0.01, 0.2, "sine", 0.22 * k, 40);
+}
+
+function overkillBoom(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  detonation(c, dest, t0, k * 1.25, true);
+  powerMetal(c, dest, t0 + 0.02, k * 1.1, true);
+  seismicThump(c, dest, t0, 0.85 * k, 28);
+  for (let i = 0; i < 5; i++) {
+    tone(
+      c,
+      dest,
+      80 + i * 30,
+      t0 + 0.05 + i * 0.04,
+      0.25,
+      "sawtooth",
+      0.12 * k,
+      30,
+    );
+  }
+  noiseShot(c, dest, t0 + 0.08, 0.55, 0.45 * k, {
+    color: "brown",
+    lowpass: 600,
+  });
+}
+
+function chargeRush(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  whooshPass(c, dest, t0, k * 1.2);
+  tone(c, dest, 220, t0, 0.18, "sawtooth", 0.28 * k, 90);
+  tone(c, dest, 440, t0 + 0.02, 0.12, "square", 0.12 * k, 180);
+  noiseShot(c, dest, t0, 0.2, 0.4 * k, {
+    color: "pink",
+    hipass: 400,
+    lowpass: 5000,
+  });
+  powerMetal(c, dest, t0 + 0.1, k * 0.65, false);
+}
+
+function critHit(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  noiseShot(c, dest, t0, 0.03, 0.9 * k, { color: "white", hipass: 3000 });
+  tone(c, dest, 880, t0, 0.08, "square", 0.25 * k, 1760);
+  tone(c, dest, 1320, t0 + 0.01, 0.1, "sine", 0.18 * k, 440);
+  powerMetal(c, dest, t0 + 0.015, k * 0.9, true);
+  seismicThump(c, dest, t0 + 0.02, 0.5 * k, 50);
+}
+
 export function playSfx(id: SfxId, intensity = 1) {
   if (muted || volume <= 0.01) return;
   const c = ac();
@@ -720,6 +789,22 @@ export function playSfx(id: SfxId, intensity = 1) {
       impactTail(c, dest, t0, k);
       impactTail(c, room, t0, k * 0.6);
       break;
+    case "shield_break":
+      shieldBreak(c, dest, t0, k);
+      shieldBreak(c, room, t0, k * 0.45);
+      break;
+    case "overkill":
+      overkillBoom(c, dest, t0, k);
+      overkillBoom(c, room, t0, k * 0.4);
+      break;
+    case "charge_rush":
+      chargeRush(c, dest, t0, k);
+      chargeRush(c, room, t0, k * 0.35);
+      break;
+    case "crit":
+      critHit(c, dest, t0, k);
+      critHit(c, room, t0, k * 0.35);
+      break;
     case "ui":
       uiClick(c, dest, t0);
       break;
@@ -734,13 +819,19 @@ export function playCombatSfx(opts: {
   fromPlayer?: boolean;
   school?: string;
   beam?: string;
+  shieldBroken?: boolean;
+  keywords?: string[];
 }) {
   const dmg = opts.damage ?? 0;
   const school = (opts.school || "").toLowerCase();
   const beam = (opts.beam || "").toLowerCase();
-  const power = 0.85 + Math.min(1.2, dmg * 0.12);
+  const power = 0.9 + Math.min(1.35, dmg * 0.13);
+  const kws = (opts.keywords ?? []).map((k) => k.toLowerCase());
 
   if (opts.kind === "melee") {
+    if (kws.includes("charge") || kws.includes("rush")) {
+      playSfx("charge_rush", power * 0.85);
+    }
     // School identity first
     if (school === "frost" || beam === "frost_bolt") {
       playSfx("frost", power);
@@ -766,6 +857,7 @@ export function playCombatSfx(opts: {
       playSfx(dmg >= 5 ? "heavy_clash" : "clash", power);
       if (dmg >= 4) playSfx("blade", power * 0.65);
     }
+    if (opts.shieldBroken) playSfx("shield_break", power * 1.05);
     if (dmg >= 2) {
       playSfx(
         opts.fromPlayer ? "grunt" : "enemy_grunt",
@@ -773,12 +865,18 @@ export function playCombatSfx(opts: {
       );
     }
     if (dmg >= 5) playSfx("impact_tail", power * 0.85);
+    if (dmg >= 7) playSfx("crit", power * 0.95);
     if (dmg >= 8) playSfx("heavy_clash", power * 0.9);
+    if (dmg >= 10) playSfx("overkill", power * 1.05);
   } else if (opts.kind === "spell") {
     playSfx("whoosh", power * 0.7);
     if (school === "frost" || beam === "frost_bolt") {
       playSfx("frost", power * 1.1);
-    } else if (school === "shadow" || beam === "shadow_bolt" || beam === "dominus_ring") {
+    } else if (
+      school === "shadow" ||
+      beam === "shadow_bolt" ||
+      beam === "dominus_ring"
+    ) {
       playSfx("void", power * 1.15);
       playSfx("spell", power * 0.55);
     } else if (school === "nature" || beam === "nature_vine") {
@@ -789,18 +887,23 @@ export function playCombatSfx(opts: {
       school === "ember"
     ) {
       playSfx("laser", power * 1.1);
+      if (dmg >= 5) playSfx("beam", power * 0.55);
     } else if (beam === "beam") {
       playSfx("beam", power * 1.1);
     } else {
       playSfx("spell", power * 1.05);
     }
+    if (opts.shieldBroken) playSfx("shield_break", power * 0.9);
     if (dmg >= 4) playSfx("impact_tail", power * 0.7);
+    if (dmg >= 7) playSfx("crit", power * 0.85);
+    if (dmg >= 9) playSfx("overkill", power * 0.9);
     if (opts.toHero && dmg >= 3) {
       playSfx(opts.fromPlayer === false ? "grunt" : "enemy_grunt", 1.1);
     }
   } else if (opts.kind === "heal") {
-    playSfx("heal", 1.0);
+    playSfx("heal", 1.05);
   } else if (opts.kind === "summon") {
-    playSfx("summon", 1.1);
+    playSfx("summon", 1.15);
+    if (kws.includes("charge")) playSfx("charge_rush", 0.7);
   }
 }

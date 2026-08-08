@@ -23,3 +23,12 @@ public/downloads/*.apk
 public/downloads/*.bin
 releases/*.apk
 artifacts/
+
+# Signing secrets — never re-commit keystores or password files
+mobile/signing/*.jks
+mobile/signing/*.keystore
+mobile/signing/*.pem
+**/*credentials*
+**/*secret*
+.env
+.env.*

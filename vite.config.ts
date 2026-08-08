@@ -3,7 +3,6 @@ import { defineConfig } from "vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
-import { nitro } from "nitro/vite";
 import { createReadStream, existsSync, statSync } from "node:fs";
 import { join, extname } from "node:path";
 import type { IncomingMessage, ServerResponse } from "node:http";
@@ -208,49 +207,58 @@ function authPopupPlugin(): Plugin {
   };
 }
 
-export default defineConfig(({ command }) => ({
-  server: {
-    host: "0.0.0.0",
-    port: 8080,
-    strictPort: true,
-    watch: {
-      // Avoid ENOSPC inotify limits from SDK / deploy trees
-      ignored: [
-        "**/.vercel/**",
-        "**/android/**",
-        "**/android-sdk/**",
-        "**/jdk-21/**",
-        "**/dist-mobile/**",
-        "**/artifacts/**",
-        "**/public/pkg/**",
-        "**/public/downloads/**",
-        "**/public/cards/**",
-        "**/node_modules/**",
-        "**/screenshots/**",
-        "**/imagine_images/**",
-        "**/artifacts/imagine_images/**",
-      ],
-    },
-  },
-  resolve: { tsconfigPaths: true },
-  plugins: [
-    apkStaticPlugin(),
-    pgliteBootstrapPlugin(),
-    authPopupPlugin(),
-    tailwindcss(),
-    tanstackStart(),
-    ...(command === "build"
+export default defineConfig(async ({ command }) => {
+  // Load nitro only for production builds (avoids broken/missing nitro deps in dev).
+  const nitroPlugins =
+    command === "build"
       ? [
-          nitro({
+          (
+            await import("nitro/vite")
+          ).nitro({
             preset: "vercel",
             routeRules: {
               "/pkg/**": { headers: { "cache-control": "public, max-age=3600" } },
-              "/downloads/**": { headers: { "cache-control": "public, max-age=3600" } },
+              "/downloads/**": {
+                headers: { "cache-control": "public, max-age=3600" },
+              },
               "/get-apk.html": { headers: { "cache-control": "no-cache" } },
             },
           }),
         ]
-      : []),
-    viteReact(),
-  ],
-}));
+      : [];
+
+  return {
+    server: {
+      host: "0.0.0.0",
+      port: 8080,
+      strictPort: true,
+      watch: {
+        ignored: [
+          "**/.vercel/**",
+          "**/android/**",
+          "**/android-sdk/**",
+          "**/jdk-21/**",
+          "**/dist-mobile/**",
+          "**/artifacts/**",
+          "**/public/pkg/**",
+          "**/public/downloads/**",
+          "**/public/cards/**",
+          "**/node_modules/**",
+          "**/screenshots/**",
+          "**/imagine_images/**",
+          "**/artifacts/imagine_images/**",
+        ],
+      },
+    },
+    resolve: { tsconfigPaths: true },
+    plugins: [
+      apkStaticPlugin(),
+      pgliteBootstrapPlugin(),
+      authPopupPlugin(),
+      tailwindcss(),
+      tanstackStart(),
+      ...nitroPlugins,
+      viteReact(),
+    ],
+  };
+});

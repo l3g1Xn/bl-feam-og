@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   STORE_OFFERS,
+  STORE_ROTATION_LABEL,
   useMetaStore,
   xpProgressInLevel,
   type LauncherTab,
@@ -742,6 +743,9 @@ function StorePanel() {
             <p className="mt-1 text-xs tabular text-attack">
               {tickets} tickets · Legion Lv {level}
             </p>
+            <p className="mt-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-legixn">
+              {STORE_ROTATION_LABEL} · weekly spotlight discounts live
+            </p>
           </div>
           <div className="flex flex-wrap gap-1 rounded-xl border border-border bg-bg-elevated/90 p-1 backdrop-blur">
             {(["exclusive", "all", "minion", "spell"] as const).map((f) => (
@@ -780,6 +784,7 @@ function StorePanel() {
                   : o.featured
                     ? "border-attack/40"
                     : "border-white/10",
+                o.spotlight && "ring-2 ring-legixn/60",
               )}
             >
               <CanvasChrome variant="store" />
@@ -789,11 +794,18 @@ function StorePanel() {
                   alt=""
                   className="h-full w-full object-cover object-[center_18%]"
                   draggable={false}
+                  loading="lazy"
+                  decoding="async"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/25" />
                 <div className="absolute left-2 top-2 rounded-md bg-black/65 px-1.5 py-0.5 text-[0.6rem] text-fg">
                   {classLabel(c.art)} · {typeLabel(c.type)}
                 </div>
+                {o.spotlight && (
+                  <div className="absolute left-2 top-8 rounded-md bg-legixn px-1.5 py-0.5 text-[0.55rem] font-bold text-white">
+                    SPOTLIGHT
+                  </div>
+                )}
                 {o.exclusive && (
                   <div className="absolute right-2 top-2 rounded-md bg-primary px-1.5 py-0.5 text-[0.55rem] font-bold text-primary-fg">
                     {c.id === "dominus_reximus" ? "APEX" : "EXCLUSIVE"}

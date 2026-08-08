@@ -161,13 +161,14 @@ function dmgWeight(dmg: number): {
 } {
   const big = dmg >= 6;
   const lethal = dmg >= 8;
+  const overkill = dmg >= 12;
   return {
-    durationMs: lethal ? 680 : big ? 580 : 480,
-    trauma: Math.min(1, 0.2 + dmg * 0.065),
-    hitStopMs: lethal ? 72 : big ? 42 : dmg >= 3 ? 22 : 0,
-    particles: lethal ? 48 : big ? 32 : 18,
-    residualMs: big ? 420 : 280,
-    bloom: lethal ? 1.35 : big ? 1.1 : 0.85,
+    durationMs: overkill ? 760 : lethal ? 700 : big ? 600 : 500,
+    trauma: Math.min(1, 0.22 + dmg * 0.07),
+    hitStopMs: overkill ? 88 : lethal ? 72 : big ? 48 : dmg >= 3 ? 26 : 0,
+    particles: overkill ? 64 : lethal ? 52 : big ? 36 : 22,
+    residualMs: overkill ? 520 : big ? 440 : 300,
+    bloom: overkill ? 1.55 : lethal ? 1.4 : big ? 1.15 : 0.9,
   };
 }
 
