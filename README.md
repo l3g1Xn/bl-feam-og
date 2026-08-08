@@ -15,12 +15,12 @@ Welcome, commander. This is the short, slightly sarcastic field manual for **Bat
 **Direct APK (recommended):**  
 **[Download BattleLegions.apk — Release 1.06.666](https://github.com/l3g1Xn/bl-feam-og/releases/download/apk-release-1.06.666/BattleLegions.apk)**
 
-- **Size:** ~101 MB (TraX included · 350 MB hard cap)  
-- **Platform:** Android (signed offline package, landscape)  
-- **Release page:** [apk-release-1.06.666](https://github.com/l3g1Xn/bl-feam-og/releases/tag/apk-release-1.06.666)  
+- **Size:** ~101 MB (TraX included · 350 MB hard cap)
+- **Platform:** Android (signed offline package, landscape)
+- **Release page:** [apk-release-1.06.666](https://github.com/l3g1Xn/bl-feam-og/releases/tag/apk-release-1.06.666)
 - **Web / site practice:** play in browser at the Grok-hosted site (same rules, no PIN vault)
 
-Install the APK, unlock the PIN vault once if prompted, and you’re in **LEGIXN COMMAND**. The web build lands straight on command — PIN is APK-only (local vault, no cloud).
+Install the APK, unlock the PIN vault once if prompted, and you are in **LEGIXN COMMAND**. The web build lands straight on command. PIN is APK-only (local vault, no cloud).
 
 ---
 
@@ -28,71 +28,72 @@ Install the APK, unlock the PIN vault once if prompted, and you’re in **LEGIXN
 
 You run a modern combat legion armed with:
 
-- Steel, lasers, and beams that would make a tech priest blush  
-- Minions with **Taunt**, **Immune**, **Reborn**, and board-wide buffs  
-- Store exclusives (yes, including **Dominus Reximus** — the unit your wallet… tickets… warned you about)  
-- **Store Waves A / B / C** with weekly rotation deals  
-- A live math HUD so “was that lethal?” is never a mystery novel
+- Steel, lasers, and beams that would make a tech priest blush
+- Minions with **Taunt**, **Immune**, **Reborn**, and board-wide buffs
+- Store exclusives (yes, including **Dominus Reximus** — the unit your tickets warned you about)
+- **Store Waves A / B / C** with weekly rotation deals
+- A live math HUD so "was that lethal?" is never a mystery novel
 
 Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle SFX (nova / grav / swarm layers), and an opponent whose name looks like it escaped a 2003 IRC channel.
 
 ---
 
-## How to play (Overall Gameplay)
+## How to play
 
-1. **Spend mana** to deploy minions and cast high-tech spell protocols.  
-2. **Taunt** forces attacks; **Immune** / **Reborn** rewrite lethal math while you watch.  
-3. **Drag** cards from the fanned hand onto the field — trails show strike direction.  
-4. Combat is simultaneous: ATK hits both ways. Shields absorb a hit. **Lethal** = ready face-ATK sum ≥ enemy HP with no Taunt in the way. Hover a target after selecting an attacker to preview the formula like a responsible war criminal.  
-5. Win matches, bank **tickets** + XP, level the Legion, unlock more toys.
+1. **Spend mana** to deploy minions and cast high-tech spell protocols.
+2. **Taunt** forces attacks. **Immune** and **Reborn** rewrite lethal math while you watch.
+3. **Drag** cards from the fanned hand onto the field. Trails show strike direction.
+4. Combat is simultaneous: ATK hits both ways. Shields absorb a hit. **Lethal** means ready face-ATK sum is greater than or equal to enemy HP with no Taunt in the way. Hover a target after selecting an attacker to preview the formula.
+5. Win matches, bank **tickets** and XP, level the Legion, unlock more toys.
 
-### Modes & meta
+### Modes and meta
 
 | Thing | What it does |
 | --- | --- |
 | **Ranked practice** | Normal / Hard AI — same rules, different pain |
 | **Ticket store** | Spend tickets on exclusives (Wave A/B/C rotation, prices ×2 rebalance, level-gated) |
-| **Collection** | Own cards, build the deck, look at pretty portraits |
+| **Collection** | Own cards, build the deck, view portraits |
 | **LX_SAVE_GAME** | Auto-save on close; load from the main menu (local only) |
-| **PIN vault (APK)** | Local lock on reopen — no cloud, no “forgot password” email |
+| **PIN vault (APK)** | Local lock on reopen — no cloud, no forgot-password email |
 
-### Audio & graphics
+### Audio and graphics
 
-- **Legion TraX soundtrack** — Part 1 & Part 2 only  
-- Combat SFX stay layered (ion / photon / nova / grav / swarm / execute); music ducks during battle  
-- School-colored multi-layer battle VFX (beams, particles, hit-stop, residual trails)  
-- Graphics quality live: **Low → UltraHD**  
-- Canvas-drawn menu chrome on launcher panels, store, and in-match exit menu  
-- Mobile-first safe areas, coarse-pointer hit targets, landscape phone layouts  
+- **Legion TraX soundtrack** — Part 1 and Part 2 only
+- Combat SFX stay layered (ion / photon / nova / grav / swarm / execute); music ducks during battle
+- Multi-layer battle VFX (beams, particles, hit-stop, residual trails)
+- Graphics quality live: **Low → UltraHD**
+- Canvas-drawn menu chrome on launcher panels, store, and in-match exit menu
+- Mobile-first safe areas, coarse-pointer hit targets, landscape phone layouts
 
 ---
 
 ## Version notes
 
-**1.06.666** — *Legion TraX + combat polish + Wave C stock*  
-- Brand stamp **1.06.666** (versionCode 106666) — version held; content rotates  
-- Legion TraX Part 1 & Part 2 soundtrack  
-- Typed combat engine, denser VFX/SFX (nova · grav · swarm beams)  
-- Store Waves A / B / C weekly rotation (10 new exclusives in Wave C)  
-- Version-stamped title logo on launcher + README  
-- Doubled store ticket prices · fixed board minion display  
-- Official Gradle release build · targetSdk 34  
-- 350 MB APK ceiling retained  
+**1.06.666** — *Legion TraX + combat polish + Wave C stock*
+
+- Brand stamp **1.06.666** (versionCode 106666) — version held; content rotates
+- Legion TraX Part 1 and Part 2 soundtrack
+- Typed combat engine with denser VFX/SFX (nova · grav · swarm beams)
+- Store Waves A / B / C weekly rotation (10 exclusives in Wave C)
+- Version-stamped title logo on launcher and README
+- Doubled store ticket prices; fixed board minion display
+- Official Gradle release build · targetSdk 34
+- 350 MB APK ceiling retained
 
 ---
 
 ## Quick start checklist
 
-1. Grab the APK: [BattleLegions.apk (1.06.666)](https://github.com/l3g1Xn/bl-feam-og/releases/download/apk-release-1.06.666/BattleLegions.apk)  
-2. Install → open → set PIN if asked  
-3. Hit **Play** (or continue a save)  
-4. Deploy, trade, read the math HUD, don’t face into Taunt  
-5. Spend tickets in the store like a civilized warlord — check weekly Wave C deals  
+1. Grab the APK: [BattleLegions.apk (1.06.666)](https://github.com/l3g1Xn/bl-feam-og/releases/download/apk-release-1.06.666/BattleLegions.apk)
+2. Install, open, and set PIN if asked
+3. Hit **Play** (or continue a save)
+4. Deploy, trade, read the math HUD, and do not face into Taunt
+5. Spend tickets in the store — check weekly Wave C deals
 
 ---
 
 ## Repository protection
 
-- Canonical repo: **[l3g1Xn/bl-feam-og](https://github.com/l3g1Xn/bl-feam-og)**  
-- Releases only under tags matching `v1.06.666` / `apk-release-1.06.666` unless a major bugfix or full UI/UX art overhaul warrants a bump  
-- Do not re-scaffold duplicate “same premise” card battlers into this tree  
+- Canonical repo: **[l3g1Xn/bl-feam-og](https://github.com/l3g1Xn/bl-feam-og)**
+- Releases only under tags matching `v1.06.666` / `apk-release-1.06.666` unless a major bugfix or full UI/UX art overhaul warrants a bump
+- Do not re-scaffold duplicate same-premise card battlers into this tree
