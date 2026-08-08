@@ -6,6 +6,7 @@ import {
   ALL_STOCK_WAVE_IDS,
   CARD_POOL,
   STORE_STOCK_WAVE_B_IDS,
+  STORE_STOCK_WAVE_C_IDS,
   STORE_STOCK_WAVE_IDS,
   buildStarterDeck,
   getCard,
@@ -47,7 +48,11 @@ export function ticketPrice(cardId: string, level: number): number {
     cardId === "omega_drone" ||
     cardId === "nano_swarm" ||
     cardId === "aegis_phalanx" ||
-    cardId === "photon_barrage"
+    cardId === "photon_barrage" ||
+    cardId === "nova_core" ||
+    cardId === "bastion_prime" ||
+    cardId === "void_harvester" ||
+    cardId === "singularity_bolt"
   ) {
     base = Math.round(base * 1.08);
   }
@@ -75,10 +80,16 @@ function hashStr(s: string): number {
   return h >>> 0;
 }
 
-/** Alternate A/B wave emphasis by week parity. */
+const WAVE_POOLS = [
+  STORE_STOCK_WAVE_IDS,
+  STORE_STOCK_WAVE_B_IDS,
+  STORE_STOCK_WAVE_C_IDS,
+] as const;
+
+/** Cycle A → B → C by week hash so stock never stagnates. */
 export function activeWavePool(week = storeWeekKey()): readonly string[] {
-  const n = hashStr(week) & 1;
-  return n === 0 ? STORE_STOCK_WAVE_IDS : STORE_STOCK_WAVE_B_IDS;
+  const n = hashStr(week) % 3;
+  return WAVE_POOLS[n]!;
 }
 
 /** Stable shuffle of exclusive card ids for this week. */
@@ -92,7 +103,7 @@ export function rotationOrder(week = storeWeekKey()): string[] {
   return scored.map((x) => x.id);
 }
 
-/** 3 spotlight deals each week — prefer active stock wave. */
+/** 3 spotlight deals each week — prefer active stock wave, inject one alt wave. */
 export function weeklyDealIds(week = storeWeekKey()): string[] {
   const order = rotationOrder(week).filter((id) => id !== "dominus_reximus");
   const wave = activeWavePool(week);
@@ -101,11 +112,9 @@ export function weeklyDealIds(week = storeWeekKey()): string[] {
     ...order.filter((id) => !(wave as readonly string[]).includes(id)),
   ];
   const deals = waveFirst.slice(0, 3);
-  // Always surface one deep wave B / A flip so stock never stagnates
-  const alt = (wave === STORE_STOCK_WAVE_IDS
-    ? STORE_STOCK_WAVE_B_IDS
-    : STORE_STOCK_WAVE_IDS
-  ).find((id) => !deals.includes(id));
+  // Surface one card from a different wave so stock never stagnates
+  const altPool = WAVE_POOLS.find((p) => p !== wave) ?? STORE_STOCK_WAVE_B_IDS;
+  const alt = altPool.find((id) => !deals.includes(id));
   if (alt && deals.length >= 2) {
     deals[2] = alt;
   }
@@ -125,14 +134,20 @@ export function minLevelFor(cardId: string): number {
     cardId === "titan_edge" ||
     cardId === "omega_drone" ||
     cardId === "aegis_phalanx" ||
-    cardId === "photon_barrage"
+    cardId === "photon_barrage" ||
+    cardId === "nova_core" ||
+    cardId === "bastion_prime" ||
+    cardId === "singularity_bolt"
   )
     return 4;
   if (
     cardId === "nano_swarm" ||
     cardId === "siege_titan" ||
     cardId === "ion_grid" ||
-    cardId === "quantum_mend"
+    cardId === "quantum_mend" ||
+    cardId === "void_harvester" ||
+    cardId === "shield_matrix" ||
+    cardId === "grav_well"
   )
     return 3;
   if (isStoreExclusive(cardId)) return 2;
@@ -198,6 +213,12 @@ export function rotationLabel(week = storeWeekKey()): string {
       }
     })
     .join(" · ");
-  const wave = activeWavePool(week) === STORE_STOCK_WAVE_IDS ? "Wave A" : "Wave B";
-  return `${wave} · Week ${week} deals: ${deals}`;
+  const wave = activeWavePool(week);
+  const waveName =
+    wave === STORE_STOCK_WAVE_IDS
+      ? "Wave A"
+      : wave === STORE_STOCK_WAVE_B_IDS
+        ? "Wave B"
+        : "Wave C";
+  return `${waveName} · Week ${week} deals: ${deals}`;
 }

@@ -133,6 +133,14 @@ function beamTintFor(beam?: string, fallback = "#b0b8c8"): string {
       return "#48b86a";
     case "ember_orb":
       return "#e07838";
+    case "grav_well":
+      return "#6a48a8";
+    case "swarm_cloud":
+      return "#5ecf7a";
+    case "nova_burst":
+      return "#ff6a2a";
+    case "singularity":
+      return "#9b5cff";
     default:
       return fallback;
   }
@@ -317,11 +325,17 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
     const color = schoolColor(fx.school);
     const glow = schoolGlow(fx.school);
     const pKind =
-      fx.beam === "lifesteal_siphon"
+      fx.beam === "lifesteal_siphon" || fx.beam === "singularity"
         ? "void"
         : fx.beam === "ion_lance"
           ? "arc"
-          : particleKindForSchool(fx.school);
+          : fx.beam === "swarm_cloud"
+            ? "leaf"
+            : fx.beam === "nova_burst" || fx.beam === "ember_orb"
+              ? "ember"
+              : fx.beam === "grav_well"
+                ? "smoke"
+                : particleKindForSchool(fx.school);
 
     const stage = rootRef.current?.parentElement ?? document.body;
     promoteLayer(stage as HTMLElement, true);

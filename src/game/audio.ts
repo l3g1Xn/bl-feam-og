@@ -33,7 +33,10 @@ export type SfxId =
   | "reborn"
   | "ion"
   | "photon"
-  | "execute";
+  | "execute"
+  | "nova"
+  | "grav"
+  | "swarm";
 
 let ctx: AudioContext | null = null;
 let masterGain: GainNode | null = null;
@@ -346,246 +349,61 @@ function powerMetal(
   gDrive.connect(dest);
   src.start(t0);
   src.stop(t0 + 0.35);
-
-  const rings = heavy
-    ? [520, 780, 1040, 1560, 2340, 3120, 4160]
-    : [660, 990, 1480, 2220, 3330];
-  rings.forEach((f, i) => {
-    tone(
-      c,
-      dest,
-      f + Math.random() * 60,
-      t0 + i * 0.003,
-      heavy ? 0.35 : 0.18,
-      i % 2 ? "triangle" : "sine",
-      p * (0.14 - i * 0.012),
-    );
-  });
-  seismicThump(c, dest, t0 + 0.008, p * 0.7, heavy ? 36 : 55);
-  noiseShot(c, dest, t0 + 0.06, 0.1, p * 0.35, {
-    color: "white",
-    hipass: 2500,
-  });
-  if (heavy) detonation(c, dest, t0 + 0.04, k * 0.45, false);
+  seismicThump(c, dest, t0 + 0.01, p * 0.85, heavy ? 36 : 48);
+  tone(c, dest, 220, t0, 0.12, "sawtooth", p * 0.22, 80);
+  if (heavy) {
+    noiseShot(c, dest, t0 + 0.05, 0.2, p * 0.4, {
+      color: "brown",
+      lowpass: 400,
+    });
+  }
 }
 
 function chainBlade(c: AudioContext, dest: AudioNode, t0: number, k: number) {
-  tone(c, dest, 90, t0, 0.08, "sawtooth", 0.25 * k, 140);
-  noiseShot(c, dest, t0, 0.1, 0.35 * k, {
-    color: "pink",
-    hipass: 900,
-    lowpass: 7000,
-  });
-  powerMetal(c, dest, t0 + 0.03, k * 1.05, false);
-  for (let i = 0; i < 6; i++) {
-    noiseShot(c, dest, t0 + 0.02 + i * 0.012, 0.02, 0.2 * k, {
-      color: "white",
-      hipass: 3000,
-    });
-  }
-}
-
-function plasmaBlast(c: AudioContext, dest: AudioNode, t0: number, k: number) {
-  tone(c, dest, 1800, t0, 0.08, "sawtooth", 0.22 * k, 3200);
-  tone(c, dest, 2400, t0 + 0.02, 0.06, "square", 0.12 * k, 4000);
-  const o = c.createOscillator();
-  const g = c.createGain();
-  const f = c.createBiquadFilter();
-  const drive = driveNode(c, 12);
-  o.type = "sawtooth";
-  o.frequency.setValueAtTime(2800, t0 + 0.05);
-  o.frequency.exponentialRampToValueAtTime(90, t0 + 0.38);
-  f.type = "lowpass";
-  f.frequency.setValueAtTime(10000, t0 + 0.05);
-  f.frequency.exponentialRampToValueAtTime(350, t0 + 0.38);
-  env(g, t0 + 0.05, 0.7 * k, 0.002, 0.32);
-  o.connect(f);
-  f.connect(drive);
-  drive.connect(g);
-  g.connect(dest);
-  o.start(t0 + 0.05);
-  o.stop(t0 + 0.42);
-  noiseShot(c, dest, t0 + 0.05, 0.28, 0.55 * k, {
-    color: "white",
-    hipass: 2000,
-  });
-  seismicThump(c, dest, t0 + 0.08, 0.55 * k, 55);
-  detonation(c, dest, t0 + 0.12, k * 0.55, false);
-}
-
-function heavyBeam(c: AudioContext, dest: AudioNode, t0: number, k: number) {
-  tone(c, dest, 60, t0, 0.12, "sawtooth", 0.3 * k, 90);
-  noiseShot(c, dest, t0, 0.15, 0.25 * k, { color: "pink", lowpass: 800 });
-  const o = c.createOscillator();
-  const o2 = c.createOscillator();
-  const o3 = c.createOscillator();
-  const g = c.createGain();
-  const f = c.createBiquadFilter();
-  const drive = driveNode(c, 16);
-  o.type = "square";
-  o2.type = "sawtooth";
-  o3.type = "sawtooth";
-  o.frequency.setValueAtTime(55, t0 + 0.08);
-  o2.frequency.setValueAtTime(110, t0 + 0.08);
-  o3.frequency.setValueAtTime(165, t0 + 0.08);
-  o.frequency.linearRampToValueAtTime(40, t0 + 0.55);
-  o2.frequency.linearRampToValueAtTime(70, t0 + 0.55);
-  f.type = "lowpass";
-  f.frequency.setValueAtTime(1400, t0 + 0.08);
-  f.frequency.linearRampToValueAtTime(500, t0 + 0.55);
-  env(g, t0 + 0.08, 0.65 * k, 0.02, 0.5);
-  o.connect(f);
-  o2.connect(f);
-  o3.connect(f);
-  f.connect(drive);
-  drive.connect(g);
-  g.connect(dest);
-  o.start(t0 + 0.08);
-  o2.start(t0 + 0.08);
-  o3.start(t0 + 0.08);
-  o.stop(t0 + 0.65);
-  o2.stop(t0 + 0.65);
-  o3.stop(t0 + 0.65);
-  noiseShot(c, dest, t0 + 0.08, 0.5, 0.4 * k, {
-    color: "brown",
-    lowpass: 700,
-  });
-  noiseShot(c, dest, t0 + 0.1, 0.35, 0.3 * k, {
-    color: "pink",
-    hipass: 600,
-    lowpass: 4000,
-  });
-  powerMetal(c, dest, t0 + 0.48, k * 0.7, true);
-  detonation(c, dest, t0 + 0.5, k * 0.6, true);
-}
-
-/** Magnetic railgun crack — high-voltage whip + sub impact. */
-function railShot(c: AudioContext, dest: AudioNode, t0: number, k: number) {
-  noiseShot(c, dest, t0, 0.018, 0.95 * k, { color: "white", hipass: 4000 });
-  tone(c, dest, 3200, t0, 0.05, "sawtooth", 0.35 * k, 180);
-  tone(c, dest, 90, t0 + 0.01, 0.22, "sine", 0.55 * k, 40);
-  noiseShot(c, dest, t0 + 0.02, 0.2, 0.45 * k, {
-    color: "pink",
-    hipass: 1200,
-    lowpass: 8000,
-  });
-  seismicThump(c, dest, t0 + 0.03, 0.5 * k, 48);
-  for (let i = 0; i < 4; i++) {
-    tone(
-      c,
-      dest,
-      1800 + i * 400,
-      t0 + 0.01 + i * 0.012,
-      0.06,
-      "square",
-      0.08 * k,
-      400,
-    );
-  }
-}
-
-function aoeBurst(c: AudioContext, dest: AudioNode, t0: number, k: number) {
-  detonation(c, dest, t0, k * 0.85, true);
-  detonation(c, dest, t0 + 0.06, k * 0.55, false);
-  noiseShot(c, dest, t0, 0.35, 0.5 * k, { color: "pink", hipass: 200 });
-  for (let i = 0; i < 5; i++) {
-    seismicThump(c, dest, t0 + i * 0.04, 0.22 * k, 35 + i * 8);
-  }
-  tone(c, dest, 55, t0, 0.5, "sine", 0.35 * k, 28);
-}
-
-function shieldBreak(c: AudioContext, dest: AudioNode, t0: number, k: number) {
-  noiseShot(c, dest, t0, 0.06, 0.7 * k, { color: "white", hipass: 2500 });
-  tone(c, dest, 1400, t0, 0.12, "triangle", 0.35 * k, 400);
-  tone(c, dest, 2200, t0 + 0.02, 0.1, "sine", 0.22 * k, 600);
-  for (let i = 0; i < 6; i++) {
-    noiseShot(c, dest, t0 + 0.02 + i * 0.015, 0.03, 0.18 * k, {
-      color: "white",
-      hipass: 3000 + i * 200,
-    });
-  }
-  seismicThump(c, dest, t0 + 0.04, 0.25 * k, 70);
-}
-
-/** Aegis / Divine Shield raise — crystalline shell forming. */
-function shieldUp(c: AudioContext, dest: AudioNode, t0: number, k: number) {
-  [660, 880, 1100, 1480].forEach((f, i) => {
-    tone(c, dest, f, t0 + i * 0.03, 0.28, "sine", 0.16 * k);
-    tone(c, dest, f * 1.5, t0 + i * 0.03, 0.16, "triangle", 0.07 * k);
-  });
-  noiseShot(c, dest, t0, 0.12, 0.18 * k, {
-    color: "white",
-    hipass: 2800,
-    lowpass: 10000,
-  });
-  tone(c, dest, 180, t0, 0.2, "triangle", 0.14 * k, 120);
-}
-
-/** Lethal execute sting — short dark chord + crack. */
-function executeSting(c: AudioContext, dest: AudioNode, t0: number, k: number) {
-  noiseShot(c, dest, t0, 0.03, 0.9 * k, { color: "white", hipass: 2200 });
-  tone(c, dest, 110, t0, 0.22, "sawtooth", 0.45 * k, 55);
-  tone(c, dest, 165, t0 + 0.01, 0.18, "square", 0.22 * k, 70);
-  tone(c, dest, 880, t0 + 0.02, 0.12, "sine", 0.18 * k, 220);
-  seismicThump(c, dest, t0 + 0.02, 0.55 * k, 38);
-  detonation(c, dest, t0 + 0.04, k * 0.45, false);
-}
-
-function frostLayer(c: AudioContext, dest: AudioNode, t0: number, k: number) {
-  tone(c, dest, 2200, t0, 0.12, "sine", 0.2 * k, 900);
-  tone(c, dest, 3400, t0 + 0.02, 0.1, "triangle", 0.14 * k, 1400);
-  noiseShot(c, dest, t0, 0.22, 0.35 * k, {
-    color: "white",
-    hipass: 4000,
-    lowpass: 12000,
-  });
-  for (let i = 0; i < 5; i++) {
-    tone(
-      c,
-      dest,
-      1800 + i * 220,
-      t0 + i * 0.018,
-      0.08,
-      "sine",
-      0.08 * k,
-      600,
-    );
-  }
-  seismicThump(c, dest, t0 + 0.04, 0.3 * k, 70);
-}
-
-function voidLayer(c: AudioContext, dest: AudioNode, t0: number, k: number) {
-  tone(c, dest, 55, t0, 0.4, "sine", 0.45 * k, 28);
-  tone(c, dest, 80, t0, 0.35, "sawtooth", 0.2 * k, 40);
-  noiseShot(c, dest, t0, 0.4, 0.4 * k, {
-    color: "brown",
-    lowpass: 400,
-  });
-  for (let i = 0; i < 4; i++) {
-    tone(
-      c,
-      dest,
-      90 + i * 40,
-      t0 + 0.05 + i * 0.04,
-      0.2,
-      "triangle",
-      0.12 * k,
-      50,
-    );
-  }
-  detonation(c, dest, t0 + 0.1, k * 0.4, false);
-}
-
-function natureLayer(c: AudioContext, dest: AudioNode, t0: number, k: number) {
-  [330, 392, 494, 587].forEach((f, i) => {
-    tone(c, dest, f, t0 + i * 0.03, 0.28, "sine", 0.14 * k);
-  });
-  noiseShot(c, dest, t0, 0.18, 0.22 * k, {
+  noiseShot(c, dest, t0, 0.04, 0.55 * k, { color: "white", hipass: 3000 });
+  tone(c, dest, 2400, t0, 0.08, "sawtooth", 0.28 * k, 400);
+  tone(c, dest, 1800, t0 + 0.02, 0.1, "triangle", 0.18 * k, 300);
+  noiseShot(c, dest, t0 + 0.03, 0.12, 0.35 * k, {
     color: "pink",
     hipass: 800,
     lowpass: 5000,
   });
-  tone(c, dest, 140, t0, 0.2, "triangle", 0.18 * k, 90);
+  seismicThump(c, dest, t0 + 0.04, 0.35 * k, 70);
+}
+
+function plasmaBlast(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  tone(c, dest, 90, t0, 0.18, "sine", 0.45 * k, 40);
+  noiseShot(c, dest, t0, 0.06, 0.55 * k, { color: "white", hipass: 1200 });
+  tone(c, dest, 880, t0, 0.22, "sawtooth", 0.28 * k, 180);
+  tone(c, dest, 1320, t0 + 0.02, 0.16, "triangle", 0.18 * k, 400);
+  noiseShot(c, dest, t0 + 0.04, 0.2, 0.3 * k, {
+    color: "pink",
+    hipass: 400,
+    lowpass: 3500,
+  });
+}
+
+function heavyBeam(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  tone(c, dest, 60, t0, 0.45, "sine", 0.5 * k, 30);
+  tone(c, dest, 220, t0, 0.4, "sawtooth", 0.22 * k, 80);
+  noiseShot(c, dest, t0, 0.35, 0.4 * k, {
+    color: "pink",
+    hipass: 200,
+    lowpass: 2400,
+  });
+  for (let i = 0; i < 4; i++) {
+    tone(
+      c,
+      dest,
+      400 + i * 180,
+      t0 + i * 0.04,
+      0.18,
+      "sine",
+      0.12 * k,
+      120 + i * 40,
+    );
+  }
+  seismicThump(c, dest, t0 + 0.1, 0.4 * k, 38);
 }
 
 function spellCataclysm(
@@ -594,108 +412,145 @@ function spellCataclysm(
   t0: number,
   k: number,
 ) {
-  tone(c, dest, 400, t0, 0.12, "sine", 0.25 * k, 180);
-  tone(c, dest, 600, t0 + 0.03, 0.15, "triangle", 0.22 * k, 280);
-  tone(c, dest, 900, t0 + 0.05, 0.2, "sine", 0.18 * k, 450);
-  for (let i = 0; i < 7; i++) {
-    tone(
-      c,
-      dest,
-      500 + i * 180 + Math.random() * 100,
-      t0 + 0.04 + i * 0.025,
-      0.12,
-      "sawtooth",
-      0.1 * k,
-      200 + i * 40,
-    );
-  }
-  detonation(c, dest, t0 + 0.12, k * 0.95, true);
-  noiseShot(c, dest, t0 + 0.1, 0.4, 0.5 * k, {
-    color: "pink",
-    hipass: 400,
-  });
-}
-
-function healPulse(c: AudioContext, dest: AudioNode, t0: number, k: number) {
-  [392, 494, 587, 740, 880].forEach((f, i) => {
-    tone(c, dest, f, t0 + i * 0.04, 0.35, "sine", 0.16 * k);
-    tone(c, dest, f * 2, t0 + i * 0.04, 0.22, "triangle", 0.06 * k);
-  });
-  noiseShot(c, dest, t0, 0.15, 0.1 * k, { color: "pink", hipass: 2500 });
-}
-
-function summonRift(c: AudioContext, dest: AudioNode, t0: number, k: number) {
-  seismicThump(c, dest, t0, 0.7 * k, 38);
-  tone(c, dest, 80, t0, 0.3, "sawtooth", 0.35 * k, 40);
-  noiseShot(c, dest, t0, 0.25, 0.4 * k, { color: "brown", lowpass: 800 });
+  detonation(c, dest, t0, k * 0.85, true);
+  tone(c, dest, 160, t0, 0.35, "triangle", 0.28 * k, 50);
   for (let i = 0; i < 6; i++) {
     tone(
       c,
       dest,
-      200 + i * 90,
-      t0 + 0.05 + i * 0.04,
-      0.15,
-      "triangle",
-      0.12 * k,
+      500 + i * 220,
+      t0 + 0.05 + i * 0.03,
+      0.12,
+      "sine",
+      0.1 * k,
     );
   }
-  detonation(c, dest, t0 + 0.1, k * 0.5, false);
 }
 
-function warCry(c: AudioContext, dest: AudioNode, t0: number, ally: boolean) {
-  const base = ally ? 95 : 140;
-  const o = c.createOscillator();
-  const o2 = c.createOscillator();
-  const o3 = c.createOscillator();
-  const g = c.createGain();
-  const f = c.createBiquadFilter();
-  const drive = driveNode(c, 11);
-  o.type = "sawtooth";
-  o2.type = "square";
-  o3.type = "sawtooth";
-  o.frequency.setValueAtTime(base, t0);
-  o.frequency.exponentialRampToValueAtTime(base * 0.55, t0 + 0.28);
-  o2.frequency.setValueAtTime(base * 1.6, t0);
-  o2.frequency.exponentialRampToValueAtTime(base * 0.8, t0 + 0.25);
-  o3.frequency.setValueAtTime(base * 2.4, t0);
-  o3.frequency.exponentialRampToValueAtTime(base * 1.1, t0 + 0.22);
-  f.type = "bandpass";
-  f.frequency.setValueAtTime(base * 5, t0);
-  f.frequency.linearRampToValueAtTime(base * 2, t0 + 0.25);
-  f.Q.value = 3.5;
-  env(g, t0, ally ? 0.55 : 0.5, 0.006, 0.3);
-  o.connect(f);
-  o2.connect(f);
-  o3.connect(f);
-  f.connect(drive);
-  drive.connect(g);
-  g.connect(dest);
-  o.start(t0);
-  o2.start(t0);
-  o3.start(t0);
-  o.stop(t0 + 0.4);
-  o2.stop(t0 + 0.4);
-  o3.stop(t0 + 0.4);
-  noiseShot(c, dest, t0, 0.12, 0.28, { color: "pink", hipass: 250 });
-  seismicThump(c, dest, t0 + 0.02, 0.25, 65);
+function frostLayer(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  noiseShot(c, dest, t0, 0.18, 0.35 * k, {
+    color: "white",
+    hipass: 4000,
+    lowpass: 12000,
+  });
+  tone(c, dest, 1400, t0, 0.22, "sine", 0.22 * k, 2800);
+  tone(c, dest, 2100, t0 + 0.03, 0.18, "triangle", 0.14 * k, 900);
+  noiseShot(c, dest, t0 + 0.05, 0.25, 0.2 * k, {
+    color: "pink",
+    hipass: 1500,
+    lowpass: 6000,
+  });
+}
+
+function voidLayer(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  tone(c, dest, 45, t0, 0.4, "sine", 0.45 * k, 28);
+  tone(c, dest, 90, t0, 0.35, "sawtooth", 0.18 * k, 40);
+  noiseShot(c, dest, t0, 0.3, 0.3 * k, {
+    color: "brown",
+    lowpass: 800,
+  });
+  tone(c, dest, 320, t0 + 0.05, 0.28, "triangle", 0.15 * k, 80);
+}
+
+function natureLayer(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  [523, 659, 784].forEach((f, i) => {
+    tone(c, dest, f, t0 + i * 0.04, 0.22, "sine", 0.14 * k);
+  });
+  noiseShot(c, dest, t0, 0.15, 0.18 * k, {
+    color: "pink",
+    hipass: 600,
+    lowpass: 3000,
+  });
+  tone(c, dest, 180, t0, 0.2, "triangle", 0.12 * k, 90);
+}
+
+function healPulse(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  [440, 554, 659, 880].forEach((f, i) => {
+    tone(c, dest, f, t0 + i * 0.045, 0.28, "sine", 0.16 * k);
+  });
+  noiseShot(c, dest, t0, 0.12, 0.12 * k, {
+    color: "white",
+    hipass: 2000,
+    lowpass: 8000,
+  });
+}
+
+function summonRift(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  tone(c, dest, 40, t0, 0.3, "sine", 0.4 * k, 120);
+  noiseShot(c, dest, t0, 0.15, 0.4 * k, { color: "pink", hipass: 200 });
+  tone(c, dest, 600, t0 + 0.05, 0.25, "sawtooth", 0.2 * k, 1200);
+  tone(c, dest, 900, t0 + 0.08, 0.2, "triangle", 0.14 * k, 400);
+  seismicThump(c, dest, t0 + 0.06, 0.3 * k, 50);
+}
+
+function warCry(c: AudioContext, dest: AudioNode, t0: number, player: boolean) {
+  const base = player ? 180 : 120;
+  tone(c, dest, base, t0, 0.22, "sawtooth", 0.22, base * 1.4);
+  tone(c, dest, base * 1.5, t0 + 0.04, 0.18, "triangle", 0.14, base * 0.9);
+  noiseShot(c, dest, t0, 0.1, 0.15, { color: "brown", lowpass: 600 });
 }
 
 function gloryFanfare(c: AudioContext, dest: AudioNode, t0: number) {
-  const notes = [392, 494, 587, 740, 880, 1175];
-  notes.forEach((f, i) => {
-    tone(c, dest, f, t0 + i * 0.06, 0.45, "triangle", 0.22 - i * 0.02);
-    tone(c, dest, f * 2, t0 + i * 0.06, 0.3, "sine", 0.1);
+  [523, 659, 784, 1046].forEach((f, i) => {
+    tone(c, dest, f, t0 + i * 0.08, 0.35, "triangle", 0.2);
+    tone(c, dest, f * 2, t0 + i * 0.08, 0.25, "sine", 0.08);
   });
-  detonation(c, dest, t0 + 0.15, 0.7, false);
-  warCry(c, dest, t0 + 0.05, true);
+  seismicThump(c, dest, t0 + 0.2, 0.25, 55);
 }
 
 function defeatCollapse(c: AudioContext, dest: AudioNode, t0: number) {
-  tone(c, dest, 180, t0, 0.7, "sine", 0.4, 45);
-  tone(c, dest, 120, t0 + 0.05, 0.65, "triangle", 0.25, 35);
-  noiseShot(c, dest, t0, 0.55, 0.35, { color: "brown", lowpass: 500 });
-  seismicThump(c, dest, t0 + 0.1, 0.45, 30);
-  detonation(c, dest, t0 + 0.2, 0.55, true);
+  tone(c, dest, 200, t0, 0.5, "sawtooth", 0.3, 40);
+  tone(c, dest, 100, t0 + 0.05, 0.55, "sine", 0.35, 28);
+  noiseShot(c, dest, t0, 0.4, 0.35, { color: "brown", lowpass: 500 });
+  seismicThump(c, dest, t0 + 0.1, 0.4, 30);
+}
+
+function railShot(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  noiseShot(c, dest, t0, 0.03, 0.7 * k, { color: "white", hipass: 2500 });
+  tone(c, dest, 60, t0, 0.15, "sine", 0.5 * k, 30);
+  tone(c, dest, 2200, t0, 0.12, "sawtooth", 0.28 * k, 400);
+  noiseShot(c, dest, t0 + 0.02, 0.18, 0.35 * k, {
+    color: "pink",
+    hipass: 800,
+    lowpass: 4000,
+  });
+  seismicThump(c, dest, t0 + 0.03, 0.45 * k, 55);
+}
+
+function aoeBurst(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  detonation(c, dest, t0, k * 0.9, true);
+  for (let i = 0; i < 4; i++) {
+    plasmaBlast(c, dest, t0 + 0.03 + i * 0.04, k * 0.4);
+  }
+}
+
+function shieldBreak(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  noiseShot(c, dest, t0, 0.05, 0.6 * k, { color: "white", hipass: 2000 });
+  tone(c, dest, 1200, t0, 0.12, "triangle", 0.3 * k, 200);
+  tone(c, dest, 800, t0 + 0.03, 0.15, "sine", 0.2 * k, 100);
+  noiseShot(c, dest, t0 + 0.04, 0.2, 0.25 * k, {
+    color: "pink",
+    hipass: 1000,
+  });
+}
+
+function shieldUp(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  [600, 900, 1200].forEach((f, i) => {
+    tone(c, dest, f, t0 + i * 0.04, 0.2, "sine", 0.16 * k);
+  });
+  noiseShot(c, dest, t0, 0.1, 0.12 * k, {
+    color: "white",
+    hipass: 3000,
+    lowpass: 9000,
+  });
+}
+
+function executeSting(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  noiseShot(c, dest, t0, 0.04, 0.8 * k, { color: "white", hipass: 1500 });
+  tone(c, dest, 80, t0, 0.25, "sine", 0.55 * k, 30);
+  tone(c, dest, 440, t0, 0.12, "sawtooth", 0.3 * k, 80);
+  tone(c, dest, 1760, t0 + 0.05, 0.2, "triangle", 0.18 * k);
+  detonation(c, dest, t0 + 0.04, k * 0.7, false);
 }
 
 function whooshPass(c: AudioContext, dest: AudioNode, t0: number, k: number) {
@@ -800,6 +655,59 @@ function photonStorm(c: AudioContext, dest: AudioNode, t0: number, k: number) {
   }
   aoeBurst(c, dest, t0 + 0.1, k * 0.7);
   tone(c, dest, 2400, t0, 0.35, "sine", 0.12 * k, 400);
+}
+
+/** Nova reactor breach — stacked detonations + rising scream. */
+function novaBreach(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  detonation(c, dest, t0, k * 1.05, true);
+  detonation(c, dest, t0 + 0.08, k * 0.85, true);
+  tone(c, dest, 120, t0, 0.45, "sawtooth", 0.35 * k, 40);
+  tone(c, dest, 880, t0, 0.4, "sine", 0.22 * k, 2200);
+  for (let i = 0; i < 6; i++) {
+    plasmaBlast(c, dest, t0 + 0.04 + i * 0.05, k * 0.5);
+  }
+  seismicThump(c, dest, t0 + 0.15, 0.55 * k, 28);
+}
+
+/** Gravity well crush — sub-bass collapse + reverse whoosh. */
+function gravCrush(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  tone(c, dest, 55, t0, 0.5, "sine", 0.55 * k, 22);
+  tone(c, dest, 90, t0, 0.4, "triangle", 0.28 * k, 30);
+  noiseShot(c, dest, t0, 0.35, 0.4 * k, {
+    color: "brown",
+    lowpass: 400,
+  });
+  tone(c, dest, 400, t0 + 0.05, 0.3, "sawtooth", 0.18 * k, 80);
+  for (let i = 0; i < 5; i++) {
+    noiseShot(c, dest, t0 + 0.06 + i * 0.04, 0.06, 0.2 * k, {
+      color: "pink",
+      hipass: 300,
+      lowpass: 1200,
+    });
+  }
+  seismicThump(c, dest, t0 + 0.12, 0.5 * k, 32);
+}
+
+/** Nanite swarm — insectile chatter + soft metal ticks. */
+function swarmCloud(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  for (let i = 0; i < 12; i++) {
+    noiseShot(c, dest, t0 + i * 0.022, 0.035, 0.14 * k, {
+      color: "white",
+      hipass: 1800 + (i % 4) * 400,
+      lowpass: 9000,
+    });
+    tone(
+      c,
+      dest,
+      900 + (i % 5) * 160 + Math.random() * 80,
+      t0 + i * 0.02,
+      0.04,
+      "square",
+      0.06 * k,
+    );
+  }
+  natureLayer(c, dest, t0 + 0.05, k * 0.55);
+  tone(c, dest, 220, t0, 0.28, "sine", 0.16 * k, 140);
 }
 
 export function playSfx(id: SfxId, intensity = 1) {
@@ -919,6 +827,18 @@ export function playSfx(id: SfxId, intensity = 1) {
       executeSting(c, dest, t0, k);
       executeSting(c, room, t0, k * 0.35);
       break;
+    case "nova":
+      novaBreach(c, dest, t0, k);
+      novaBreach(c, room, t0, k * 0.3);
+      break;
+    case "grav":
+      gravCrush(c, dest, t0, k);
+      gravCrush(c, room, t0, k * 0.35);
+      break;
+    case "swarm":
+      swarmCloud(c, dest, t0, k);
+      swarmCloud(c, room, t0, k * 0.3);
+      break;
     case "ui":
       uiClick(c, dest, t0);
       break;
@@ -953,6 +873,12 @@ export function playCombatSfx(opts: {
     if (card.includes("rail") || card.includes("sniper")) {
       playSfx("rail", power * 1.15);
       playSfx("whoosh", power * 0.4);
+    } else if (card.includes("swarm") || beam === "swarm_cloud") {
+      playSfx("swarm", power);
+      playSfx("clash", power * 0.4);
+    } else if (card.includes("plasma") || card.includes("saber")) {
+      playSfx("plasma", power * 1.1);
+      playSfx("blade", power * 0.55);
     } else if (school === "frost" || beam === "frost_bolt") {
       playSfx("frost", power);
       playSfx("whoosh", power * 0.45);
@@ -999,7 +925,23 @@ export function playCombatSfx(opts: {
     if (lethal) playSfx("execute", power * 1.05);
   } else if (opts.kind === "spell") {
     playSfx("whoosh", power * 0.7);
-    if (opts.aoe || beam === "dominus_ring" || beam === "photon_grid") {
+    if (
+      card.includes("nova") ||
+      beam === "nova_burst" ||
+      card.includes("cataclysm")
+    ) {
+      playSfx("nova", power * 1.1);
+    } else if (
+      card.includes("grav") ||
+      beam === "grav_well" ||
+      card.includes("singularity") ||
+      beam === "singularity"
+    ) {
+      playSfx("grav", power * 1.1);
+      if (card.includes("singularity")) playSfx("void", power * 0.55);
+    } else if (card.includes("swarm") || beam === "swarm_cloud") {
+      playSfx("swarm", power * 1.05);
+    } else if (opts.aoe || beam === "dominus_ring" || beam === "photon_grid") {
       if (card.includes("photon") || beam === "photon_grid") {
         playSfx("photon", power * 1.05);
       } else {
@@ -1029,15 +971,25 @@ export function playCombatSfx(opts: {
     } else if (beam === "aegis_shell") {
       playSfx("shield_up", power * 0.85);
       playSfx("heal", power * 0.5);
-    } else {
+    } else if (
+      !card.includes("nova") &&
+      !card.includes("grav") &&
+      !card.includes("singularity") &&
+      !card.includes("swarm")
+    ) {
       playSfx("spell", power * 1.05);
     }
     if (
       card.includes("blood") ||
       card.includes("leech") ||
-      card.includes("pact")
+      card.includes("pact") ||
+      card.includes("harvester") ||
+      card.includes("singularity")
     ) {
       playSfx("lifesteal", power * 0.8);
+    }
+    if (card.includes("matrix") || card.includes("shield")) {
+      playSfx("shield_up", power * 0.65);
     }
     if (dmg >= 4) playSfx("impact_tail", power * 0.7);
     if (lethal) playSfx("execute", power * 0.95);
@@ -1047,7 +999,7 @@ export function playCombatSfx(opts: {
   } else if (opts.kind === "heal") {
     playSfx("heal", 1.0);
     if (card.includes("quantum")) playSfx("ion", 0.55);
-    if (beam === "aegis_shell" || card.includes("aegis") || card.includes("ward")) {
+    if (beam === "aegis_shell" || card.includes("aegis") || card.includes("ward") || card.includes("matrix")) {
       playSfx("shield_up", 0.75);
     }
   } else if (opts.kind === "summon") {
@@ -1055,20 +1007,23 @@ export function playCombatSfx(opts: {
     if (
       kws.includes("reborn") ||
       card.includes("phase") ||
-      card.includes("reaper")
+      card.includes("reaper") ||
+      card.includes("swarm")
     ) {
       playSfx("reborn", 0.85);
     }
+    if (card.includes("swarm")) playSfx("swarm", 0.7);
     if (kws.includes("charge") || kws.includes("rush")) {
       playSfx("charge_rush", 0.7);
     }
-    if (kws.includes("shield") || kws.includes("taunt") || card.includes("aegis")) {
+    if (kws.includes("shield") || kws.includes("taunt") || card.includes("aegis") || card.includes("bastion")) {
       playSfx("shield_up", 0.8);
     }
     if (
       card.includes("omega") ||
       card.includes("titan") ||
-      card.includes("phalanx")
+      card.includes("phalanx") ||
+      card.includes("bastion")
     ) {
       playSfx("rail", 0.75);
     }

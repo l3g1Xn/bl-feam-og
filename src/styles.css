@@ -299,6 +299,17 @@
   }
 }
 
+/* Tablets / large phones in portrait — use extra width without stretching HUD */
+@media (min-width: 600px) and (max-width: 1024px) and (orientation: portrait) {
+  .battle-stage {
+    max-width: min(100%, 54rem);
+    margin-inline: auto;
+  }
+  .minion-token {
+    min-width: 3.75rem;
+  }
+}
+
 /* Prevent iOS rubber-band from trapping gestures mid-match */
 html,
 body {
@@ -356,4 +367,35 @@ a:focus-visible,
 [role="button"]:focus-visible {
   outline: 2px solid rgba(255, 106, 26, 0.85);
   outline-offset: 2px;
+}
+
+/* Dynamic island / cutout safe top for launcher panels */
+.launcher-shell {
+  padding-top: max(0.5rem, env(safe-area-inset-top, 0px));
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
+  padding-left: max(0.5rem, env(safe-area-inset-left, 0px));
+  padding-right: max(0.5rem, env(safe-area-inset-right, 0px));
+}
+
+/* Title logo frame — never overflow on narrow landscape */
+.title-logo {
+  width: min(100%, 28rem);
+  max-height: min(28vh, 12rem);
+  object-fit: contain;
+  object-position: center;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+
+/* Hit-stop freeze presentation */
+.fx-hitstop {
+  filter: brightness(1.08) contrast(1.05);
+}
+
+/* Prefer reduced data / low-end: tone bloom */
+@media (prefers-reduced-data: reduce) {
+  .gfx-ultra .battle-stage {
+    --fx-bloom: 0.85;
+  }
 }

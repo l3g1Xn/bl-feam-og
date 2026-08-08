@@ -1,4 +1,8 @@
-# Battle Legions: For We Are Many Play Guide
+# Battle Legions: For We Are Many
+
+<p align="center">
+  <img src="public/ui/title_logo_v1.06.666.jpg" alt="Battle Legions v1.06.666" width="720" />
+</p>
 
 > Offline collectible card combat where high-tech legions fight with medieval physics, lasers, and math that actually tells you the truth.
 
@@ -11,7 +15,7 @@ Welcome, commander. This is the short, slightly sarcastic field manual for **Bat
 **Direct APK (recommended):**  
 **[Download BattleLegions.apk — Release 1.06.666](https://github.com/l3g1Xn/bl-feam-og/releases/download/apk-release-1.06.666/BattleLegions.apk)**
 
-- **Size:** ~101 MB (TraX included · 300 MB hard cap)  
+- **Size:** ~101 MB (TraX included · 350 MB hard cap)  
 - **Platform:** Android (signed offline package, landscape)  
 - **Release page:** [apk-release-1.06.666](https://github.com/l3g1Xn/bl-feam-og/releases/tag/apk-release-1.06.666)  
 - **Web / site practice:** play in browser at the Grok-hosted site (same rules, no PIN vault)
@@ -27,9 +31,10 @@ You run a modern combat legion armed with:
 - Steel, lasers, and beams that would make a tech priest blush  
 - Minions with **Taunt**, **Immune**, **Reborn**, and board-wide buffs  
 - Store exclusives (yes, including **Dominus Reximus** — the unit your wallet… tickets… warned you about)  
+- **Store Waves A / B / C** with weekly rotation deals  
 - A live math HUD so “was that lethal?” is never a mystery novel
 
-Think: drag-and-drop hand, attack trails, card-specific combat FX, and an opponent whose name looks like it escaped a 2003 IRC channel.
+Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle SFX (nova / grav / swarm layers), and an opponent whose name looks like it escaped a 2003 IRC channel.
 
 ---
 
@@ -46,31 +51,33 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, and an oppone
 | Thing | What it does |
 | --- | --- |
 | **Ranked practice** | Normal / Hard AI — same rules, different pain |
-| **Ticket store** | Spend tickets on exclusives (prices ×2 rebalance, level-gated) |
+| **Ticket store** | Spend tickets on exclusives (Wave A/B/C rotation, prices ×2 rebalance, level-gated) |
 | **Collection** | Own cards, build the deck, look at pretty portraits |
 | **LX_SAVE_GAME** | Auto-save on close; load from the main menu (local only) |
 | **PIN vault (APK)** | Local lock on reopen — no cloud, no “forgot password” email |
 
 ### Audio & graphics
 
-- **Legion TraX soundtrack** — Part 1 & Part 2 only (old 10-track set removed)  
-- Combat SFX stay layered; music ducks during battle  
+- **Legion TraX soundtrack** — Part 1 & Part 2 only  
+- Combat SFX stay layered (ion / photon / nova / grav / swarm / execute); music ducks during battle  
 - School-colored multi-layer battle VFX (beams, particles, hit-stop, residual trails)  
 - Graphics quality live: **Low → UltraHD**  
-- Canvas-drawn menu chrome on launcher panels, store, and in-match exit menu
+- Canvas-drawn menu chrome on launcher panels, store, and in-match exit menu  
+- Mobile-first safe areas, coarse-pointer hit targets, landscape phone layouts  
 
 ---
 
 ## Version notes
 
-**1.06.666** — *Legion TraX + combat polish*  
-- Brand stamp **1.06.666** (versionCode 106666)  
-- Legion TraX Part 1 & Part 2 soundtrack (replaces old 10-track set)  
-- Typed combat engine, denser VFX, canvas-framed menus  
+**1.06.666** — *Legion TraX + combat polish + Wave C stock*  
+- Brand stamp **1.06.666** (versionCode 106666) — version held; content rotates  
+- Legion TraX Part 1 & Part 2 soundtrack  
+- Typed combat engine, denser VFX/SFX (nova · grav · swarm beams)  
+- Store Waves A / B / C weekly rotation (10 new exclusives in Wave C)  
+- Version-stamped title logo on launcher + README  
 - Doubled store ticket prices · fixed board minion display  
 - Official Gradle release build · targetSdk 34  
-- 300 MB APK ceiling retained  
-
+- 350 MB APK ceiling retained  
 
 ---
 
@@ -80,4 +87,12 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, and an oppone
 2. Install → open → set PIN if asked  
 3. Hit **Play** (or continue a save)  
 4. Deploy, trade, read the math HUD, don’t face into Taunt  
-5. Spend tickets in the store like a civilized warlord  
+5. Spend tickets in the store like a civilized warlord — check weekly Wave C deals  
+
+---
+
+## Repository protection
+
+- Canonical repo: **[l3g1Xn/bl-feam-og](https://github.com/l3g1Xn/bl-feam-og)**  
+- Releases only under tags matching `v1.06.666` / `apk-release-1.06.666` unless a major bugfix or full UI/UX art overhaul warrants a bump  
+- Do not re-scaffold duplicate “same premise” card battlers into this tree  

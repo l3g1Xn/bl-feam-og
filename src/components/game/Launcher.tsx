@@ -19,7 +19,7 @@ import {
   startMenuMusic,
 } from "@/game/music";
 import { useGameStore } from "@/game/store";
-import { APK_VERSION, BUILD_ID, GAME_TITLE, GAME_TITLE_SHORT } from "@/game/brand";
+import { APK_VERSION, BUILD_ID, GAME_TITLE, GAME_TITLE_SHORT, TITLE_LOGO_SRC } from "@/game/brand";
 import { AmbientStage } from "./AmbientStage";
 import { CanvasChrome } from "./CanvasChrome";
 import { ApkDownloadButton } from "./ApkDownloadButton";
@@ -357,16 +357,17 @@ function HomePanel({
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 to-black/35" />
         <div className="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-accent/20 blur-3xl legixn-pulse" />
         <div className="relative z-[1] flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:p-8">
-          <div className="relative mx-auto shrink-0 sm:mx-0">
+          <div className="relative mx-auto flex w-full max-w-md shrink-0 flex-col items-center gap-3 sm:mx-0 sm:max-w-[16rem]">
             <img
-              src="/ui/legixn_icon.png"
-              alt="LEGIXN"
-              className="h-28 w-28 rounded-2xl object-cover shadow-2xl legixn-glow sm:h-36 sm:w-36"
-              width={144}
-              height={144}
+              src={TITLE_LOGO_SRC}
+              alt={`${GAME_TITLE} v${APK_VERSION}`}
+              className="title-logo w-full rounded-xl border border-white/10 shadow-2xl legixn-glow"
+              width={560}
+              height={374}
+              decoding="async"
             />
-            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full border border-accent/50 bg-black/80 px-2 py-0.5 text-[0.55rem] font-bold tracking-wider text-accent">
-              v{APK_VERSION}
+            <div className="rounded-full border border-accent/50 bg-black/80 px-2.5 py-0.5 text-[0.55rem] font-bold tracking-wider text-accent">
+              RELEASE v{APK_VERSION}
             </div>
           </div>
           <div className="min-w-0 flex-1 text-center sm:text-left">
@@ -378,8 +379,8 @@ function HomePanel({
             </h1>
             <p className="mt-2 max-w-xl text-sm leading-relaxed text-fg-muted">
               High-tech legion combat with medieval physics. Discombobulator beams,
-              laser protocols, Dominus Reximus exclusives, and transparent combat math —
-              same build as the Android package.
+              laser protocols, Dominus Reximus exclusives, Wave C store stock, and
+              transparent combat math — same build as the Android package.
             </p>
             <div className="mt-3 flex flex-wrap items-center justify-center gap-2 text-xs text-fg-muted sm:justify-start">
               <span className="rounded-full border border-accent/40 bg-accent/15 px-2.5 py-1 font-semibold text-accent">
@@ -391,6 +392,9 @@ function HomePanel({
               <span className="tabular text-attack">{tickets} tickets</span>
               <span className="rounded-full border border-white/15 bg-white/5 px-2 py-1 text-fg-subtle">
                 Legion TraX · 2 suites
+              </span>
+              <span className="rounded-full border border-primary/25 bg-primary/10 px-2 py-1 text-primary">
+                Store Wave A/B/C
               </span>
             </div>
             <div className="mx-auto mt-2 h-1.5 w-full max-w-sm overflow-hidden rounded-full bg-black/50 sm:mx-0">

@@ -35,7 +35,11 @@ export type BeamStyle =
   | "ion_lance"
   | "photon_grid"
   | "rail_line"
-  | "lifesteal_siphon";
+  | "lifesteal_siphon"
+  | "grav_well"
+  | "swarm_cloud"
+  | "nova_burst"
+  | "singularity";
 
 export interface FxEvent {
   id: number;
@@ -108,12 +112,19 @@ export function schoolToBeam(
   if (spellKind === "aegis") return "aegis_shell";
   if (spellKind === "buff" || spellKind === "buff_all_friendly")
     return "nature_vine";
+  if (id.includes("grav") || id.includes("singularity")) return "grav_well";
+  if (id.includes("singularity")) return "singularity";
+  if (id.includes("swarm") || id.includes("nano")) return "swarm_cloud";
+  if (id.includes("nova") || id.includes("cataclysm")) return "nova_burst";
   if (id.includes("ion")) return "ion_lance";
-  if (id.includes("photon") || id.includes("barrage") || id.includes("cataclysm"))
-    return "photon_grid";
+  if (id.includes("photon") || id.includes("barrage")) return "photon_grid";
   if (id.includes("rail") || id.includes("sniper")) return "rail_line";
-  if (id.includes("blood") || id.includes("leech") || id.includes("pact"))
+  if (id.includes("blood") || id.includes("leech") || id.includes("pact") || id.includes("harvester"))
     return "lifesteal_siphon";
+  if (id.includes("plasma") || id.includes("saber")) return "ember_orb";
+  if (id.includes("orbital") || id.includes("scan")) return "arcane_beam";
+  if (id.includes("matrix") || id.includes("bastion") || id.includes("phalanx") || id.includes("shield"))
+    return "aegis_shell";
   switch (school) {
     case "ember":
       return "ember_orb";
@@ -217,6 +228,9 @@ export function meleeFx(opts: {
           : "slash";
   if (id.includes("rail") || id.includes("sniper")) beam = "rail_line";
   if (id.includes("ion")) beam = "ion_lance";
+  if (id.includes("plasma") || id.includes("saber")) beam = "ember_orb";
+  if (id.includes("swarm") || id.includes("flicker")) beam = "swarm_cloud";
+  if (id.includes("bastion") || id.includes("phalanx")) beam = "aegis_shell";
   if (hasLs) beam = "lifesteal_siphon";
   return {
     id: nextFxId(),
@@ -284,6 +298,11 @@ export function spellFx(opts: {
   const dmg = opts.damage ?? 0;
   const w = dmgWeight(Math.max(dmg, isDominus ? 10 : opts.aoe ? 5 : 2));
   const beam = schoolToBeam(opts.school, spellKind, opts.cardId);
+  const heavyBeam =
+    beam === "nova_burst" ||
+    beam === "grav_well" ||
+    beam === "singularity" ||
+    beam === "photon_grid";
 
   return {
     id: nextFxId(),
@@ -308,19 +327,21 @@ export function spellFx(opts: {
     detail: opts.cardText ?? opts.spell?.kind,
     beam,
     aoe: opts.aoe,
-    durationMs: isDominus ? 860 : opts.aoe ? 720 : w.durationMs + 40,
+    durationMs: isDominus ? 860 : heavyBeam ? 780 : opts.aoe ? 720 : w.durationMs + 40,
     trauma: isDominus
       ? 0.68
-      : opts.damage
-        ? w.trauma
-        : isHeal
-          ? 0.06
-          : 0.14,
-    hitStopMs: isDominus ? 96 : w.hitStopMs,
-    particles: isDominus ? 78 : opts.aoe ? 52 : w.particles,
-    residualMs: isDominus ? 600 : w.residualMs + 100,
-    bloom: isDominus ? 1.7 : w.bloom,
-    rings: isDominus ? 4 : opts.aoe ? 3 : w.rings,
+      : heavyBeam
+        ? Math.min(1, w.trauma + 0.12)
+        : opts.damage
+          ? w.trauma
+          : isHeal
+            ? 0.06
+            : 0.14,
+    hitStopMs: isDominus ? 96 : heavyBeam ? Math.max(w.hitStopMs, 56) : w.hitStopMs,
+    particles: isDominus ? 78 : heavyBeam ? 68 : opts.aoe ? 52 : w.particles,
+    residualMs: isDominus ? 600 : heavyBeam ? 560 : w.residualMs + 100,
+    bloom: isDominus ? 1.7 : heavyBeam ? 1.55 : w.bloom,
+    rings: isDominus ? 4 : heavyBeam ? 3 : opts.aoe ? 3 : w.rings,
   };
 }
 
@@ -337,6 +358,7 @@ export function summonFx(opts: {
   const reborn = opts.keywords?.includes("reborn");
   const shielded =
     opts.keywords?.includes("shield") || opts.keywords?.includes("taunt");
+  const id = (opts.cardId ?? "").toLowerCase();
   return {
     id: nextFxId(),
     kind: "summon",
@@ -354,7 +376,9 @@ export function summonFx(opts: {
       ? "dominus_ring"
       : shielded
         ? "aegis_shell"
-        : "arcane_beam",
+        : id.includes("swarm")
+          ? "swarm_cloud"
+          : "arcane_beam",
     durationMs: reborn ? 520 : shielded ? 500 : 460,
     trauma: reborn ? 0.16 : shielded ? 0.12 : 0.1,
     hitStopMs: reborn ? 28 : 16,
@@ -458,6 +482,14 @@ export function beamLabel(beam?: BeamStyle): string {
       return "Rail Line";
     case "lifesteal_siphon":
       return "Siphon Beam";
+    case "grav_well":
+      return "Gravity Well";
+    case "swarm_cloud":
+      return "Nanite Swarm";
+    case "nova_burst":
+      return "Nova Burst";
+    case "singularity":
+      return "Singularity";
     case "slash":
     default:
       return "Blade Clash";
