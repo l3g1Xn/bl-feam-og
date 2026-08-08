@@ -541,7 +541,7 @@ function BattleScreen({
   return (
     <div
       id="battle-stage"
-      className="battle-stage relative grid h-[100dvh] max-h-[100dvh] grid-rows-[auto_auto_auto_minmax(0,1fr)_auto_auto] overflow-hidden bg-bg text-fg will-change-transform"
+      className="battle-stage safe-pad relative grid h-[100dvh] max-h-[100dvh] grid-rows-[auto_auto_auto_minmax(0,1fr)_auto_auto] overflow-hidden bg-bg text-fg will-change-transform"
     >
       <AmbientStage variant="battle" />
       <div

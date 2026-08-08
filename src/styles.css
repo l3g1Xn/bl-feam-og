@@ -92,6 +92,13 @@
   .tabular {
     font-variant-numeric: tabular-nums;
   }
+
+  /* Kill iOS double-tap zoom on interactive chrome */
+  button,
+  a,
+  [role="button"] {
+    touch-action: manipulation;
+  }
 }
 
 .card-art {
@@ -219,6 +226,10 @@
 /* Battle stage depth */
 .battle-stage {
   isolation: isolate;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  /* hand owns bottom inset so cards clear the home indicator */
 }
 
 .gfx-ultra .battle-stage {
@@ -238,12 +249,16 @@
 
 /* Mobile safe areas + touch reliability (all viewports) */
 .safe-pad {
-  padding-left: env(safe-area-inset-left, 0px);
-  padding-right: env(safe-area-inset-right, 0px);
+  padding-left: max(0.35rem, env(safe-area-inset-left, 0px));
+  padding-right: max(0.35rem, env(safe-area-inset-right, 0px));
 }
 
 .safe-bottom {
   padding-bottom: max(0.35rem, env(safe-area-inset-bottom, 0px));
+}
+
+.safe-top {
+  padding-top: max(0.25rem, env(safe-area-inset-top, 0px));
 }
 
 @media (max-width: 480px), (max-height: 480px) {
@@ -252,6 +267,35 @@
   }
   .minion-token {
     min-width: 3.25rem;
+  }
+  .battle-hand {
+    min-height: 4.75rem;
+  }
+}
+
+/* Landscape phones — keep hand + board usable */
+@media (orientation: landscape) and (max-height: 480px) {
+  html {
+    font-size: clamp(10px, 2.1vmin + 7px, 14px);
+  }
+  .board-row {
+    min-height: 3.5rem;
+  }
+  .battle-hand {
+    min-height: 4.25rem;
+  }
+  .battle-stage {
+    grid-template-rows: auto auto auto minmax(0, 1fr) auto auto;
+  }
+}
+
+/* Ultra-narrow foldables / older phones */
+@media (max-width: 360px) {
+  html {
+    font-size: clamp(10px, 2.8vmin + 6px, 14px);
+  }
+  .minion-token {
+    min-width: 3rem;
   }
 }
 
@@ -265,11 +309,20 @@ body {
 /* Larger hit targets for primary battle controls on coarse pointers */
 @media (pointer: coarse) {
   button {
-    min-height: 2.5rem;
+    min-height: 2.75rem;
+    min-width: 2.75rem;
   }
   .board-row {
-    gap: 0.35rem;
-    padding-bottom: 0.25rem;
+    gap: 0.4rem;
+    padding-bottom: 0.3rem;
+  }
+  .minion-token {
+    min-width: 3.5rem;
+  }
+  /* Don't force huge height on dense fan-hand card buttons */
+  .battle-hand button {
+    min-height: 0;
+    min-width: 0;
   }
 }
 
@@ -287,4 +340,20 @@ body {
     animation: none;
     opacity: 0.5;
   }
+}
+
+/* Notched devices: keep chrome clear of system UI */
+@supports (padding: max(0px)) {
+  .app-shell {
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+}
+
+/* High-contrast focus for keyboard / switch access */
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid rgba(255, 106, 26, 0.85);
+  outline-offset: 2px;
 }

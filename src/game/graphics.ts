@@ -2,7 +2,8 @@
  * Graphics adapter for Battle Legions — real-time quality switches.
  * Uses Chromium WebView compositor + ANGLE (not a kernel GPU driver).
  * Particle budgets sized for immersive VFX while staying APK-code-only
- * (under the 350 MB package ceiling).
+ * (under the 350 MB package ceiling). Mobile-first auto-tiering keeps
+ * mid-range Android phones at playable 30–60 fps.
  */
 
 export type GpuTier = "high" | "mid" | "low" | "unknown";
@@ -56,6 +57,22 @@ function tierFromVendor(v: string): GpuTier {
   }
   if (/adreno|mali|powervr|immortalis|xclipse|apple/.test(s)) return "mid";
   return "low";
+}
+
+function isCoarsePointer(): boolean {
+  try {
+    return window.matchMedia("(pointer: coarse)").matches;
+  } catch {
+    return false;
+  }
+}
+
+function isSmallViewport(): boolean {
+  try {
+    return Math.min(window.innerWidth, window.innerHeight) < 420;
+  } catch {
+    return false;
+  }
 }
 
 let cached: GraphicsProfile | null = null;
@@ -150,6 +167,8 @@ export function getGraphicsProfile(): GraphicsProfile {
   const reduced =
     userReducedShake ||
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const mobileLike = isCoarsePointer() || isSmallViewport();
+  const constrained = tier === "low" || mem <= 2 || cores <= 4 || (mobileLike && mem <= 4);
 
   let targetFps = Math.min(userHz, 144);
   if (userQuality === "low") targetFps = Math.min(targetFps, 30);
@@ -157,28 +176,37 @@ export function getGraphicsProfile(): GraphicsProfile {
   if (userQuality === "high") targetFps = Math.min(targetFps, 90);
   if (userQuality === "ultra") targetFps = Math.min(userHz, 144);
 
-  if (tier === "low" || mem <= 2 || cores <= 4) {
+  if (constrained) {
     if (userQuality !== "ultra") {
-      targetFps = Math.min(targetFps, 60);
+      targetFps = Math.min(targetFps, mobileLike ? 45 : 60);
     }
   }
 
   const q = userQuality;
   // Higher particle budgets for immersion — still code-only, no APK binary cost
-  const particleBudget =
+  let particleBudget =
     q === "ultra" ? 200 : q === "high" ? 120 : q === "medium" ? 56 : 20;
+  if (constrained && q !== "ultra") {
+    particleBudget = Math.min(particleBudget, q === "high" ? 72 : 40);
+  }
+
+  const maxDprBase =
+    q === "ultra"
+      ? 3
+      : q === "high"
+        ? 2.5
+        : q === "medium"
+          ? 1.75
+          : 1.25;
+  // Cap DPR on mobile mid-tier to protect fill-rate (older Mali / Adreno)
+  const maxDprCap = constrained && mobileLike ? Math.min(maxDprBase, 2) : maxDprBase;
 
   cached = {
     tier,
     quality: q,
-    maxDpr:
-      q === "ultra"
-        ? Math.min(window.devicePixelRatio || 1, 3)
-        : q === "high"
-          ? Math.min(window.devicePixelRatio || 1, 2.5)
-          : Math.min(window.devicePixelRatio || 1, 1.5),
+    maxDpr: Math.min(window.devicePixelRatio || 1, maxDprCap),
     particleBudget,
-    enableBlur: q !== "low" && !reduced,
+    enableBlur: q !== "low" && !reduced && !(constrained && mobileLike && q === "medium"),
     enableShake: !reduced && q !== "low",
     targetFps,
     targetHz: userHz,
@@ -186,8 +214,20 @@ export function getGraphicsProfile(): GraphicsProfile {
     renderer: "css-compositor",
     vendorHint: vendor,
     ambientDepth: q !== "low",
-    fxScale: q === "low" ? 0.55 : q === "medium" ? 0.95 : q === "high" ? 1.2 : 1.4,
-    battleDetail: q === "low" ? 0.5 : q === "medium" ? 0.85 : q === "high" ? 1.2 : 1.5,
+    fxScale:
+      q === "low"
+        ? 0.5
+        : q === "medium"
+          ? constrained
+            ? 0.8
+            : 0.95
+          : q === "high"
+            ? constrained
+              ? 1.05
+              : 1.2
+            : 1.4,
+    battleDetail:
+      q === "low" ? 0.45 : q === "medium" ? 0.8 : q === "high" ? (constrained ? 1.0 : 1.2) : 1.5,
     sparklines: q === "high" || q === "ultra" || q === "medium",
     rimLight: q !== "low",
   };

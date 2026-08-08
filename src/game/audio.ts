@@ -26,7 +26,14 @@ export type SfxId =
   | "impact_tail"
   | "rail"
   | "aoe_burst"
-  | "shield_break";
+  | "shield_break"
+  | "shield_up"
+  | "charge_rush"
+  | "lifesteal"
+  | "reborn"
+  | "ion"
+  | "photon"
+  | "execute";
 
 let ctx: AudioContext | null = null;
 let masterGain: GainNode | null = null;
@@ -500,6 +507,30 @@ function shieldBreak(c: AudioContext, dest: AudioNode, t0: number, k: number) {
   seismicThump(c, dest, t0 + 0.04, 0.25 * k, 70);
 }
 
+/** Aegis / Divine Shield raise — crystalline shell forming. */
+function shieldUp(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  [660, 880, 1100, 1480].forEach((f, i) => {
+    tone(c, dest, f, t0 + i * 0.03, 0.28, "sine", 0.16 * k);
+    tone(c, dest, f * 1.5, t0 + i * 0.03, 0.16, "triangle", 0.07 * k);
+  });
+  noiseShot(c, dest, t0, 0.12, 0.18 * k, {
+    color: "white",
+    hipass: 2800,
+    lowpass: 10000,
+  });
+  tone(c, dest, 180, t0, 0.2, "triangle", 0.14 * k, 120);
+}
+
+/** Lethal execute sting — short dark chord + crack. */
+function executeSting(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  noiseShot(c, dest, t0, 0.03, 0.9 * k, { color: "white", hipass: 2200 });
+  tone(c, dest, 110, t0, 0.22, "sawtooth", 0.45 * k, 55);
+  tone(c, dest, 165, t0 + 0.01, 0.18, "square", 0.22 * k, 70);
+  tone(c, dest, 880, t0 + 0.02, 0.12, "sine", 0.18 * k, 220);
+  seismicThump(c, dest, t0 + 0.02, 0.55 * k, 38);
+  detonation(c, dest, t0 + 0.04, k * 0.45, false);
+}
+
 function frostLayer(c: AudioContext, dest: AudioNode, t0: number, k: number) {
   tone(c, dest, 2200, t0, 0.12, "sine", 0.2 * k, 900);
   tone(c, dest, 3400, t0 + 0.02, 0.1, "triangle", 0.14 * k, 1400);
@@ -685,7 +716,6 @@ function impactTail(c: AudioContext, dest: AudioNode, t0: number, k: number) {
   });
   seismicThump(c, dest, t0, 0.35 * k, 48);
   tone(c, dest, 200, t0, 0.4, "sine", 0.12 * k, 60);
-  // Residual metal rattle
   for (let i = 0; i < 3; i++) {
     noiseShot(c, dest, t0 + 0.08 + i * 0.05, 0.04, 0.12 * k, {
       color: "white",
@@ -698,6 +728,78 @@ function uiClick(c: AudioContext, dest: AudioNode, t0: number) {
   tone(c, dest, 980, t0, 0.045, "sine", 0.14);
   tone(c, dest, 1480, t0 + 0.01, 0.035, "triangle", 0.08);
   noiseShot(c, dest, t0, 0.025, 0.08, { color: "white", hipass: 2500 });
+}
+
+/** Charge / Rush dash — Doppler whoosh + boot stomp. */
+function chargeRush(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  whooshPass(c, dest, t0, k * 1.15);
+  tone(c, dest, 2200, t0, 0.1, "sawtooth", 0.2 * k, 400);
+  tone(c, dest, 90, t0 + 0.06, 0.18, "sine", 0.4 * k, 45);
+  seismicThump(c, dest, t0 + 0.08, 0.4 * k, 55);
+  noiseShot(c, dest, t0 + 0.05, 0.12, 0.35 * k, {
+    color: "white",
+    hipass: 1500,
+  });
+}
+
+/** Lifesteal siphon — rising drain + soft heal chime. */
+function lifestealSiphon(
+  c: AudioContext,
+  dest: AudioNode,
+  t0: number,
+  k: number,
+) {
+  tone(c, dest, 140, t0, 0.28, "sawtooth", 0.28 * k, 320);
+  tone(c, dest, 280, t0 + 0.04, 0.22, "triangle", 0.18 * k, 520);
+  noiseShot(c, dest, t0, 0.22, 0.22 * k, {
+    color: "pink",
+    hipass: 600,
+    lowpass: 4000,
+  });
+  [494, 587, 740].forEach((f, i) => {
+    tone(c, dest, f, t0 + 0.12 + i * 0.035, 0.2, "sine", 0.12 * k);
+  });
+}
+
+/** Reborn flash — reverse detonation + crystal ring. */
+function rebornFlash(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  noiseShot(c, dest, t0, 0.08, 0.55 * k, { color: "white", hipass: 2000 });
+  tone(c, dest, 80, t0, 0.25, "sine", 0.35 * k, 200);
+  tone(c, dest, 880, t0 + 0.04, 0.3, "triangle", 0.22 * k, 1760);
+  tone(c, dest, 1320, t0 + 0.06, 0.22, "sine", 0.14 * k);
+  seismicThump(c, dest, t0 + 0.05, 0.3 * k, 60);
+}
+
+/** Ion lattice crackle — high-Q electrical. */
+function ionCrack(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  for (let i = 0; i < 8; i++) {
+    noiseShot(c, dest, t0 + i * 0.018, 0.03, 0.22 * k, {
+      color: "white",
+      hipass: 2500 + i * 300,
+      lowpass: 12000,
+    });
+    tone(
+      c,
+      dest,
+      1600 + i * 280 + Math.random() * 120,
+      t0 + i * 0.02,
+      0.05,
+      "square",
+      0.09 * k,
+      600,
+    );
+  }
+  railShot(c, dest, t0 + 0.04, k * 0.55);
+  plasmaBlast(c, dest, t0 + 0.08, k * 0.45);
+}
+
+/** Photon storm — multi-strobe lasers. */
+function photonStorm(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  for (let i = 0; i < 5; i++) {
+    plasmaBlast(c, dest, t0 + i * 0.045, k * (0.55 + i * 0.08));
+  }
+  aoeBurst(c, dest, t0 + 0.1, k * 0.7);
+  tone(c, dest, 2400, t0, 0.35, "sine", 0.12 * k, 400);
 }
 
 export function playSfx(id: SfxId, intensity = 1) {
@@ -789,6 +891,34 @@ export function playSfx(id: SfxId, intensity = 1) {
       shieldBreak(c, dest, t0, k);
       shieldBreak(c, room, t0, k * 0.35);
       break;
+    case "shield_up":
+      shieldUp(c, dest, t0, k);
+      shieldUp(c, room, t0, k * 0.4);
+      break;
+    case "charge_rush":
+      chargeRush(c, dest, t0, k);
+      chargeRush(c, room, t0, k * 0.3);
+      break;
+    case "lifesteal":
+      lifestealSiphon(c, dest, t0, k);
+      lifestealSiphon(c, room, t0, k * 0.4);
+      break;
+    case "reborn":
+      rebornFlash(c, dest, t0, k);
+      rebornFlash(c, room, t0, k * 0.45);
+      break;
+    case "ion":
+      ionCrack(c, dest, t0, k);
+      ionCrack(c, room, t0, k * 0.35);
+      break;
+    case "photon":
+      photonStorm(c, dest, t0, k);
+      photonStorm(c, room, t0, k * 0.3);
+      break;
+    case "execute":
+      executeSting(c, dest, t0, k);
+      executeSting(c, room, t0, k * 0.35);
+      break;
     case "ui":
       uiClick(c, dest, t0);
       break;
@@ -805,14 +935,21 @@ export function playCombatSfx(opts: {
   beam?: string;
   aoe?: boolean;
   cardId?: string;
+  keywords?: string[];
+  lethal?: boolean;
 }) {
   const dmg = opts.damage ?? 0;
   const school = (opts.school || "").toLowerCase();
   const beam = (opts.beam || "").toLowerCase();
   const power = 0.85 + Math.min(1.2, dmg * 0.12);
   const card = (opts.cardId || "").toLowerCase();
+  const kws = (opts.keywords ?? []).map((k) => k.toLowerCase());
+  const lethal = !!opts.lethal || dmg >= 10;
 
   if (opts.kind === "melee") {
+    if (kws.includes("charge") || kws.includes("rush")) {
+      playSfx("charge_rush", power * 0.95);
+    }
     if (card.includes("rail") || card.includes("sniper")) {
       playSfx("rail", power * 1.15);
       playSfx("whoosh", power * 0.4);
@@ -829,9 +966,18 @@ export function playCombatSfx(opts: {
       beam === "laser" ||
       school === "arcane" ||
       school === "ember" ||
-      beam === "ember_orb"
+      beam === "ember_orb" ||
+      beam === "ion_lance" ||
+      beam === "photon_grid"
     ) {
-      playSfx("laser", power);
+      playSfx(
+        beam === "ion_lance" || card.includes("ion")
+          ? "ion"
+          : beam === "photon_grid" || card.includes("photon")
+            ? "photon"
+            : "laser",
+        power,
+      );
       playSfx(dmg >= 6 ? "heavy_clash" : "clash", power * 0.5);
     } else if (school === "steel" || beam === "slash") {
       playSfx("blade", power * 1.1);
@@ -840,6 +986,8 @@ export function playCombatSfx(opts: {
       playSfx(dmg >= 5 ? "heavy_clash" : "clash", power);
       if (dmg >= 4) playSfx("blade", power * 0.65);
     }
+    if (kws.includes("lifesteal")) playSfx("lifesteal", power * 0.85);
+    if (kws.includes("shield") && dmg <= 0) playSfx("shield_up", 0.7);
     if (dmg >= 2) {
       playSfx(
         opts.fromPlayer ? "grunt" : "enemy_grunt",
@@ -848,44 +996,80 @@ export function playCombatSfx(opts: {
     }
     if (dmg >= 5) playSfx("impact_tail", power * 0.85);
     if (dmg >= 8) playSfx("heavy_clash", power * 0.9);
+    if (lethal) playSfx("execute", power * 1.05);
   } else if (opts.kind === "spell") {
     playSfx("whoosh", power * 0.7);
-    if (opts.aoe || beam === "dominus_ring") {
-      playSfx("aoe_burst", power * 0.95);
+    if (opts.aoe || beam === "dominus_ring" || beam === "photon_grid") {
+      if (card.includes("photon") || beam === "photon_grid") {
+        playSfx("photon", power * 1.05);
+      } else {
+        playSfx("aoe_burst", power * 0.95);
+      }
     }
-    if (school === "frost" || beam === "frost_bolt") {
+    if (card.includes("ion") || beam === "ion_lance") {
+      playSfx("ion", power * 1.1);
+    } else if (school === "frost" || beam === "frost_bolt") {
       playSfx("frost", power * 1.1);
-    } else if (school === "shadow" || beam === "shadow_bolt" || beam === "dominus_ring") {
+    } else if (
+      school === "shadow" ||
+      beam === "shadow_bolt" ||
+      beam === "dominus_ring"
+    ) {
       playSfx("void", power * 1.15);
       playSfx("spell", power * 0.55);
     } else if (school === "nature" || beam === "nature_vine") {
       playSfx("nature", power * 1.05);
-    } else if (
-      beam === "laser" ||
-      school === "arcane" ||
-      school === "ember"
-    ) {
+    } else if (beam === "laser" || school === "arcane" || school === "ember") {
       playSfx("laser", power * 1.1);
       if (card.includes("chain") || card.includes("surge")) {
         playSfx("rail", power * 0.55);
       }
-    } else if (beam === "beam") {
-      playSfx("beam", power * 1.1);
+    } else if (beam === "beam" || beam === "rail_line") {
+      playSfx(beam === "rail_line" ? "rail" : "beam", power * 1.1);
     } else if (beam === "aegis_shell") {
-      playSfx("shield_break", power * 0.7);
+      playSfx("shield_up", power * 0.85);
       playSfx("heal", power * 0.5);
     } else {
       playSfx("spell", power * 1.05);
     }
+    if (
+      card.includes("blood") ||
+      card.includes("leech") ||
+      card.includes("pact")
+    ) {
+      playSfx("lifesteal", power * 0.8);
+    }
     if (dmg >= 4) playSfx("impact_tail", power * 0.7);
+    if (lethal) playSfx("execute", power * 0.95);
     if (opts.toHero && dmg >= 3) {
       playSfx(opts.fromPlayer === false ? "grunt" : "enemy_grunt", 1.1);
     }
   } else if (opts.kind === "heal") {
     playSfx("heal", 1.0);
+    if (card.includes("quantum")) playSfx("ion", 0.55);
+    if (beam === "aegis_shell" || card.includes("aegis") || card.includes("ward")) {
+      playSfx("shield_up", 0.75);
+    }
   } else if (opts.kind === "summon") {
     playSfx("summon", 1.1);
-    if (card.includes("omega") || card.includes("titan")) {
+    if (
+      kws.includes("reborn") ||
+      card.includes("phase") ||
+      card.includes("reaper")
+    ) {
+      playSfx("reborn", 0.85);
+    }
+    if (kws.includes("charge") || kws.includes("rush")) {
+      playSfx("charge_rush", 0.7);
+    }
+    if (kws.includes("shield") || kws.includes("taunt") || card.includes("aegis")) {
+      playSfx("shield_up", 0.8);
+    }
+    if (
+      card.includes("omega") ||
+      card.includes("titan") ||
+      card.includes("phalanx")
+    ) {
       playSfx("rail", 0.75);
     }
   }

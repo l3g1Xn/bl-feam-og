@@ -24,6 +24,11 @@ export const Route = createRootRoute({
           "Battle Legions: For We Are Many — tactical card battler with honest combat math, ticket store, and offline play.",
       },
       { name: "build-id", content: BUILD_ID },
+      { name: "theme-color", content: "#07080c" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { name: "format-detection", content: "telephone=no" },
       // Discourage stale shells on the published site / preview proxy
       { httpEquiv: "Cache-Control", content: "no-cache, no-store, must-revalidate" },
       { httpEquiv: "Pragma", content: "no-cache" },
@@ -31,6 +36,7 @@ export const Route = createRootRoute({
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "apple-touch-icon", href: "/icons/icon-192.png" },
     ],
   }),
   component: RootComponent,

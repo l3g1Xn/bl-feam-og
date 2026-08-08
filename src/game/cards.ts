@@ -412,7 +412,7 @@ export const CARD_POOL: CardDef[] = [
     art: "arcane",
   },
 
-  // Store stock rotation wave — new exclusives (no version bump)
+  // Store stock rotation wave A
   {
     id: "rail_sniper",
     name: "Rail Sniper",
@@ -523,6 +523,94 @@ export const CARD_POOL: CardDef[] = [
     keywords: ["charge", "shield"],
     art: "arcane",
   },
+
+  // Store stock wave B — art already shipped; units enter rotation without version bump
+  {
+    id: "aegis_phalanx",
+    name: "Aegis Phalanx",
+    cost: 5,
+    type: "minion",
+    storeExclusive: true,
+    attack: 3,
+    health: 7,
+    text: "Taunt. Shield. Linked barrier wall.",
+    keywords: ["taunt", "shield"],
+    art: "steel",
+  },
+  {
+    id: "cryo_ward",
+    name: "Cryo Ward",
+    cost: 2,
+    type: "spell",
+    storeExclusive: true,
+    text: "Give a friendly minion Immune this turn and +0/+3 frost plate.",
+    spell: { kind: "aegis", shield: true },
+    art: "frost",
+  },
+  {
+    id: "ion_grid",
+    name: "Ion Grid",
+    cost: 4,
+    type: "spell",
+    storeExclusive: true,
+    text: "Deal 2 (+Spell Power) to all enemy minions. Ion lattice.",
+    spell: { kind: "damage", amount: 2, target: "all_enemy_minions" },
+    art: "arcane",
+  },
+  {
+    id: "ion_lance",
+    name: "Ion Lance",
+    cost: 3,
+    type: "spell",
+    storeExclusive: true,
+    text: "Deal 4 (+Spell Power) — focused ion spear.",
+    spell: { kind: "damage", amount: 4, target: "enemy" },
+    art: "arcane",
+  },
+  {
+    id: "phase_skirmisher",
+    name: "Phase Skirmisher",
+    cost: 2,
+    type: "minion",
+    storeExclusive: true,
+    attack: 3,
+    health: 2,
+    text: "Rush. Flicker-frame infantry.",
+    keywords: ["rush"],
+    art: "shadow",
+  },
+  {
+    id: "photon_barrage",
+    name: "Photon Barrage",
+    cost: 5,
+    type: "spell",
+    storeExclusive: true,
+    text: "Deal 3 (+Spell Power) to all enemies. Photon storm.",
+    spell: { kind: "damage", amount: 3, target: "all_enemies" },
+    art: "ember",
+  },
+  {
+    id: "pulse_sentinel",
+    name: "Pulse Sentinel",
+    cost: 3,
+    type: "minion",
+    storeExclusive: true,
+    attack: 2,
+    health: 4,
+    text: "Taunt. Automated perimeter turret.",
+    keywords: ["taunt"],
+    art: "steel",
+  },
+  {
+    id: "quantum_mend",
+    name: "Quantum Mend",
+    cost: 3,
+    type: "spell",
+    storeExclusive: true,
+    text: "Restore 8 health — quantum med-beam.",
+    spell: { kind: "heal", amount: 8, target: "friendly_hero" },
+    art: "nature",
+  },
 ];
 
 export const CARD_MAP: Record<string, CardDef> = Object.fromEntries(
@@ -603,7 +691,7 @@ export function isStoreExclusive(id: string): boolean {
   return !!CARD_MAP[id]?.storeExclusive;
 }
 
-/** New stock wave ids — used for rotation spotlighting. */
+/** Wave A exclusives — weekly rotation core. */
 export const STORE_STOCK_WAVE_IDS = [
   "rail_sniper",
   "pulse_grenade",
@@ -615,6 +703,24 @@ export const STORE_STOCK_WAVE_IDS = [
   "chain_surge",
   "nano_swarm",
   "titan_edge",
+] as const;
+
+/** Wave B exclusives — alternate spotlight pool (existing art stock). */
+export const STORE_STOCK_WAVE_B_IDS = [
+  "aegis_phalanx",
+  "cryo_ward",
+  "ion_grid",
+  "ion_lance",
+  "phase_skirmisher",
+  "photon_barrage",
+  "pulse_sentinel",
+  "quantum_mend",
+] as const;
+
+/** Combined stock used by rotation spotlighting. */
+export const ALL_STOCK_WAVE_IDS = [
+  ...STORE_STOCK_WAVE_IDS,
+  ...STORE_STOCK_WAVE_B_IDS,
 ] as const;
 
 export function minionValueScore(attack: number, health: number, cost: number): number {

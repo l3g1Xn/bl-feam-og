@@ -31,7 +31,11 @@ export type BeamStyle =
   | "arcane_beam"
   | "dominus_ring"
   | "heal_pulse"
-  | "aegis_shell";
+  | "aegis_shell"
+  | "ion_lance"
+  | "photon_grid"
+  | "rail_line"
+  | "lifesteal_siphon";
 
 export interface FxEvent {
   id: number;
@@ -70,6 +74,8 @@ export interface FxEvent {
   residualMs?: number;
   /** Impact bloom scale */
   bloom?: number;
+  /** Secondary residual ring count (presentation) */
+  rings?: number;
 }
 
 export function entityKeyMinion(uid: string): string {
@@ -94,12 +100,20 @@ export function nextFxId(): number {
 export function schoolToBeam(
   school?: FxSchool,
   spellKind?: SpellEffect["kind"],
+  cardId?: string,
 ): BeamStyle {
+  const id = (cardId ?? "").toLowerCase();
   if (spellKind === "dominus_reximus") return "dominus_ring";
   if (spellKind === "heal") return "heal_pulse";
   if (spellKind === "aegis") return "aegis_shell";
   if (spellKind === "buff" || spellKind === "buff_all_friendly")
     return "nature_vine";
+  if (id.includes("ion")) return "ion_lance";
+  if (id.includes("photon") || id.includes("barrage") || id.includes("cataclysm"))
+    return "photon_grid";
+  if (id.includes("rail") || id.includes("sniper")) return "rail_line";
+  if (id.includes("blood") || id.includes("leech") || id.includes("pact"))
+    return "lifesteal_siphon";
   switch (school) {
     case "ember":
       return "ember_orb";
@@ -158,17 +172,19 @@ function dmgWeight(dmg: number): {
   particles: number;
   residualMs: number;
   bloom: number;
+  rings: number;
 } {
   const big = dmg >= 6;
   const lethal = dmg >= 8;
   const overkill = dmg >= 12;
   return {
-    durationMs: overkill ? 760 : lethal ? 700 : big ? 600 : 500,
-    trauma: Math.min(1, 0.22 + dmg * 0.07),
-    hitStopMs: overkill ? 88 : lethal ? 72 : big ? 48 : dmg >= 3 ? 26 : 0,
-    particles: overkill ? 64 : lethal ? 52 : big ? 36 : 22,
-    residualMs: overkill ? 520 : big ? 440 : 300,
-    bloom: overkill ? 1.55 : lethal ? 1.4 : big ? 1.15 : 0.9,
+    durationMs: overkill ? 820 : lethal ? 740 : big ? 640 : 520,
+    trauma: Math.min(1, 0.24 + dmg * 0.075),
+    hitStopMs: overkill ? 96 : lethal ? 78 : big ? 52 : dmg >= 3 ? 28 : 0,
+    particles: overkill ? 78 : lethal ? 60 : big ? 42 : 26,
+    residualMs: overkill ? 580 : big ? 480 : 320,
+    bloom: overkill ? 1.65 : lethal ? 1.45 : big ? 1.2 : 0.95,
+    rings: overkill ? 3 : lethal ? 2 : big ? 2 : 1,
   };
 }
 
@@ -189,7 +205,9 @@ export function meleeFx(opts: {
   const kw = opts.keywords?.length
     ? ` · ${opts.keywords.map((k) => k.toUpperCase()).join(" ")}`
     : "";
-  const beam: BeamStyle =
+  const id = (opts.cardId ?? "").toLowerCase();
+  const hasLs = opts.keywords?.includes("lifesteal");
+  let beam: BeamStyle =
     opts.school === "arcane" || opts.school === "ember"
       ? "laser"
       : opts.school === "frost"
@@ -197,6 +215,9 @@ export function meleeFx(opts: {
         : opts.school === "shadow"
           ? "shadow_bolt"
           : "slash";
+  if (id.includes("rail") || id.includes("sniper")) beam = "rail_line";
+  if (id.includes("ion")) beam = "ion_lance";
+  if (hasLs) beam = "lifesteal_siphon";
   return {
     id: nextFxId(),
     kind: "melee",
@@ -213,12 +234,13 @@ export function meleeFx(opts: {
     banner: `${name} · ${opts.damage} ATK${kw}`,
     detail: opts.cardText,
     beam,
-    durationMs: w.durationMs,
+    durationMs: w.durationMs + (hasLs ? 40 : 0),
     trauma: w.trauma,
     hitStopMs: w.hitStopMs,
-    particles: w.particles,
-    residualMs: w.residualMs,
-    bloom: w.bloom,
+    particles: w.particles + (hasLs ? 12 : 0),
+    residualMs: w.residualMs + (hasLs ? 80 : 0),
+    bloom: w.bloom + (hasLs ? 0.12 : 0),
+    rings: w.rings + (hasLs ? 1 : 0),
   };
 }
 
@@ -261,6 +283,7 @@ export function spellFx(opts: {
 
   const dmg = opts.damage ?? 0;
   const w = dmgWeight(Math.max(dmg, isDominus ? 10 : opts.aoe ? 5 : 2));
+  const beam = schoolToBeam(opts.school, spellKind, opts.cardId);
 
   return {
     id: nextFxId(),
@@ -283,20 +306,21 @@ export function spellFx(opts: {
       opts.heal,
     ),
     detail: opts.cardText ?? opts.spell?.kind,
-    beam: schoolToBeam(opts.school, spellKind),
+    beam,
     aoe: opts.aoe,
-    durationMs: isDominus ? 820 : opts.aoe ? 680 : w.durationMs + 40,
+    durationMs: isDominus ? 860 : opts.aoe ? 720 : w.durationMs + 40,
     trauma: isDominus
-      ? 0.62
+      ? 0.68
       : opts.damage
         ? w.trauma
         : isHeal
           ? 0.06
-          : 0.12,
-    hitStopMs: isDominus ? 90 : w.hitStopMs,
-    particles: isDominus ? 64 : opts.aoe ? 44 : w.particles,
-    residualMs: isDominus ? 560 : w.residualMs + 80,
-    bloom: isDominus ? 1.6 : w.bloom,
+          : 0.14,
+    hitStopMs: isDominus ? 96 : w.hitStopMs,
+    particles: isDominus ? 78 : opts.aoe ? 52 : w.particles,
+    residualMs: isDominus ? 600 : w.residualMs + 100,
+    bloom: isDominus ? 1.7 : w.bloom,
+    rings: isDominus ? 4 : opts.aoe ? 3 : w.rings,
   };
 }
 
@@ -310,6 +334,9 @@ export function summonFx(opts: {
   keywords?: Keyword[];
 }): FxEvent {
   const name = opts.cardName ?? "Deploy";
+  const reborn = opts.keywords?.includes("reborn");
+  const shielded =
+    opts.keywords?.includes("shield") || opts.keywords?.includes("taunt");
   return {
     id: nextFxId(),
     kind: "summon",
@@ -321,15 +348,20 @@ export function summonFx(opts: {
     cardText: opts.cardText,
     school: opts.school,
     keywords: opts.keywords,
-    banner: `${name} · ONLINE`,
+    banner: `${name} · ${reborn ? "REBORN" : shielded ? "FORTIFIED" : "ONLINE"}`,
     detail: opts.cardText,
-    beam: "arcane_beam",
-    durationMs: 440,
-    trauma: 0.1,
-    hitStopMs: 16,
-    particles: 22,
-    residualMs: 260,
-    bloom: 0.9,
+    beam: reborn
+      ? "dominus_ring"
+      : shielded
+        ? "aegis_shell"
+        : "arcane_beam",
+    durationMs: reborn ? 520 : shielded ? 500 : 460,
+    trauma: reborn ? 0.16 : shielded ? 0.12 : 0.1,
+    hitStopMs: reborn ? 28 : 16,
+    particles: reborn ? 36 : shielded ? 32 : 26,
+    residualMs: reborn ? 360 : shielded ? 320 : 280,
+    bloom: reborn ? 1.2 : shielded ? 1.1 : 0.95,
+    rings: reborn ? 2 : shielded ? 2 : 1,
   };
 }
 
@@ -418,6 +450,14 @@ export function beamLabel(beam?: BeamStyle): string {
       return "Repair Pulse";
     case "aegis_shell":
       return "Aegis Shell";
+    case "ion_lance":
+      return "Ion Lance";
+    case "photon_grid":
+      return "Photon Grid";
+    case "rail_line":
+      return "Rail Line";
+    case "lifesteal_siphon":
+      return "Siphon Beam";
     case "slash":
     default:
       return "Blade Clash";
