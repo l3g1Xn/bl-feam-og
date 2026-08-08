@@ -369,7 +369,7 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
         toHero,
         school: fx.school,
         beam: fx.beam,
-        keywords: fx.keywords,
+        cardId: fx.cardId,
       });
     } else if (fx.kind === "spell" || fx.kind === "dominus") {
       if (fx.heal && fx.heal > 0 && !(fx.damage && fx.damage > 0)) {
@@ -382,13 +382,14 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
           fromPlayer: true,
           school: fx.school,
           beam: fx.beam,
-          keywords: fx.keywords,
+          aoe: fx.aoe,
+          cardId: fx.cardId,
         });
       }
     } else if (fx.kind === "heal" || fx.kind === "buff" || fx.kind === "aegis") {
       playCombatSfx({ kind: "heal", heal: fx.heal ?? 4 });
     } else if (fx.kind === "summon") {
-      playCombatSfx({ kind: "summon", keywords: fx.keywords });
+      playCombatSfx({ kind: "summon", cardId: fx.cardId });
     }
 
     if (profile.enableShake && fx.trauma > 0) {

@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  STORE_OFFERS,
-  STORE_ROTATION_LABEL,
+  getLiveOffers,
   useMetaStore,
   xpProgressInLevel,
   type LauncherTab,
 } from "@/game/meta";
 import { cardArtSrc, classLabel, getCard, typeLabel } from "@/game/cards";
+import { rotationLabel, storeWeekKey } from "@/game/storeRotation";
 import { configureGraphics } from "@/game/graphics";
 import { playSfx, setSfxMuted, setSfxVolume, unlockAudio } from "@/game/audio";
 import {
@@ -695,27 +695,29 @@ function PlayPanel() {
 }
 
 function StorePanel() {
+  const owned = useMetaStore((s) => s.owned);
   const tickets = useMetaStore((s) => s.tickets);
   const totalXp = useMetaStore((s) => s.totalXp);
-  const owned = useMetaStore((s) => s.owned);
   const buy = useMetaStore((s) => s.buyCard);
   const livePrice = useMetaStore((s) => s.livePrice);
   const level = xpProgressInLevel(totalXp).level;
-  const [filter, setFilter] = useState<"all" | "exclusive" | "minion" | "spell">(
-    "exclusive",
-  );
+  const [filter, setFilter] = useState<
+    "all" | "exclusive" | "deals" | "new" | "minion" | "spell"
+  >("deals");
+  const week = storeWeekKey();
 
-  const offers = useMemo(
-    () =>
-      STORE_OFFERS.filter((o) => {
-        const c = getCard(o.cardId);
-        if (filter === "exclusive") return !!o.exclusive;
-        if (filter === "minion") return c.type === "minion";
-        if (filter === "spell") return c.type === "spell";
-        return true;
-      }),
-    [filter],
-  );
+  const offers = useMemo(() => {
+    const all = getLiveOffers(level);
+    return all.filter((o) => {
+      const c = getCard(o.cardId);
+      if (filter === "exclusive") return !!o.exclusive;
+      if (filter === "deals") return o.rotationDeal || o.stockWave;
+      if (filter === "new") return o.stockWave;
+      if (filter === "minion") return c.type === "minion";
+      if (filter === "spell") return c.type === "spell";
+      return true;
+    });
+  }, [filter, level]);
 
   return (
     <div className="mx-auto max-w-4xl space-y-4 pb-4">
@@ -733,34 +735,49 @@ function StorePanel() {
         <div className="relative z-[1] flex flex-wrap items-end justify-between gap-3 p-4 sm:p-5">
           <div>
             <p className="text-[0.6rem] font-bold uppercase tracking-widest text-accent">
-              LEGIXN armory
+              LEGIXN armory · {week}
             </p>
             <h2 className="text-xl font-semibold">Ticket store</h2>
             <p className="text-sm text-fg-muted">
-              High-tech exclusives not in the free starter deck. Prices rebalanced (×2).
-              Spell Power stacks onto every damage protocol.
+              Weekly rotation deals + new stock wave. Prices rebalanced (×2). Spell
+              Power stacks onto every damage protocol.
             </p>
             <p className="mt-1 text-xs tabular text-attack">
               {tickets} tickets · Legion Lv {level}
             </p>
-            <p className="mt-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-legixn">
-              {STORE_ROTATION_LABEL} · weekly spotlight discounts live
+            <p className="mt-1 max-w-md text-[0.65rem] text-fg-subtle">
+              {rotationLabel(week)}
             </p>
           </div>
-          <div className="flex flex-wrap gap-1 rounded-xl border border-border bg-bg-elevated/90 p-1 backdrop-blur">
-            {(["exclusive", "all", "minion", "spell"] as const).map((f) => (
+          <div className="flex max-w-full flex-wrap gap-1 rounded-xl border border-border bg-bg-elevated/90 p-1 backdrop-blur">
+            {(
+              [
+                "deals",
+                "new",
+                "exclusive",
+                "all",
+                "minion",
+                "spell",
+              ] as const
+            ).map((f) => (
               <button
                 key={f}
                 type="button"
                 onClick={() => setFilter(f)}
                 className={cn(
-                  "rounded-lg px-3 py-1.5 text-xs capitalize",
+                  "min-h-[36px] rounded-lg px-2.5 py-1.5 text-[0.7rem] capitalize sm:px-3 sm:text-xs",
                   filter === f
                     ? "bg-accent text-primary-fg"
                     : "text-fg-muted hover:text-fg",
                 )}
               >
-                {f === "minion" ? "units" : f === "spell" ? "protocols" : f}
+                {f === "minion"
+                  ? "units"
+                  : f === "spell"
+                    ? "protocols"
+                    : f === "new"
+                      ? "stock"
+                      : f}
               </button>
             ))}
           </div>
@@ -779,12 +796,15 @@ function StorePanel() {
               key={o.id}
               className={cn(
                 "relative flex flex-col overflow-hidden rounded-2xl border bg-bg-elevated/90 shadow-lg",
-                o.exclusive
-                  ? "border-accent/50 shadow-[0_0_28px_rgba(255,106,26,0.2)]"
-                  : o.featured
-                    ? "border-attack/40"
-                    : "border-white/10",
-                o.spotlight && "ring-2 ring-legixn/60",
+                o.rotationDeal
+                  ? "border-success/55 shadow-[0_0_28px_rgba(90,154,110,0.25)]"
+                  : o.stockWave
+                    ? "border-mana-glow/50 shadow-[0_0_24px_rgba(106,154,208,0.2)]"
+                    : o.exclusive
+                      ? "border-accent/50 shadow-[0_0_28px_rgba(255,106,26,0.2)]"
+                      : o.featured
+                        ? "border-attack/40"
+                        : "border-white/10",
               )}
             >
               <CanvasChrome variant="store" />
@@ -801,16 +821,23 @@ function StorePanel() {
                 <div className="absolute left-2 top-2 rounded-md bg-black/65 px-1.5 py-0.5 text-[0.6rem] text-fg">
                   {classLabel(c.art)} · {typeLabel(c.type)}
                 </div>
-                {o.spotlight && (
-                  <div className="absolute left-2 top-8 rounded-md bg-legixn px-1.5 py-0.5 text-[0.55rem] font-bold text-white">
-                    SPOTLIGHT
-                  </div>
-                )}
-                {o.exclusive && (
-                  <div className="absolute right-2 top-2 rounded-md bg-primary px-1.5 py-0.5 text-[0.55rem] font-bold text-primary-fg">
-                    {c.id === "dominus_reximus" ? "APEX" : "EXCLUSIVE"}
-                  </div>
-                )}
+                <div className="absolute right-2 top-2 flex flex-col items-end gap-1">
+                  {o.rotationDeal && (
+                    <div className="rounded-md bg-success px-1.5 py-0.5 text-[0.55rem] font-bold text-primary-fg">
+                      −{o.dealPct}% DEAL
+                    </div>
+                  )}
+                  {o.stockWave && (
+                    <div className="rounded-md bg-mana px-1.5 py-0.5 text-[0.55rem] font-bold text-white">
+                      NEW STOCK
+                    </div>
+                  )}
+                  {o.exclusive && !o.stockWave && (
+                    <div className="rounded-md bg-primary px-1.5 py-0.5 text-[0.55rem] font-bold text-primary-fg">
+                      {c.id === "dominus_reximus" ? "APEX" : "EXCLUSIVE"}
+                    </div>
+                  )}
+                </div>
                 <div className="absolute bottom-2 left-2 right-2">
                   <div className="text-sm font-semibold text-white drop-shadow">
                     {c.name}
@@ -826,9 +853,12 @@ function StorePanel() {
                 <button
                   type="button"
                   disabled={have || !can}
-                  onClick={() => buy(o.cardId)}
+                  onClick={() => {
+                    unlockAudio();
+                    buy(o.cardId);
+                  }}
                   className={cn(
-                    "rounded-lg px-2.5 py-1.5 text-xs font-semibold transition active:scale-95",
+                    "min-h-[40px] min-w-[4.5rem] rounded-lg px-2.5 py-1.5 text-xs font-semibold transition active:scale-95",
                     have
                       ? "bg-success/20 text-success"
                       : can
@@ -849,6 +879,11 @@ function StorePanel() {
           );
         })}
       </div>
+      {offers.length === 0 && (
+        <p className="text-center text-sm text-fg-muted">
+          No offers in this filter — try All or Exclusive.
+        </p>
+      )}
     </div>
   );
 }
