@@ -141,6 +141,16 @@ function beamTintFor(beam?: string, fallback = "#b0b8c8"): string {
       return "#ff6a2a";
     case "singularity":
       return "#9b5cff";
+    case "phase_rift":
+      return "#b070ff";
+    case "matrix_lock":
+      return "#70d0ff";
+    case "chrono_slash":
+      return "#50e0d0";
+    case "hex_grid":
+      return "#80a0ff";
+    case "mortar_arc":
+      return "#ff7040";
     default:
       return fallback;
   }

@@ -36,7 +36,11 @@ export type SfxId =
   | "execute"
   | "nova"
   | "grav"
-  | "swarm";
+  | "swarm"
+  | "phase"
+  | "matrix"
+  | "chrono"
+  | "mortar";
 
 let ctx: AudioContext | null = null;
 let masterGain: GainNode | null = null;
@@ -710,6 +714,66 @@ function swarmCloud(c: AudioContext, dest: AudioNode, t0: number, k: number) {
   tone(c, dest, 220, t0, 0.28, "sine", 0.16 * k, 140);
 }
 
+
+/** Phase rift — stuttering Doppler chirps + void tail. */
+function phaseRift(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  for (let i = 0; i < 6; i++) {
+    tone(
+      c,
+      dest,
+      1400 - i * 140 + Math.random() * 80,
+      t0 + i * 0.028,
+      0.07,
+      "sawtooth",
+      0.16 * k,
+      200 + i * 40,
+    );
+    noiseShot(c, dest, t0 + i * 0.025, 0.04, 0.14 * k, {
+      color: "white",
+      hipass: 2200,
+      lowpass: 10000,
+    });
+  }
+  voidLayer(c, dest, t0 + 0.08, k * 0.55);
+  whooshPass(c, dest, t0, k * 0.7);
+}
+
+/** Matrix lock — ascending digital pings + shield shell. */
+function matrixLock(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  [660, 880, 1100, 1480, 1760].forEach((f, i) => {
+    tone(c, dest, f, t0 + i * 0.035, 0.12, "square", 0.1 * k);
+    tone(c, dest, f * 1.5, t0 + i * 0.035, 0.08, "sine", 0.06 * k);
+  });
+  shieldUp(c, dest, t0 + 0.08, k * 0.9);
+  noiseShot(c, dest, t0, 0.15, 0.18 * k, {
+    color: "white",
+    hipass: 3500,
+    lowpass: 12000,
+  });
+}
+
+/** Chrono slash — reverse whoosh + blade + crystal ring. */
+function chronoSlash(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  // reverse-feeling rising sweep
+  tone(c, dest, 80, t0, 0.22, "sawtooth", 0.28 * k, 1600);
+  chainBlade(c, dest, t0 + 0.05, k * 1.05);
+  tone(c, dest, 1320, t0 + 0.08, 0.25, "sine", 0.16 * k, 2640);
+  lifestealSiphon(c, dest, t0 + 0.06, k * 0.55);
+  seismicThump(c, dest, t0 + 0.1, 0.35 * k, 48);
+}
+
+/** Plasma mortar — lob whoosh + delayed detonation. */
+function mortarLob(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  whooshPass(c, dest, t0, k * 0.9);
+  tone(c, dest, 220, t0, 0.2, "sine", 0.3 * k, 90);
+  plasmaBlast(c, dest, t0 + 0.08, k * 0.85);
+  detonation(c, dest, t0 + 0.12, k * 0.95, true);
+  for (let i = 0; i < 3; i++) {
+    plasmaBlast(c, dest, t0 + 0.14 + i * 0.05, k * 0.45);
+  }
+  impactTail(c, dest, t0 + 0.16, k * 0.7);
+}
+
 export function playSfx(id: SfxId, intensity = 1) {
   if (muted || volume <= 0.01) return;
   const c = ac();
@@ -839,6 +903,22 @@ export function playSfx(id: SfxId, intensity = 1) {
       swarmCloud(c, dest, t0, k);
       swarmCloud(c, room, t0, k * 0.3);
       break;
+    case "phase":
+      phaseRift(c, dest, t0, k);
+      phaseRift(c, room, t0, k * 0.35);
+      break;
+    case "matrix":
+      matrixLock(c, dest, t0, k);
+      matrixLock(c, room, t0, k * 0.35);
+      break;
+    case "chrono":
+      chronoSlash(c, dest, t0, k);
+      chronoSlash(c, room, t0, k * 0.3);
+      break;
+    case "mortar":
+      mortarLob(c, dest, t0, k);
+      mortarLob(c, room, t0, k * 0.3);
+      break;
     case "ui":
       uiClick(c, dest, t0);
       break;
@@ -879,6 +959,23 @@ export function playCombatSfx(opts: {
     } else if (card.includes("plasma") || card.includes("saber")) {
       playSfx("plasma", power * 1.1);
       playSfx("blade", power * 0.55);
+    } else if (card.includes("chrono") || beam === "chrono_slash") {
+      playSfx("chrono", power * 1.15);
+      playSfx("blade", power * 0.5);
+    } else if (
+      card.includes("phase") ||
+      card.includes("echo") ||
+      beam === "phase_rift"
+    ) {
+      playSfx("phase", power * 1.05);
+      playSfx("whoosh", power * 0.45);
+    } else if (
+      card.includes("apex") ||
+      card.includes("colossus") ||
+      card.includes("warden")
+    ) {
+      playSfx("rail", power * 0.9);
+      playSfx(dmg >= 5 ? "heavy_clash" : "clash", power * 0.7);
     } else if (school === "frost" || beam === "frost_bolt") {
       playSfx("frost", power);
       playSfx("whoosh", power * 0.45);
@@ -948,7 +1045,27 @@ export function playCombatSfx(opts: {
         playSfx("aoe_burst", power * 0.95);
       }
     }
-    if (card.includes("ion") || beam === "ion_lance") {
+    if (card.includes("mortar") || beam === "mortar_arc") {
+      playSfx("mortar", power * 1.15);
+    } else if (card.includes("hex") || beam === "hex_grid") {
+      playSfx("ion", power * 0.85);
+      playSfx("aoe_burst", power * 0.75);
+    } else if (
+      card.includes("flux") ||
+      card.includes("matrix") ||
+      card.includes("beacon") ||
+      beam === "matrix_lock"
+    ) {
+      playSfx("matrix", power * 1.1);
+    } else if (card.includes("chrono") || beam === "chrono_slash") {
+      playSfx("chrono", power * 1.05);
+    } else if (
+      card.includes("phase") ||
+      card.includes("echo") ||
+      beam === "phase_rift"
+    ) {
+      playSfx("phase", power * 1.05);
+    } else if (card.includes("ion") || beam === "ion_lance") {
       playSfx("ion", power * 1.1);
     } else if (school === "frost" || beam === "frost_bolt") {
       playSfx("frost", power * 1.1);
@@ -1023,9 +1140,16 @@ export function playCombatSfx(opts: {
       card.includes("omega") ||
       card.includes("titan") ||
       card.includes("phalanx") ||
-      card.includes("bastion")
+      card.includes("bastion") ||
+      card.includes("apex") ||
+      card.includes("colossus") ||
+      card.includes("warden")
     ) {
       playSfx("rail", 0.75);
+    }
+    if (card.includes("chrono")) playSfx("chrono", 0.65);
+    if (card.includes("phase") || card.includes("echo") || card.includes("flicker")) {
+      playSfx("phase", 0.7);
     }
   }
 }

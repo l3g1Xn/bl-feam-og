@@ -399,3 +399,25 @@ a:focus-visible,
     --fx-bloom: 0.85;
   }
 }
+
+/* Coarse pointer / touch — larger hit targets on phones & tablets */
+@media (pointer: coarse) {
+  button,
+  [role="button"],
+  .minion-token {
+    min-height: 44px;
+  }
+  .minion-token {
+    min-width: 3.5rem;
+  }
+}
+
+/* Notch / dynamic island: never clip interactive chrome */
+@supports (padding: max(0px)) {
+  .launcher-shell,
+  .battle-stage,
+  .game-menu {
+    padding-left: max(0.5rem, env(safe-area-inset-left, 0px));
+    padding-right: max(0.5rem, env(safe-area-inset-right, 0px));
+  }
+}

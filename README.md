@@ -69,12 +69,12 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle
 
 ## Version notes
 
-**1.06.666** — *Legion TraX + combat polish + Wave C stock*
+**1.06.666** — *Legion TraX + combat polish + Wave D stock*
 
-- Brand stamp **1.06.666** (versionCode 106666) — version held; content rotates
+- Brand stamp **1.06.666** (versionCode 106666) — version held; Wave D content rotates
 - Legion TraX Part 1 and Part 2 soundtrack
 - Typed combat engine with denser VFX/SFX (nova · grav · swarm beams)
-- Store Waves A / B / C weekly rotation (10 exclusives in Wave C)
+- Store Waves A / B / C / **D** weekly rotation (Wave D chrono/flux/apex stock)
 - Version-stamped title logo on launcher and README
 - Doubled store ticket prices; fixed board minion display
 - Official Gradle release build · targetSdk 34

@@ -379,7 +379,8 @@ function HomePanel({
             </h1>
             <p className="mt-2 max-w-xl text-sm leading-relaxed text-fg-muted">
               High-tech legion combat with medieval physics. Discombobulator beams,
-              laser protocols, Dominus Reximus exclusives, Wave C store stock, and
+              laser protocols, Dominus Reximus exclusives, Wave D store stock, and
+
               transparent combat math — same build as the Android package.
             </p>
             <div className="mt-3 flex flex-wrap items-center justify-center gap-2 text-xs text-fg-muted sm:justify-start">
@@ -394,7 +395,8 @@ function HomePanel({
                 Legion TraX · 2 suites
               </span>
               <span className="rounded-full border border-primary/25 bg-primary/10 px-2 py-1 text-primary">
-                Store Wave A/B/C
+                Store Wave A/B/C/D
+
               </span>
             </div>
             <div className="mx-auto mt-2 h-1.5 w-full max-w-sm overflow-hidden rounded-full bg-black/50 sm:mx-0">

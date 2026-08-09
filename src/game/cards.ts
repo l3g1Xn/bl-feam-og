@@ -723,6 +723,116 @@ export const CARD_POOL: CardDef[] = [
     spell: { kind: "damage_heal", damage: 5, heal: 3, target: "enemy" },
     art: "shadow",
   },
+
+  // Store stock wave D — 2026.08.09 rotation expansion (version held)
+  {
+    id: "chrono_blade",
+    name: "Chrono Blade",
+    cost: 4,
+    type: "minion",
+    storeExclusive: true,
+    attack: 4,
+    health: 3,
+    text: "Charge. Lifesteal. Temporal edge rewinds wounds.",
+    keywords: ["charge", "lifesteal"],
+    art: "arcane",
+  },
+  {
+    id: "flux_barrier",
+    name: "Flux Barrier",
+    cost: 2,
+    type: "spell",
+    storeExclusive: true,
+    text: "Give a friendly minion Immune this turn and Shield. Phase lock.",
+    spell: { kind: "aegis", shield: true },
+    art: "frost",
+  },
+  {
+    id: "hex_lattice",
+    name: "Hex Lattice",
+    cost: 3,
+    type: "spell",
+    storeExclusive: true,
+    text: "Deal 3 (+Spell Power) to all enemy minions. Geometry fire.",
+    spell: { kind: "damage", amount: 3, target: "all_enemy_minions" },
+    art: "arcane",
+  },
+  {
+    id: "storm_core",
+    name: "Storm Core",
+    cost: 3,
+    type: "spell",
+    storeExclusive: true,
+    text: "Gain +2 Spell Power. Draw a card — storm capacitor.",
+    spell: { kind: "spell_power", amount: 2, draw: 1 },
+    art: "ember",
+  },
+  {
+    id: "iron_warden",
+    name: "Iron Warden",
+    cost: 5,
+    type: "minion",
+    storeExclusive: true,
+    attack: 3,
+    health: 8,
+    text: "Taunt. Shield. Fortress-grade plating.",
+    keywords: ["taunt", "shield"],
+    art: "steel",
+  },
+  {
+    id: "void_pike",
+    name: "Void Pike",
+    cost: 4,
+    type: "spell",
+    storeExclusive: true,
+    text: "Deal 4 (+Spell Power). Restore 2 — void tip drain.",
+    spell: { kind: "damage_heal", damage: 4, heal: 2, target: "enemy" },
+    art: "shadow",
+  },
+  {
+    id: "legion_beacon",
+    name: "Legion Beacon",
+    cost: 5,
+    type: "spell",
+    storeExclusive: true,
+    text: "Give all friendly minions +3/+3 command uplink.",
+    spell: { kind: "buff_all_friendly", attack: 3, health: 3 },
+    art: "steel",
+  },
+  {
+    id: "apex_colossus",
+    name: "Apex Colossus",
+    cost: 8,
+    type: "minion",
+    storeExclusive: true,
+    attack: 9,
+    health: 9,
+    text: "Taunt. Reborn. Capital siege platform.",
+    keywords: ["taunt", "reborn"],
+    art: "steel",
+  },
+  {
+    id: "echo_drone",
+    name: "Echo Drone",
+    cost: 2,
+    type: "minion",
+    storeExclusive: true,
+    attack: 2,
+    health: 2,
+    text: "Rush. Reborn. Signal ghost that never dies clean.",
+    keywords: ["rush", "reborn"],
+    art: "ember",
+  },
+  {
+    id: "plasma_mortar",
+    name: "Plasma Mortar",
+    cost: 5,
+    type: "spell",
+    storeExclusive: true,
+    text: "Deal 3 (+Spell Power) to all enemies. Arc-shell barrage.",
+    spell: { kind: "damage", amount: 3, target: "all_enemies" },
+    art: "ember",
+  },
 ];
 
 export const CARD_MAP: Record<string, CardDef> = Object.fromEntries(
@@ -843,11 +953,26 @@ export const STORE_STOCK_WAVE_C_IDS = [
   "singularity_bolt",
 ] as const;
 
+/** Wave D exclusives — chrono / flux / apex stock (2026.08.09 maint). */
+export const STORE_STOCK_WAVE_D_IDS = [
+  "chrono_blade",
+  "flux_barrier",
+  "hex_lattice",
+  "storm_core",
+  "iron_warden",
+  "void_pike",
+  "legion_beacon",
+  "apex_colossus",
+  "echo_drone",
+  "plasma_mortar",
+] as const;
+
 /** Combined stock used by rotation spotlighting. */
 export const ALL_STOCK_WAVE_IDS = [
   ...STORE_STOCK_WAVE_IDS,
   ...STORE_STOCK_WAVE_B_IDS,
   ...STORE_STOCK_WAVE_C_IDS,
+  ...STORE_STOCK_WAVE_D_IDS,
 ] as const;
 
 export function minionValueScore(attack: number, health: number, cost: number): number {
