@@ -8,6 +8,7 @@ import {
   STORE_STOCK_WAVE_B_IDS,
   STORE_STOCK_WAVE_C_IDS,
   STORE_STOCK_WAVE_D_IDS,
+  STORE_STOCK_WAVE_E_IDS,
   STORE_STOCK_WAVE_IDS,
   buildStarterDeck,
   getCard,
@@ -57,7 +58,11 @@ export function ticketPrice(cardId: string, level: number): number {
     cardId === "apex_colossus" ||
     cardId === "chrono_blade" ||
     cardId === "legion_beacon" ||
-    cardId === "plasma_mortar"
+    cardId === "plasma_mortar" ||
+    cardId === "prism_lance" ||
+    cardId === "corona_burst" ||
+    cardId === "obsidian_rex" ||
+    cardId === "storm_lancer"
   ) {
     base = Math.round(base * 1.08);
   }
@@ -90,11 +95,12 @@ const WAVE_POOLS = [
   STORE_STOCK_WAVE_B_IDS,
   STORE_STOCK_WAVE_C_IDS,
   STORE_STOCK_WAVE_D_IDS,
+  STORE_STOCK_WAVE_E_IDS,
 ] as const;
 
-/** Cycle A → B → C → D by week hash so stock never stagnates. */
+/** Cycle A → B → C → D → E by week hash so stock never stagnates. */
 export function activeWavePool(week = storeWeekKey()): readonly string[] {
-  const n = hashStr(week) % 4;
+  const n = hashStr(week) % 5;
   return WAVE_POOLS[n]!;
 }
 
@@ -145,7 +151,10 @@ export function minLevelFor(cardId: string): number {
     cardId === "bastion_prime" ||
     cardId === "singularity_bolt" ||
     cardId === "apex_colossus" ||
-    cardId === "legion_beacon"
+    cardId === "legion_beacon" ||
+    cardId === "obsidian_rex" ||
+    cardId === "corona_burst" ||
+    cardId === "prism_lance"
   )
     return 4;
   if (
@@ -159,7 +168,10 @@ export function minLevelFor(cardId: string): number {
     cardId === "chrono_blade" ||
     cardId === "iron_warden" ||
     cardId === "plasma_mortar" ||
-    cardId === "void_pike"
+    cardId === "void_pike" ||
+    cardId === "storm_lancer" ||
+    cardId === "helix_guard" ||
+    cardId === "rift_cutter"
   )
     return 3;
   if (isStoreExclusive(cardId)) return 2;
@@ -233,6 +245,8 @@ export function rotationLabel(week = storeWeekKey()): string {
         ? "Wave B"
         : wave === STORE_STOCK_WAVE_C_IDS
           ? "Wave C"
-          : "Wave D";
+          : wave === STORE_STOCK_WAVE_D_IDS
+            ? "Wave D"
+            : "Wave E";
   return `${waveName} · Week ${week} deals: ${deals}`;
 }

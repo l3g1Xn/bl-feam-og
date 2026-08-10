@@ -151,6 +151,16 @@ function beamTintFor(beam?: string, fallback = "#b0b8c8"): string {
       return "#80a0ff";
     case "mortar_arc":
       return "#ff7040";
+    case "prism_lance":
+      return "#a8d0ff";
+    case "corona_flare":
+      return "#ff9040";
+    case "helix_weave":
+      return "#50d080";
+    case "storm_lance":
+      return "#70c8ff";
+    case "rift_cut":
+      return "#c080ff";
     default:
       return fallback;
   }
@@ -335,13 +345,13 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
     const color = schoolColor(fx.school);
     const glow = schoolGlow(fx.school);
     const pKind =
-      fx.beam === "lifesteal_siphon" || fx.beam === "singularity"
+      fx.beam === "lifesteal_siphon" || fx.beam === "singularity" || fx.beam === "rift_cut"
         ? "void"
-        : fx.beam === "ion_lance"
+        : fx.beam === "ion_lance" || fx.beam === "prism_lance" || fx.beam === "storm_lance"
           ? "arc"
-          : fx.beam === "swarm_cloud"
+          : fx.beam === "swarm_cloud" || fx.beam === "helix_weave"
             ? "leaf"
-            : fx.beam === "nova_burst" || fx.beam === "ember_orb"
+            : fx.beam === "nova_burst" || fx.beam === "ember_orb" || fx.beam === "corona_flare"
               ? "ember"
               : fx.beam === "grav_well"
                 ? "smoke"
@@ -475,6 +485,14 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
         fx.beam === "nature_vine" ||
         fx.beam === "lifesteal_siphon" ||
         fx.beam === "aegis_shell" ||
+        fx.beam === "prism_lance" ||
+        fx.beam === "corona_flare" ||
+        fx.beam === "helix_weave" ||
+        fx.beam === "storm_lance" ||
+        fx.beam === "rift_cut" ||
+        fx.beam === "nova_burst" ||
+        fx.beam === "hex_grid" ||
+        fx.beam === "mortar_arc" ||
         fx.kind === "beam" ||
         fx.kind === "spell" ||
         fx.kind === "dominus";

@@ -40,7 +40,12 @@ export type SfxId =
   | "phase"
   | "matrix"
   | "chrono"
-  | "mortar";
+  | "mortar"
+  | "prism"
+  | "corona"
+  | "helix"
+  | "storm"
+  | "rift";
 
 let ctx: AudioContext | null = null;
 let masterGain: GainNode | null = null;
@@ -65,7 +70,7 @@ function ac(): AudioContext | null {
       masterGain = ctx.createGain();
       masterGain.gain.value = muted ? 0 : volume;
       bus = ctx.createGain();
-      bus.gain.value = 1.28;
+      bus.gain.value = 1.34;
       compressor = ctx.createDynamicsCompressor();
       compressor.threshold.value = -20;
       compressor.knee.value = 14;
@@ -82,7 +87,7 @@ function ac(): AudioContext | null {
       reverbNode = ctx.createConvolver();
       reverbNode.buffer = makeImpulse(ctx, 0.55, 2.2);
       reverbSend = ctx.createGain();
-      reverbSend.gain.value = 0.22;
+      reverbSend.gain.value = 0.26;
       reverbSend.connect(reverbNode);
       reverbNode.connect(compressor);
 
@@ -774,6 +779,79 @@ function mortarLob(c: AudioContext, dest: AudioNode, t0: number, k: number) {
   impactTail(c, dest, t0 + 0.16, k * 0.7);
 }
 
+
+/** Prism lance — crystal harmonics + ion crack. */
+function prismLance(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  ionCrack(c, dest, t0, k * 0.85);
+  [880, 1320, 1760, 2200].forEach((f, i) => {
+    tone(c, dest, f, t0 + i * 0.018, 0.14, "sine", 0.12 * k, f * 1.4);
+    tone(c, dest, f * 0.5, t0 + i * 0.018, 0.1, "triangle", 0.06 * k);
+  });
+  noiseShot(c, dest, t0 + 0.04, 0.18, 0.22 * k, {
+    color: "white",
+    hipass: 2800,
+    lowpass: 12000,
+  });
+  impactTail(c, dest, t0 + 0.08, k * 0.55);
+}
+
+/** Corona flare — layered nova + photon storm. */
+function coronaFlare(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  novaBreach(c, dest, t0, k * 0.95);
+  photonStorm(c, dest, t0 + 0.04, k * 0.75);
+  for (let i = 0; i < 5; i++) {
+    plasmaBlast(c, dest, t0 + 0.06 + i * 0.04, k * 0.4);
+  }
+  detonation(c, dest, t0 + 0.1, k * 0.85, true);
+  seismicThump(c, dest, t0 + 0.12, 0.5 * k, 30);
+}
+
+/** Helix weave — bio nature + shield shell harmonics. */
+function helixWeave(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  natureLayer(c, dest, t0, k * 0.9);
+  shieldUp(c, dest, t0 + 0.05, k * 0.8);
+  [440, 554, 659, 880].forEach((f, i) => {
+    tone(c, dest, f, t0 + i * 0.04, 0.18, "sine", 0.1 * k);
+  });
+  healPulse(c, dest, t0 + 0.08, k * 0.55);
+  noiseShot(c, dest, t0, 0.2, 0.16 * k, {
+    color: "pink",
+    hipass: 400,
+    lowpass: 4000,
+  });
+}
+
+/** Storm lance — rail + frost thunder. */
+function stormLance(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  railShot(c, dest, t0, k * 1.05);
+  frostLayer(c, dest, t0 + 0.02, k * 0.7);
+  whooshPass(c, dest, t0, k * 0.85);
+  seismicThump(c, dest, t0 + 0.05, 0.55 * k, 38);
+  for (let i = 0; i < 4; i++) {
+    tone(
+      c,
+      dest,
+      1800 + i * 220,
+      t0 + 0.03 + i * 0.022,
+      0.06,
+      "sawtooth",
+      0.1 * k,
+      400,
+    );
+  }
+  impactTail(c, dest, t0 + 0.1, k * 0.65);
+}
+
+/** Rift cut — phase + void monowire slice. */
+function riftCut(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  phaseRift(c, dest, t0, k * 0.9);
+  chainBlade(c, dest, t0 + 0.03, k * 1.05);
+  voidLayer(c, dest, t0 + 0.05, k * 0.7);
+  lifestealSiphon(c, dest, t0 + 0.04, k * 0.6);
+  noiseShot(c, dest, t0, 0.05, 0.4 * k, { color: "white", hipass: 4000 });
+  impactTail(c, dest, t0 + 0.08, k * 0.55);
+}
+
 export function playSfx(id: SfxId, intensity = 1) {
   if (muted || volume <= 0.01) return;
   const c = ac();
@@ -919,6 +997,26 @@ export function playSfx(id: SfxId, intensity = 1) {
       mortarLob(c, dest, t0, k);
       mortarLob(c, room, t0, k * 0.3);
       break;
+    case "prism":
+      prismLance(c, dest, t0, k);
+      prismLance(c, room, t0, k * 0.3);
+      break;
+    case "corona":
+      coronaFlare(c, dest, t0, k);
+      coronaFlare(c, room, t0, k * 0.28);
+      break;
+    case "helix":
+      helixWeave(c, dest, t0, k);
+      helixWeave(c, room, t0, k * 0.35);
+      break;
+    case "storm":
+      stormLance(c, dest, t0, k);
+      stormLance(c, room, t0, k * 0.3);
+      break;
+    case "rift":
+      riftCut(c, dest, t0, k);
+      riftCut(c, room, t0, k * 0.3);
+      break;
     case "ui":
       uiClick(c, dest, t0);
       break;
@@ -962,6 +1060,37 @@ export function playCombatSfx(opts: {
     } else if (card.includes("chrono") || beam === "chrono_slash") {
       playSfx("chrono", power * 1.15);
       playSfx("blade", power * 0.5);
+    } else if (
+      card.includes("storm_lancer") ||
+      beam === "storm_lance"
+    ) {
+      playSfx("storm", power * 1.15);
+      playSfx("charge_rush", power * 0.5);
+    } else if (
+      card.includes("rift") ||
+      beam === "rift_cut"
+    ) {
+      playSfx("rift", power * 1.1);
+      playSfx("blade", power * 0.45);
+    } else if (
+      card.includes("vector") ||
+      card.includes("prism") ||
+      beam === "prism_lance"
+    ) {
+      playSfx("prism", power * 1.05);
+      playSfx("blade", power * 0.4);
+    } else if (
+      card.includes("helix") ||
+      card.includes("anchor") ||
+      beam === "helix_weave"
+    ) {
+      playSfx("helix", power * 0.95);
+      playSfx("clash", power * 0.55);
+    } else if (
+      card.includes("obsidian")
+    ) {
+      playSfx("heavy_clash", power * 1.1);
+      playSfx("rail", power * 0.7);
     } else if (
       card.includes("phase") ||
       card.includes("echo") ||
@@ -1047,6 +1176,35 @@ export function playCombatSfx(opts: {
     }
     if (card.includes("mortar") || beam === "mortar_arc") {
       playSfx("mortar", power * 1.15);
+    } else if (
+      card.includes("corona") ||
+      beam === "corona_flare"
+    ) {
+      playSfx("corona", power * 1.15);
+    } else if (
+      card.includes("prism") ||
+      card.includes("vector") ||
+      beam === "prism_lance"
+    ) {
+      playSfx("prism", power * 1.1);
+    } else if (
+      card.includes("helix") ||
+      card.includes("bio_surge") ||
+      card.includes("synapse") ||
+      beam === "helix_weave"
+    ) {
+      playSfx("helix", power * 1.05);
+    } else if (
+      card.includes("storm_lancer") ||
+      beam === "storm_lance"
+    ) {
+      playSfx("storm", power * 1.15);
+    } else if (
+      card.includes("rift") ||
+      card.includes("obsidian") ||
+      beam === "rift_cut"
+    ) {
+      playSfx("rift", power * 1.1);
     } else if (card.includes("hex") || beam === "hex_grid") {
       playSfx("ion", power * 0.85);
       playSfx("aoe_burst", power * 0.75);

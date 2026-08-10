@@ -524,7 +524,7 @@ export const CARD_POOL: CardDef[] = [
     art: "arcane",
   },
 
-  // Store stock wave B — art already shipped; units enter rotation without version bump
+  // Store stock wave B
   {
     id: "aegis_phalanx",
     name: "Aegis Phalanx",
@@ -612,7 +612,7 @@ export const CARD_POOL: CardDef[] = [
     art: "nature",
   },
 
-  // Store stock wave C — rotation expansion (no package version bump)
+  // Store stock wave C
   {
     id: "grav_well",
     name: "Grav Well",
@@ -724,7 +724,7 @@ export const CARD_POOL: CardDef[] = [
     art: "shadow",
   },
 
-  // Store stock wave D — 2026.08.09 rotation expansion (version held)
+  // Store stock wave D
   {
     id: "chrono_blade",
     name: "Chrono Blade",
@@ -833,6 +833,120 @@ export const CARD_POOL: CardDef[] = [
     spell: { kind: "damage", amount: 3, target: "all_enemies" },
     art: "ember",
   },
+
+  // Store stock wave E — 2026.08.10 maint (version held at 1.06.666)
+  {
+    id: "prism_lance",
+    name: "Prism Lance",
+    cost: 4,
+    type: "spell",
+    storeExclusive: true,
+    text: "Deal 5 (+Spell Power) — refracted kill-beam.",
+    spell: { kind: "damage", amount: 5, target: "enemy" },
+    art: "arcane",
+  },
+  {
+    id: "helix_guard",
+    name: "Helix Guard",
+    cost: 4,
+    type: "minion",
+    storeExclusive: true,
+    attack: 3,
+    health: 6,
+    text: "Taunt. Shield. DNA-plated frontline.",
+    keywords: ["taunt", "shield"],
+    art: "nature",
+  },
+  {
+    id: "storm_lancer",
+    name: "Storm Lancer",
+    cost: 5,
+    type: "minion",
+    storeExclusive: true,
+    attack: 5,
+    health: 4,
+    text: "Charge. Rail-tipped cavalry spear.",
+    keywords: ["charge"],
+    art: "frost",
+  },
+  {
+    id: "bio_surge",
+    name: "Bio Surge",
+    cost: 3,
+    type: "spell",
+    storeExclusive: true,
+    text: "Restore 6 health. Give a friendly minion +1/+1.",
+    spell: { kind: "heal", amount: 6, target: "friendly_hero" },
+    art: "nature",
+  },
+  {
+    id: "rift_cutter",
+    name: "Rift Cutter",
+    cost: 4,
+    type: "minion",
+    storeExclusive: true,
+    attack: 4,
+    health: 3,
+    text: "Rush. Lifesteal. Dimensional monowire.",
+    keywords: ["rush", "lifesteal"],
+    art: "shadow",
+  },
+  {
+    id: "corona_burst",
+    name: "Corona Burst",
+    cost: 5,
+    type: "spell",
+    storeExclusive: true,
+    text: "Deal 3 (+Spell Power) to all enemies. Solar flare grid.",
+    spell: { kind: "damage", amount: 3, target: "all_enemies" },
+    art: "ember",
+  },
+  {
+    id: "anchor_drone",
+    name: "Anchor Drone",
+    cost: 3,
+    type: "minion",
+    storeExclusive: true,
+    attack: 2,
+    health: 4,
+    text: "Taunt. Reborn. Mag-clamp interceptor.",
+    keywords: ["taunt", "reborn"],
+    art: "steel",
+  },
+  {
+    id: "vector_blade",
+    name: "Vector Blade",
+    cost: 3,
+    type: "minion",
+    storeExclusive: true,
+    attack: 4,
+    health: 2,
+    text: "Charge. Predictive trajectory edge.",
+    keywords: ["charge"],
+    art: "arcane",
+  },
+  {
+    id: "synapse_link",
+    name: "Synapse Link",
+    cost: 2,
+    type: "spell",
+    storeExclusive: true,
+    text: "Gain +1 Spell Power. Draw 2 — neural mesh.",
+    spell: { kind: "spell_power", amount: 1, draw: 2 },
+    art: "arcane",
+  },
+  {
+    id: "obsidian_rex",
+    name: "Obsidian Rex",
+    cost: 7,
+    type: "minion",
+    storeExclusive: true,
+    attack: 7,
+    health: 8,
+    text: "Taunt. Shield. Volcanic siege chassis.",
+    keywords: ["taunt", "shield"],
+    art: "ember",
+  },
 ];
 
 export const CARD_MAP: Record<string, CardDef> = Object.fromEntries(
@@ -927,7 +1041,7 @@ export const STORE_STOCK_WAVE_IDS = [
   "titan_edge",
 ] as const;
 
-/** Wave B exclusives — alternate spotlight pool (existing art stock). */
+/** Wave B exclusives — alternate spotlight pool. */
 export const STORE_STOCK_WAVE_B_IDS = [
   "aegis_phalanx",
   "cryo_ward",
@@ -939,7 +1053,7 @@ export const STORE_STOCK_WAVE_B_IDS = [
   "quantum_mend",
 ] as const;
 
-/** Wave C exclusives — expansion stock; rotates with A/B without version bump. */
+/** Wave C exclusives — expansion stock. */
 export const STORE_STOCK_WAVE_C_IDS = [
   "grav_well",
   "swarm_drone",
@@ -953,7 +1067,7 @@ export const STORE_STOCK_WAVE_C_IDS = [
   "singularity_bolt",
 ] as const;
 
-/** Wave D exclusives — chrono / flux / apex stock (2026.08.09 maint). */
+/** Wave D exclusives — chrono / flux / apex stock. */
 export const STORE_STOCK_WAVE_D_IDS = [
   "chrono_blade",
   "flux_barrier",
@@ -967,12 +1081,27 @@ export const STORE_STOCK_WAVE_D_IDS = [
   "plasma_mortar",
 ] as const;
 
+/** Wave E exclusives — prism / helix / corona stock (2026.08.10 maint). */
+export const STORE_STOCK_WAVE_E_IDS = [
+  "prism_lance",
+  "helix_guard",
+  "storm_lancer",
+  "bio_surge",
+  "rift_cutter",
+  "corona_burst",
+  "anchor_drone",
+  "vector_blade",
+  "synapse_link",
+  "obsidian_rex",
+] as const;
+
 /** Combined stock used by rotation spotlighting. */
 export const ALL_STOCK_WAVE_IDS = [
   ...STORE_STOCK_WAVE_IDS,
   ...STORE_STOCK_WAVE_B_IDS,
   ...STORE_STOCK_WAVE_C_IDS,
   ...STORE_STOCK_WAVE_D_IDS,
+  ...STORE_STOCK_WAVE_E_IDS,
 ] as const;
 
 export function minionValueScore(attack: number, health: number, cost: number): number {

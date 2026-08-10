@@ -44,7 +44,12 @@ export type BeamStyle =
   | "matrix_lock"
   | "chrono_slash"
   | "hex_grid"
-  | "mortar_arc";
+  | "mortar_arc"
+  | "prism_lance"
+  | "corona_flare"
+  | "helix_weave"
+  | "storm_lance"
+  | "rift_cut";
 
 export interface FxEvent {
   id: number;
@@ -120,6 +125,11 @@ export function schoolToBeam(
   if (id.includes("chrono")) return "chrono_slash";
   if (id.includes("hex") || id.includes("lattice")) return "hex_grid";
   if (id.includes("mortar") || id.includes("plasma_mortar")) return "mortar_arc";
+  if (id.includes("prism") || id.includes("vector")) return "prism_lance";
+  if (id.includes("corona")) return "corona_flare";
+  if (id.includes("helix") || id.includes("bio_surge") || id.includes("synapse")) return "helix_weave";
+  if (id.includes("storm_lancer") || id.includes("storm_lance")) return "storm_lance";
+  if (id.includes("rift") || id.includes("obsidian")) return "rift_cut";
   if (id.includes("flux") || id.includes("matrix") || id.includes("beacon"))
     return "matrix_lock";
   if (id.includes("phase") || id.includes("flicker") || id.includes("echo"))
@@ -205,10 +215,10 @@ function dmgWeight(dmg: number): {
     durationMs: overkill ? 860 : lethal ? 780 : big ? 680 : 540,
     trauma: Math.min(1, 0.26 + dmg * 0.078),
     hitStopMs: overkill ? 104 : lethal ? 84 : big ? 56 : dmg >= 3 ? 32 : 0,
-    particles: overkill ? 88 : lethal ? 68 : big ? 48 : 30,
-    residualMs: overkill ? 620 : big ? 520 : 360,
-    bloom: overkill ? 1.75 : lethal ? 1.52 : big ? 1.28 : 1.0,
-    rings: overkill ? 4 : lethal ? 3 : big ? 2 : 1,
+    particles: overkill ? 104 : lethal ? 80 : big ? 56 : 34,
+    residualMs: overkill ? 700 : big ? 560 : 400,
+    bloom: overkill ? 1.9 : lethal ? 1.62 : big ? 1.34 : 1.05,
+    rings: overkill ? 5 : lethal ? 4 : big ? 3 : 1,
   };
 }
 
@@ -246,9 +256,12 @@ export function meleeFx(opts: {
     beam = "swarm_cloud";
   if (id.includes("chrono")) beam = "chrono_slash";
   if (id.includes("phase")) beam = "phase_rift";
-  if (id.includes("bastion") || id.includes("phalanx") || id.includes("warden"))
+  if (id.includes("bastion") || id.includes("phalanx") || id.includes("warden") || id.includes("helix") || id.includes("anchor"))
     beam = "aegis_shell";
-  if (id.includes("apex") || id.includes("colossus")) beam = "rail_line";
+  if (id.includes("apex") || id.includes("colossus") || id.includes("obsidian")) beam = "rail_line";
+  if (id.includes("storm_lancer") || id.includes("vector")) beam = "storm_lance";
+  if (id.includes("rift")) beam = "rift_cut";
+  if (id.includes("prism")) beam = "prism_lance";
   if (hasLs) beam = "lifesteal_siphon";
   return {
     id: nextFxId(),
@@ -323,7 +336,11 @@ export function spellFx(opts: {
     beam === "photon_grid" ||
     beam === "mortar_arc" ||
     beam === "hex_grid" ||
-    beam === "chrono_slash";
+    beam === "chrono_slash" ||
+    beam === "corona_flare" ||
+    beam === "prism_lance" ||
+    beam === "storm_lance" ||
+    beam === "rift_cut";
 
   return {
     id: nextFxId(),
@@ -523,6 +540,16 @@ export function beamLabel(beam?: BeamStyle): string {
       return "Hex Lattice";
     case "mortar_arc":
       return "Plasma Mortar";
+    case "prism_lance":
+      return "Prism Lance";
+    case "corona_flare":
+      return "Corona Flare";
+    case "helix_weave":
+      return "Helix Weave";
+    case "storm_lance":
+      return "Storm Lance";
+    case "rift_cut":
+      return "Rift Cut";
     case "slash":
     default:
       return "Blade Clash";

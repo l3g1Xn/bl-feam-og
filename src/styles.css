@@ -421,3 +421,54 @@ a:focus-visible,
     padding-right: max(0.5rem, env(safe-area-inset-right, 0px));
   }
 }
+
+
+/* wave-e-mobile-2026-08-10 — all-device safe areas + landscape battle UX */
+@supports (padding: max(0px)) {
+  .app-shell {
+    padding-left: max(0px, env(safe-area-inset-left, 0px));
+    padding-right: max(0px, env(safe-area-inset-right, 0px));
+  }
+}
+
+/* Coarse pointer: larger hit targets for minions / hand cards */
+@media (pointer: coarse) {
+  .minion-token {
+    min-width: 3.5rem;
+    min-height: 4.25rem;
+  }
+  button,
+  [role="button"] {
+    min-height: 2.75rem;
+  }
+  .battle-hand button {
+    min-width: 3.25rem;
+  }
+}
+
+/* Short landscape phones (notch + home indicator) */
+@media (max-height: 420px) and (orientation: landscape) {
+  html {
+    font-size: clamp(10px, 2.2vmin + 6px, 13px);
+  }
+  .battle-stage {
+    padding-top: max(2px, env(safe-area-inset-top, 0px));
+  }
+  .minion-token {
+    min-width: 2.75rem;
+  }
+}
+
+/* Prevent rubber-band scroll stealing drags on iOS */
+.battle-stage,
+.board-row,
+.feat-card-scroll {
+  overscroll-behavior: contain;
+}
+
+/* High-DPI battle FX bloom stays crisp without layout shift */
+@media (min-resolution: 2dppx) {
+  .gfx-ultra .battle-stage {
+    --fx-bloom: 1.22;
+  }
+}

@@ -10,7 +10,7 @@ export const APK_DOWNLOAD_PATH = "/downloads/BattleLegions.apk";
 /** Semantic version printed on the site and in the Android package. */
 export const APK_VERSION = "1.06.666";
 /** Approx size for UI copy — TraX soundtrack included (2 suites). */
-export const APK_SIZE_LABEL = "~101 MB";
+export const APK_SIZE_LABEL = "~116 MB";
 /** Hard APK size ceiling (bytes) — 350 MB packed target with TraX + stock art. */
 export const APK_MAX_BYTES = 350 * 1024 * 1024;
 /**
@@ -24,8 +24,8 @@ export const GITHUB_APK_URL =
 export const GITHUB_RELEASE_PAGE =
   "https://github.com/l3g1Xn/bl-feam-og/releases/tag/apk-release-1.06.666";
 
-/** Ship stamp — Wave D stock + combat SFX/VFX densify (version held at 1.06.666). */
-export const BUILD_ID = "2026.08.09-v1.06.666-waveD";
+/** Ship stamp — Wave E stock + denser combat SFX/VFX (version held at 1.06.666). */
+export const BUILD_ID = "2026.08.10-v1.06.666-waveE";
 
 /** Title logo asset (version-stamped banner for launcher / README). */
 export const TITLE_LOGO_SRC = "/ui/title_logo_v1.06.666.jpg";
