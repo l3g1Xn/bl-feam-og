@@ -49,7 +49,12 @@ export type BeamStyle =
   | "corona_flare"
   | "helix_weave"
   | "storm_lance"
-  | "rift_cut";
+  | "rift_cut"
+  | "ferro_spike"
+  | "quantum_fracture"
+  | "pulse_cascade"
+  | "frost_matrix"
+  | "dominion_core";
 
 export interface FxEvent {
   id: number;
@@ -122,19 +127,25 @@ export function schoolToBeam(
   if (spellKind === "aegis") return "aegis_shell";
   if (spellKind === "buff" || spellKind === "buff_all_friendly")
     return "nature_vine";
+  if (id.includes("dominion")) return "dominion_core";
+  if (id.includes("ferro")) return "ferro_spike";
+  if (id.includes("quantum")) return "quantum_fracture";
+  if (id.includes("pulse_cascade") || (id.includes("cascade") && id.includes("pulse")))
+    return "pulse_cascade";
+  if (id.includes("frost_matrix")) return "frost_matrix";
   if (id.includes("chrono")) return "chrono_slash";
   if (id.includes("hex") || id.includes("lattice")) return "hex_grid";
   if (id.includes("mortar") || id.includes("plasma_mortar")) return "mortar_arc";
   if (id.includes("prism") || id.includes("vector")) return "prism_lance";
   if (id.includes("corona")) return "corona_flare";
   if (id.includes("helix") || id.includes("bio_surge") || id.includes("synapse")) return "helix_weave";
-  if (id.includes("storm_lancer") || id.includes("storm_lance")) return "storm_lance";
-  if (id.includes("rift") || id.includes("obsidian")) return "rift_cut";
-  if (id.includes("flux") || id.includes("matrix") || id.includes("beacon"))
+  if (id.includes("storm_lancer") || id.includes("storm_lance") || id.includes("laser_hydra")) return "storm_lance";
+  if (id.includes("rift") || id.includes("obsidian") || id.includes("void_stitch")) return "rift_cut";
+  if (id.includes("flux") || id.includes("matrix") || id.includes("beacon") || id.includes("ion_symphony") || id.includes("mirror_guard"))
     return "matrix_lock";
   if (id.includes("phase") || id.includes("flicker") || id.includes("echo"))
     return "phase_rift";
-  if (id.includes("grav") || id.includes("singularity")) return "grav_well";
+  if (id.includes("grav") || id.includes("singularity") || id.includes("titan_clamp")) return "grav_well";
   if (id.includes("singularity")) return "singularity";
   if (id.includes("swarm") || id.includes("nano")) return "swarm_cloud";
   if (id.includes("nova") || id.includes("cataclysm")) return "nova_burst";
@@ -212,13 +223,13 @@ function dmgWeight(dmg: number): {
   const lethal = dmg >= 8;
   const overkill = dmg >= 12;
   return {
-    durationMs: overkill ? 860 : lethal ? 780 : big ? 680 : 540,
-    trauma: Math.min(1, 0.26 + dmg * 0.078),
-    hitStopMs: overkill ? 104 : lethal ? 84 : big ? 56 : dmg >= 3 ? 32 : 0,
-    particles: overkill ? 104 : lethal ? 80 : big ? 56 : 34,
-    residualMs: overkill ? 700 : big ? 560 : 400,
-    bloom: overkill ? 1.9 : lethal ? 1.62 : big ? 1.34 : 1.05,
-    rings: overkill ? 5 : lethal ? 4 : big ? 3 : 1,
+    durationMs: overkill ? 900 : lethal ? 800 : big ? 700 : 560,
+    trauma: Math.min(1, 0.28 + dmg * 0.08),
+    hitStopMs: overkill ? 110 : lethal ? 88 : big ? 60 : dmg >= 3 ? 34 : 0,
+    particles: overkill ? 112 : lethal ? 88 : big ? 62 : 38,
+    residualMs: overkill ? 740 : big ? 600 : 430,
+    bloom: overkill ? 2.0 : lethal ? 1.7 : big ? 1.4 : 1.1,
+    rings: overkill ? 5 : lethal ? 4 : big ? 3 : 2,
   };
 }
 
@@ -251,16 +262,16 @@ export function meleeFx(opts: {
           : "slash";
   if (id.includes("rail") || id.includes("sniper")) beam = "rail_line";
   if (id.includes("ion")) beam = "ion_lance";
-  if (id.includes("plasma") || id.includes("saber")) beam = "ember_orb";
+  if (id.includes("plasma") || id.includes("saber") || id.includes("laser_hydra")) beam = "ember_orb";
   if (id.includes("swarm") || id.includes("flicker") || id.includes("echo"))
     beam = "swarm_cloud";
-  if (id.includes("chrono")) beam = "chrono_slash";
+  if (id.includes("chrono") || id.includes("quantum")) beam = "chrono_slash";
   if (id.includes("phase")) beam = "phase_rift";
-  if (id.includes("bastion") || id.includes("phalanx") || id.includes("warden") || id.includes("helix") || id.includes("anchor"))
+  if (id.includes("bastion") || id.includes("phalanx") || id.includes("warden") || id.includes("helix") || id.includes("anchor") || id.includes("mirror") || id.includes("clamp"))
     beam = "aegis_shell";
-  if (id.includes("apex") || id.includes("colossus") || id.includes("obsidian")) beam = "rail_line";
-  if (id.includes("storm_lancer") || id.includes("vector")) beam = "storm_lance";
-  if (id.includes("rift")) beam = "rift_cut";
+  if (id.includes("apex") || id.includes("colossus") || id.includes("obsidian") || id.includes("dominion")) beam = "rail_line";
+  if (id.includes("storm_lancer") || id.includes("vector") || id.includes("ferro")) beam = "storm_lance";
+  if (id.includes("rift") || id.includes("void_stitch")) beam = "rift_cut";
   if (id.includes("prism")) beam = "prism_lance";
   if (hasLs) beam = "lifesteal_siphon";
   return {
@@ -340,7 +351,12 @@ export function spellFx(opts: {
     beam === "corona_flare" ||
     beam === "prism_lance" ||
     beam === "storm_lance" ||
-    beam === "rift_cut";
+    beam === "rift_cut" ||
+    beam === "ferro_spike" ||
+    beam === "quantum_fracture" ||
+    beam === "pulse_cascade" ||
+    beam === "frost_matrix" ||
+    beam === "dominion_core";
 
   return {
     id: nextFxId(),
@@ -550,6 +566,16 @@ export function beamLabel(beam?: BeamStyle): string {
       return "Storm Lance";
     case "rift_cut":
       return "Rift Cut";
+    case "ferro_spike":
+      return "Ferro Spike";
+    case "quantum_fracture":
+      return "Quantum Fracture";
+    case "pulse_cascade":
+      return "Pulse Cascade";
+    case "frost_matrix":
+      return "Frost Matrix";
+    case "dominion_core":
+      return "Dominion Core";
     case "slash":
     default:
       return "Blade Clash";

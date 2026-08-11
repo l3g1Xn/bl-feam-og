@@ -161,6 +161,16 @@ function beamTintFor(beam?: string, fallback = "#b0b8c8"): string {
       return "#70c8ff";
     case "rift_cut":
       return "#c080ff";
+    case "ferro_spike":
+      return "#d8a060";
+    case "quantum_fracture":
+      return "#b070ff";
+    case "pulse_cascade":
+      return "#60e0ff";
+    case "frost_matrix":
+      return "#90d8ff";
+    case "dominion_core":
+      return "#ffb040";
     default:
       return fallback;
   }
@@ -345,15 +355,15 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
     const color = schoolColor(fx.school);
     const glow = schoolGlow(fx.school);
     const pKind =
-      fx.beam === "lifesteal_siphon" || fx.beam === "singularity" || fx.beam === "rift_cut"
+      fx.beam === "lifesteal_siphon" || fx.beam === "singularity" || fx.beam === "rift_cut" || fx.beam === "quantum_fracture"
         ? "void"
-        : fx.beam === "ion_lance" || fx.beam === "prism_lance" || fx.beam === "storm_lance"
+        : fx.beam === "ion_lance" || fx.beam === "prism_lance" || fx.beam === "storm_lance" || fx.beam === "ferro_spike" || fx.beam === "pulse_cascade"
           ? "arc"
           : fx.beam === "swarm_cloud" || fx.beam === "helix_weave"
             ? "leaf"
-            : fx.beam === "nova_burst" || fx.beam === "ember_orb" || fx.beam === "corona_flare"
+            : fx.beam === "nova_burst" || fx.beam === "ember_orb" || fx.beam === "corona_flare" || fx.beam === "dominion_core"
               ? "ember"
-              : fx.beam === "grav_well"
+              : fx.beam === "grav_well" || fx.beam === "frost_matrix"
                 ? "smoke"
                 : particleKindForSchool(fx.school);
 
@@ -490,6 +500,11 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
         fx.beam === "helix_weave" ||
         fx.beam === "storm_lance" ||
         fx.beam === "rift_cut" ||
+        fx.beam === "ferro_spike" ||
+        fx.beam === "quantum_fracture" ||
+        fx.beam === "pulse_cascade" ||
+        fx.beam === "frost_matrix" ||
+        fx.beam === "dominion_core" ||
         fx.beam === "nova_burst" ||
         fx.beam === "hex_grid" ||
         fx.beam === "mortar_arc" ||

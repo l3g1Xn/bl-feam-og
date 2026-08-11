@@ -9,6 +9,7 @@ import {
   STORE_STOCK_WAVE_C_IDS,
   STORE_STOCK_WAVE_D_IDS,
   STORE_STOCK_WAVE_E_IDS,
+  STORE_STOCK_WAVE_F_IDS,
   STORE_STOCK_WAVE_IDS,
   buildStarterDeck,
   getCard,
@@ -44,6 +45,7 @@ export function ticketPrice(cardId: string, level: number): number {
   let base = 30 + c.cost * 18;
   if (exclusive) base = 90 + c.cost * 35;
   if (cardId === "dominus_reximus") base = 420;
+  if (cardId === "dominion_core") base = 380;
   base *= 2;
   if (
     cardId === "titan_edge" ||
@@ -62,7 +64,11 @@ export function ticketPrice(cardId: string, level: number): number {
     cardId === "prism_lance" ||
     cardId === "corona_burst" ||
     cardId === "obsidian_rex" ||
-    cardId === "storm_lancer"
+    cardId === "storm_lancer" ||
+    cardId === "ferro_lance" ||
+    cardId === "pulse_cascade" ||
+    cardId === "laser_hydra" ||
+    cardId === "dominion_core"
   ) {
     base = Math.round(base * 1.08);
   }
@@ -96,11 +102,12 @@ const WAVE_POOLS = [
   STORE_STOCK_WAVE_C_IDS,
   STORE_STOCK_WAVE_D_IDS,
   STORE_STOCK_WAVE_E_IDS,
+  STORE_STOCK_WAVE_F_IDS,
 ] as const;
 
-/** Cycle A → B → C → D → E by week hash so stock never stagnates. */
+/** Cycle A → B → C → D → E → F by week hash so stock never stagnates. */
 export function activeWavePool(week = storeWeekKey()): readonly string[] {
-  const n = hashStr(week) % 5;
+  const n = hashStr(week) % 6;
   return WAVE_POOLS[n]!;
 }
 
@@ -141,6 +148,7 @@ export function dealDiscountPct(cardId: string, week = storeWeekKey()): number {
 
 export function minLevelFor(cardId: string): number {
   if (cardId === "dominus_reximus") return 5;
+  if (cardId === "dominion_core") return 5;
   if (
     cardId === "void_sovereign" ||
     cardId === "titan_edge" ||
@@ -154,7 +162,10 @@ export function minLevelFor(cardId: string): number {
     cardId === "legion_beacon" ||
     cardId === "obsidian_rex" ||
     cardId === "corona_burst" ||
-    cardId === "prism_lance"
+    cardId === "prism_lance" ||
+    cardId === "laser_hydra" ||
+    cardId === "ferro_lance" ||
+    cardId === "pulse_cascade"
   )
     return 4;
   if (
@@ -171,7 +182,11 @@ export function minLevelFor(cardId: string): number {
     cardId === "void_pike" ||
     cardId === "storm_lancer" ||
     cardId === "helix_guard" ||
-    cardId === "rift_cutter"
+    cardId === "rift_cutter" ||
+    cardId === "titan_clamp" ||
+    cardId === "mirror_guard" ||
+    cardId === "void_stitch" ||
+    cardId === "frost_matrix"
   )
     return 3;
   if (isStoreExclusive(cardId)) return 2;
@@ -247,6 +262,8 @@ export function rotationLabel(week = storeWeekKey()): string {
           ? "Wave C"
           : wave === STORE_STOCK_WAVE_D_IDS
             ? "Wave D"
-            : "Wave E";
+            : wave === STORE_STOCK_WAVE_E_IDS
+              ? "Wave E"
+              : "Wave F";
   return `${waveName} · Week ${week} deals: ${deals}`;
 }

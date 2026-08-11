@@ -45,7 +45,11 @@ export type SfxId =
   | "corona"
   | "helix"
   | "storm"
-  | "rift";
+  | "rift"
+  | "ferro"
+  | "quantum"
+  | "cascade"
+  | "dominion";
 
 let ctx: AudioContext | null = null;
 let masterGain: GainNode | null = null;
@@ -852,6 +856,64 @@ function riftCut(c: AudioContext, dest: AudioNode, t0: number, k: number) {
   impactTail(c, dest, t0 + 0.08, k * 0.55);
 }
 
+/** Ferro spike — magnetic rail crack + steel harmonics. */
+function ferroSpike(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  railShot(c, dest, t0, k * 1.1);
+  powerMetal(c, dest, t0 + 0.02, k * 0.9, true);
+  for (let i = 0; i < 5; i++) {
+    tone(c, dest, 520 + i * 180, t0 + i * 0.016, 0.1, "square", 0.1 * k, 200);
+  }
+  seismicThump(c, dest, t0 + 0.06, 0.6 * k, 42);
+  impactTail(c, dest, t0 + 0.1, k * 0.7);
+}
+
+/** Quantum fracture — phase stutter + prism crystal shards. */
+function quantumFracture(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  phaseRift(c, dest, t0, k * 0.95);
+  prismLance(c, dest, t0 + 0.03, k * 0.75);
+  [990, 1485, 2220, 2970].forEach((f, i) => {
+    tone(c, dest, f, t0 + 0.02 + i * 0.02, 0.12, "sine", 0.11 * k, f * 1.5);
+  });
+  noiseShot(c, dest, t0 + 0.05, 0.16, 0.2 * k, {
+    color: "white",
+    hipass: 3500,
+    lowpass: 14000,
+  });
+  impactTail(c, dest, t0 + 0.09, k * 0.55);
+}
+
+/** Pulse cascade — multi-ring EMP stabs. */
+function pulseCascade(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  ionCrack(c, dest, t0, k * 0.9);
+  for (let i = 0; i < 6; i++) {
+    photonStorm(c, dest, t0 + i * 0.045, k * (0.55 - i * 0.04));
+    tone(
+      c,
+      dest,
+      240 + i * 90,
+      t0 + i * 0.045,
+      0.08,
+      "sawtooth",
+      0.12 * k,
+      80,
+    );
+  }
+  detonation(c, dest, t0 + 0.12, k * 0.75, true);
+  impactTail(c, dest, t0 + 0.14, k * 0.6);
+}
+
+/** Dominion core — capital reactor detonation. */
+function dominionCore(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  novaBreach(c, dest, t0, k * 1.05);
+  gravCrush(c, dest, t0 + 0.03, k * 0.9);
+  detonation(c, dest, t0 + 0.06, k * 1.0, true);
+  seismicThump(c, dest, t0 + 0.08, 0.75 * k, 28);
+  for (let i = 0; i < 4; i++) {
+    plasmaBlast(c, dest, t0 + 0.05 + i * 0.05, k * 0.5);
+  }
+  impactTail(c, dest, t0 + 0.14, k * 0.85);
+}
+
 export function playSfx(id: SfxId, intensity = 1) {
   if (muted || volume <= 0.01) return;
   const c = ac();
@@ -1017,6 +1079,22 @@ export function playSfx(id: SfxId, intensity = 1) {
       riftCut(c, dest, t0, k);
       riftCut(c, room, t0, k * 0.3);
       break;
+    case "ferro":
+      ferroSpike(c, dest, t0, k);
+      ferroSpike(c, room, t0, k * 0.28);
+      break;
+    case "quantum":
+      quantumFracture(c, dest, t0, k);
+      quantumFracture(c, room, t0, k * 0.3);
+      break;
+    case "cascade":
+      pulseCascade(c, dest, t0, k);
+      pulseCascade(c, room, t0, k * 0.28);
+      break;
+    case "dominion":
+      dominionCore(c, dest, t0, k);
+      dominionCore(c, room, t0, k * 0.32);
+      break;
     case "ui":
       uiClick(c, dest, t0);
       break;
@@ -1068,10 +1146,20 @@ export function playCombatSfx(opts: {
       playSfx("charge_rush", power * 0.5);
     } else if (
       card.includes("rift") ||
-      beam === "rift_cut"
+      beam === "rift_cut" ||
+      card.includes("void_stitch")
     ) {
       playSfx("rift", power * 1.1);
       playSfx("blade", power * 0.45);
+    } else if (card.includes("ferro") || beam === "ferro_spike") {
+      playSfx("ferro", power * 1.15);
+      playSfx("rail", power * 0.5);
+    } else if (card.includes("quantum") || beam === "quantum_fracture") {
+      playSfx("quantum", power * 1.1);
+      playSfx("phase", power * 0.45);
+    } else if (card.includes("laser_hydra") || card.includes("dominion")) {
+      playSfx("dominion", power * 1.05);
+      playSfx("plasma", power * 0.55);
     } else if (
       card.includes("vector") ||
       card.includes("prism") ||
@@ -1082,6 +1170,8 @@ export function playCombatSfx(opts: {
     } else if (
       card.includes("helix") ||
       card.includes("anchor") ||
+      card.includes("mirror_guard") ||
+      card.includes("titan_clamp") ||
       beam === "helix_weave"
     ) {
       playSfx("helix", power * 0.95);
@@ -1205,6 +1295,31 @@ export function playCombatSfx(opts: {
       beam === "rift_cut"
     ) {
       playSfx("rift", power * 1.1);
+    } else if (card.includes("ferro") || beam === "ferro_spike") {
+      playSfx("ferro", power * 1.15);
+    } else if (card.includes("quantum") || beam === "quantum_fracture") {
+      playSfx("quantum", power * 1.1);
+    } else if (
+      card.includes("pulse_cascade") ||
+      beam === "pulse_cascade"
+    ) {
+      playSfx("cascade", power * 1.15);
+    } else if (
+      card.includes("dominion") ||
+      beam === "dominion_core"
+    ) {
+      playSfx("dominion", power * 1.2);
+    } else if (
+      card.includes("frost_matrix") ||
+      beam === "frost_matrix"
+    ) {
+      playSfx("frost", power * 1.1);
+      playSfx("matrix", power * 0.7);
+    } else if (
+      card.includes("ion_symphony")
+    ) {
+      playSfx("ion", power * 1.05);
+      playSfx("matrix", power * 0.75);
     } else if (card.includes("hex") || beam === "hex_grid") {
       playSfx("ion", power * 0.85);
       playSfx("aoe_burst", power * 0.75);

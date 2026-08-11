@@ -472,3 +472,56 @@ a:focus-visible,
     --fx-bloom: 1.22;
   }
 }
+
+/* wave-f-mobile-2026-08-11 — foldables, notched tablets, ultra-wide landscape */
+@media (pointer: coarse) {
+  .launcher-shell button,
+  .game-menu button,
+  .settings-panel button {
+    min-height: 48px;
+    padding-inline: 0.85rem;
+  }
+  .battle-hand {
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Fold / dual-screen width band */
+@media (min-width: 700px) and (max-width: 900px) and (orientation: landscape) {
+  .battle-stage {
+    --board-gap: 0.35rem;
+  }
+  .minion-token {
+    min-width: 3.25rem;
+  }
+}
+
+/* Very tall portrait phones — keep title logo readable, never clip */
+@media (orientation: portrait) and (max-width: 430px) {
+  .title-logo-frame img,
+  img[alt*="Battle Legions"] {
+    max-width: min(100%, 22rem);
+    height: auto;
+  }
+}
+
+/* Dynamic island / home indicator — keep end-turn + hand above system chrome */
+@supports (padding: max(0px)) {
+  .battle-hud-bottom,
+  .end-turn-row,
+  .battle-hand {
+    padding-bottom: max(0.4rem, env(safe-area-inset-bottom, 0px));
+  }
+  .battle-hud-top {
+    padding-top: max(0.25rem, env(safe-area-inset-top, 0px));
+  }
+}
+
+/* Prevent accidental text selection during drag combat on mobile */
+.battle-stage,
+.minion-token,
+.battle-hand {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}

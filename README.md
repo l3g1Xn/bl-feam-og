@@ -31,7 +31,7 @@ You run a modern combat legion armed with:
 - Steel, lasers, and beams that would make a tech priest blush
 - Minions with **Taunt**, **Immune**, **Reborn**, and board-wide buffs
 - Store exclusives (yes, including **Dominus Reximus** — the unit your tickets warned you about)
-- **Store Waves A / B / C** with weekly rotation deals
+- **Store Waves A–F** with weekly rotation deals
 - A live math HUD so "was that lethal?" is never a mystery novel
 
 Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle SFX (nova / grav / swarm layers), and an opponent whose name looks like it escaped a 2003 IRC channel.
@@ -51,7 +51,7 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle
 | Thing | What it does |
 | --- | --- |
 | **Ranked practice** | Normal / Hard AI — same rules, different pain |
-| **Ticket store** | Spend tickets on exclusives (Wave A/B/C rotation, prices ×2 rebalance, level-gated) |
+| **Ticket store** | Spend tickets on exclusives (Wave A–F rotation, prices ×2 rebalance, level-gated) |
 | **Collection** | Own cards, build the deck, view portraits |
 | **LX_SAVE_GAME** | Auto-save on close; load from the main menu (local only) |
 | **PIN vault (APK)** | Local lock on reopen — no cloud, no forgot-password email |
@@ -69,14 +69,14 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle
 
 ## Version notes
 
-**1.06.666** — *Legion TraX + combat polish + Wave E stock*
+**1.06.666** — *Legion TraX + combat polish + Wave F stock*
 
-- Brand stamp **1.06.666** (versionCode 106666) — version held; Wave E content rotates
+- Brand stamp **1.06.666** (versionCode 106666) — version held; Wave F content rotates
 - Legion TraX Part 1 and Part 2 soundtrack
-- Typed combat engine with denser VFX/SFX (nova · grav · swarm · prism · corona · storm beams)
-- Store Waves A / B / C / D / **E** weekly rotation (Wave E prism/helix/corona stock)
+- Typed combat engine with denser VFX/SFX (nova · grav · swarm · prism · corona · storm · ferro · quantum · cascade · dominion beams)
+- Store Waves A / B / C / D / E / **F** weekly rotation (Wave F ferro/quantum/dominion stock)
 - Fresh version-stamped title logo on launcher and README
-- Mobile-first safe areas, coarse-pointer targets, landscape phone layouts
+- Mobile-first safe areas, coarse-pointer targets, landscape phone / foldable layouts
 - Official Gradle release build · targetSdk 34
 - 350 MB APK ceiling retained
 
