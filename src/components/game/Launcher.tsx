@@ -379,7 +379,8 @@ function HomePanel({
             </h1>
             <p className="mt-2 max-w-xl text-sm leading-relaxed text-fg-muted">
               High-tech legion combat with medieval physics. Discombobulator beams,
-              laser protocols, Dominus Reximus exclusives, Wave F store stock, and
+              laser protocols, Dominus Reximus exclusives, Wave G store stock, and
+
 
 
               transparent combat math — same build as the Android package.

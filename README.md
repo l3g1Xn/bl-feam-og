@@ -31,10 +31,10 @@ You run a modern combat legion armed with:
 - Steel, lasers, and beams that would make a tech priest blush
 - Minions with **Taunt**, **Immune**, **Reborn**, and board-wide buffs
 - Store exclusives (yes, including **Dominus Reximus** — the unit your tickets warned you about)
-- **Store Waves A–F** with weekly rotation deals
+- **Store Waves A–G** with weekly rotation deals
 - A live math HUD so "was that lethal?" is never a mystery novel
 
-Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle SFX (nova / grav / swarm layers), and an opponent whose name looks like it escaped a 2003 IRC channel.
+Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle SFX (nova / grav / swarm / null / kinetic layers), and an opponent whose name looks like it escaped a 2003 IRC channel.
 
 ---
 
@@ -51,7 +51,7 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle
 | Thing | What it does |
 | --- | --- |
 | **Ranked practice** | Normal / Hard AI — same rules, different pain |
-| **Ticket store** | Spend tickets on exclusives (Wave A–F rotation, prices ×2 rebalance, level-gated) |
+| **Ticket store** | Spend tickets on exclusives (Wave A–G rotation, prices ×2 rebalance, level-gated) |
 | **Collection** | Own cards, build the deck, view portraits |
 | **LX_SAVE_GAME** | Auto-save on close; load from the main menu (local only) |
 | **PIN vault (APK)** | Local lock on reopen — no cloud, no forgot-password email |
@@ -59,26 +59,34 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle
 ### Audio and graphics
 
 - **Legion TraX soundtrack** — Part 1 and Part 2 only
-- Combat SFX stay layered (ion / photon / nova / grav / swarm / execute); music ducks during battle
+- Combat SFX stay layered (ion / photon / nova / grav / swarm / null / kinetic / eclipse / overlord / execute); music ducks during battle
 - Multi-layer battle VFX (beams, particles, hit-stop, residual trails)
 - Graphics quality live: **Low → UltraHD**
 - Canvas-drawn menu chrome on launcher panels, store, and in-match exit menu
-- Mobile-first safe areas, coarse-pointer hit targets, landscape phone layouts
+- Mobile-first safe areas, coarse-pointer hit targets, landscape phone / foldable layouts
 
 ---
 
 ## Version notes
 
-**1.06.666** — *Legion TraX + combat polish + Wave F stock*
+**1.06.666** — *Legion TraX + combat polish + Wave G stock*
 
-- Brand stamp **1.06.666** (versionCode 106666) — version held; Wave F content rotates
+- Brand stamp **1.06.666** (versionCode 106666) — version held; Wave G content rotates
 - Legion TraX Part 1 and Part 2 soundtrack
-- Typed combat engine with denser VFX/SFX (nova · grav · swarm · prism · corona · storm · ferro · quantum · cascade · dominion beams)
-- Store Waves A / B / C / D / E / **F** weekly rotation (Wave F ferro/quantum/dominion stock)
-- Fresh version-stamped title logo on launcher and README
+- Typed combat engine with denser VFX/SFX (nova · grav · swarm · prism · corona · storm · ferro · quantum · cascade · dominion · null · aether · kinetic · eclipse · overlord beams)
+- Store Waves A / B / C / D / E / F / **G** weekly rotation (Wave G null/aether/overlord stock)
+- Fresh version-stamped title logo on launcher and README (2026.08.12)
 - Mobile-first safe areas, coarse-pointer targets, landscape phone / foldable layouts
 - Official Gradle release build · targetSdk 34
 - 350 MB APK ceiling retained
+
+### Maintenance (2026.08.12)
+
+- **Wave G** exclusives: Null Spear · Aether Ward · Kinetic Breaker · Plasma Net · Spectral Rider · Mag-Rail Array · Biosteel Golem · Eclipse Lens · Shatter Node · Overlord Frame
+- Weekly store rotation now cycles **A → B → C → D → E → F → G**
+- New battle SFX layers: null · aether · kinetic · eclipse · overlord
+- Expanded beam VFX tints + particle budgets for Wave G protocols
+- Foldable / coarse-pointer / safe-area polish pass
 
 ---
 
@@ -88,7 +96,7 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle
 2. Install, open, and set PIN if asked
 3. Hit **Play** (or continue a save)
 4. Deploy, trade, read the math HUD, and do not face into Taunt
-5. Spend tickets in the store — check weekly Wave C deals
+5. Spend tickets in the store — check weekly Wave G deals
 
 ---
 

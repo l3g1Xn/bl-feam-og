@@ -54,7 +54,13 @@ export type BeamStyle =
   | "quantum_fracture"
   | "pulse_cascade"
   | "frost_matrix"
-  | "dominion_core";
+  | "dominion_core"
+  | "null_spear"
+  | "aether_shell"
+  | "kinetic_break"
+  | "plasma_net"
+  | "eclipse_lens"
+  | "overlord_frame";
 
 export interface FxEvent {
   id: number;
@@ -128,6 +134,16 @@ export function schoolToBeam(
   if (spellKind === "buff" || spellKind === "buff_all_friendly")
     return "nature_vine";
   if (id.includes("dominion")) return "dominion_core";
+  if (id.includes("overlord")) return "overlord_frame";
+  if (id.includes("null_spear")) return "null_spear";
+  if (id.includes("aether")) return "aether_shell";
+  if (id.includes("kinetic")) return "kinetic_break";
+  if (id.includes("plasma_net")) return "plasma_net";
+  if (id.includes("eclipse")) return "eclipse_lens";
+  if (id.includes("mag_rail") || id.includes("rail_array")) return "rail_line";
+  if (id.includes("shatter")) return "quantum_fracture";
+  if (id.includes("biosteel")) return "nature_vine";
+  if (id.includes("spectral")) return "lifesteal_siphon";
   if (id.includes("ferro")) return "ferro_spike";
   if (id.includes("quantum")) return "quantum_fracture";
   if (id.includes("pulse_cascade") || (id.includes("cascade") && id.includes("pulse")))
@@ -269,10 +285,11 @@ export function meleeFx(opts: {
   if (id.includes("phase")) beam = "phase_rift";
   if (id.includes("bastion") || id.includes("phalanx") || id.includes("warden") || id.includes("helix") || id.includes("anchor") || id.includes("mirror") || id.includes("clamp"))
     beam = "aegis_shell";
-  if (id.includes("apex") || id.includes("colossus") || id.includes("obsidian") || id.includes("dominion")) beam = "rail_line";
-  if (id.includes("storm_lancer") || id.includes("vector") || id.includes("ferro")) beam = "storm_lance";
-  if (id.includes("rift") || id.includes("void_stitch")) beam = "rift_cut";
-  if (id.includes("prism")) beam = "prism_lance";
+  if (id.includes("apex") || id.includes("colossus") || id.includes("obsidian") || id.includes("dominion") || id.includes("overlord")) beam = "rail_line";
+  if (id.includes("storm_lancer") || id.includes("vector") || id.includes("ferro") || id.includes("kinetic") || id.includes("null")) beam = "storm_lance";
+  if (id.includes("rift") || id.includes("void_stitch") || id.includes("spectral")) beam = "rift_cut";
+  if (id.includes("prism") || id.includes("shatter")) beam = "prism_lance";
+  if (id.includes("aether") || id.includes("biosteel")) beam = "aegis_shell";
   if (hasLs) beam = "lifesteal_siphon";
   return {
     id: nextFxId(),
@@ -356,7 +373,13 @@ export function spellFx(opts: {
     beam === "quantum_fracture" ||
     beam === "pulse_cascade" ||
     beam === "frost_matrix" ||
-    beam === "dominion_core";
+    beam === "dominion_core" ||
+    beam === "null_spear" ||
+    beam === "aether_shell" ||
+    beam === "kinetic_break" ||
+    beam === "plasma_net" ||
+    beam === "eclipse_lens" ||
+    beam === "overlord_frame";
 
   return {
     id: nextFxId(),

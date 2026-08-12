@@ -171,6 +171,18 @@ function beamTintFor(beam?: string, fallback = "#b0b8c8"): string {
       return "#90d8ff";
     case "dominion_core":
       return "#ffb040";
+    case "null_spear":
+      return "#e8f0ff";
+    case "aether_shell":
+      return "#70e0ff";
+    case "kinetic_break":
+      return "#e8a050";
+    case "plasma_net":
+      return "#ff7030";
+    case "eclipse_lens":
+      return "#a060e0";
+    case "overlord_frame":
+      return "#ff9040";
     default:
       return fallback;
   }
@@ -355,13 +367,13 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
     const color = schoolColor(fx.school);
     const glow = schoolGlow(fx.school);
     const pKind =
-      fx.beam === "lifesteal_siphon" || fx.beam === "singularity" || fx.beam === "rift_cut" || fx.beam === "quantum_fracture"
+      fx.beam === "lifesteal_siphon" || fx.beam === "singularity" || fx.beam === "rift_cut" || fx.beam === "quantum_fracture" || fx.beam === "eclipse_lens" || fx.beam === "null_spear"
         ? "void"
-        : fx.beam === "ion_lance" || fx.beam === "prism_lance" || fx.beam === "storm_lance" || fx.beam === "ferro_spike" || fx.beam === "pulse_cascade"
+        : fx.beam === "ion_lance" || fx.beam === "prism_lance" || fx.beam === "storm_lance" || fx.beam === "ferro_spike" || fx.beam === "pulse_cascade" || fx.beam === "kinetic_break" || fx.beam === "aether_shell"
           ? "arc"
           : fx.beam === "swarm_cloud" || fx.beam === "helix_weave"
             ? "leaf"
-            : fx.beam === "nova_burst" || fx.beam === "ember_orb" || fx.beam === "corona_flare" || fx.beam === "dominion_core"
+            : fx.beam === "nova_burst" || fx.beam === "ember_orb" || fx.beam === "corona_flare" || fx.beam === "dominion_core" || fx.beam === "overlord_frame" || fx.beam === "plasma_net"
               ? "ember"
               : fx.beam === "grav_well" || fx.beam === "frost_matrix"
                 ? "smoke"
@@ -505,6 +517,12 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
         fx.beam === "pulse_cascade" ||
         fx.beam === "frost_matrix" ||
         fx.beam === "dominion_core" ||
+        fx.beam === "null_spear" ||
+        fx.beam === "aether_shell" ||
+        fx.beam === "kinetic_break" ||
+        fx.beam === "plasma_net" ||
+        fx.beam === "eclipse_lens" ||
+        fx.beam === "overlord_frame" ||
         fx.beam === "nova_burst" ||
         fx.beam === "hex_grid" ||
         fx.beam === "mortar_arc" ||

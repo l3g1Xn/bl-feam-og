@@ -49,7 +49,12 @@ export type SfxId =
   | "ferro"
   | "quantum"
   | "cascade"
-  | "dominion";
+  | "dominion"
+  | "null"
+  | "aether"
+  | "kinetic"
+  | "eclipse"
+  | "overlord";
 
 let ctx: AudioContext | null = null;
 let masterGain: GainNode | null = null;
@@ -914,6 +919,61 @@ function dominionCore(c: AudioContext, dest: AudioNode, t0: number, k: number) {
   impactTail(c, dest, t0 + 0.14, k * 0.85);
 }
 
+/** Null spear — void monowire + magnetic rail crack. */
+function nullSpear(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  voidLayer(c, dest, t0, k * 0.95);
+  railShot(c, dest, t0 + 0.02, k * 1.05);
+  chainBlade(c, dest, t0 + 0.03, k * 0.85);
+  noiseShot(c, dest, t0, 0.06, 0.38 * k, { color: "white", hipass: 4200 });
+  [880, 1320, 1980].forEach((f, i) => {
+    tone(c, dest, f, t0 + 0.01 + i * 0.018, 0.1, "square", 0.1 * k, f * 1.4);
+  });
+  impactTail(c, dest, t0 + 0.1, k * 0.65);
+}
+
+/** Aether ward — frost matrix + shield lattice. */
+function aetherWard(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  frostLayer(c, dest, t0, k * 0.95);
+  shieldUp(c, dest, t0 + 0.02, k * 0.9);
+  matrixLock(c, dest, t0 + 0.04, k * 0.7);
+  for (let i = 0; i < 4; i++) {
+    tone(c, dest, 640 + i * 160, t0 + i * 0.03, 0.12, "sine", 0.09 * k, 900);
+  }
+  impactTail(c, dest, t0 + 0.1, k * 0.45);
+}
+
+/** Kinetic break — heavy steel impact stack. */
+function kineticBreak(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  powerMetal(c, dest, t0, k * 1.1, true);
+  chargeRush(c, dest, t0 + 0.01, k * 0.95);
+  seismicThump(c, dest, t0 + 0.04, 0.7 * k, 36);
+  detonation(c, dest, t0 + 0.05, k * 0.7, true);
+  impactTail(c, dest, t0 + 0.1, k * 0.75);
+}
+
+/** Eclipse lens — void choir + ion focus. */
+function eclipseLens(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  voidLayer(c, dest, t0, k * 1.0);
+  ionCrack(c, dest, t0 + 0.03, k * 0.85);
+  [220, 330, 440, 660].forEach((f, i) => {
+    tone(c, dest, f, t0 + i * 0.04, 0.18, "sine", 0.12 * k, f * 2);
+  });
+  noiseShot(c, dest, t0 + 0.08, 0.2, 0.18 * k, {
+    color: "pink",
+    hipass: 800,
+    lowpass: 5000,
+  });
+  impactTail(c, dest, t0 + 0.12, k * 0.55);
+}
+
+/** Overlord frame — dominion-class reactor with steel thump. */
+function overlordFrame(c: AudioContext, dest: AudioNode, t0: number, k: number) {
+  dominionCore(c, dest, t0, k * 0.95);
+  powerMetal(c, dest, t0 + 0.04, k * 0.8, true);
+  railShot(c, dest, t0 + 0.06, k * 0.7);
+  impactTail(c, dest, t0 + 0.14, k * 0.9);
+}
+
 export function playSfx(id: SfxId, intensity = 1) {
   if (muted || volume <= 0.01) return;
   const c = ac();
@@ -1095,6 +1155,26 @@ export function playSfx(id: SfxId, intensity = 1) {
       dominionCore(c, dest, t0, k);
       dominionCore(c, room, t0, k * 0.32);
       break;
+    case "null":
+      nullSpear(c, dest, t0, k);
+      nullSpear(c, room, t0, k * 0.28);
+      break;
+    case "aether":
+      aetherWard(c, dest, t0, k);
+      aetherWard(c, room, t0, k * 0.3);
+      break;
+    case "kinetic":
+      kineticBreak(c, dest, t0, k);
+      kineticBreak(c, room, t0, k * 0.28);
+      break;
+    case "eclipse":
+      eclipseLens(c, dest, t0, k);
+      eclipseLens(c, room, t0, k * 0.3);
+      break;
+    case "overlord":
+      overlordFrame(c, dest, t0, k);
+      overlordFrame(c, room, t0, k * 0.32);
+      break;
     case "ui":
       uiClick(c, dest, t0);
       break;
@@ -1154,12 +1234,33 @@ export function playCombatSfx(opts: {
     } else if (card.includes("ferro") || beam === "ferro_spike") {
       playSfx("ferro", power * 1.15);
       playSfx("rail", power * 0.5);
-    } else if (card.includes("quantum") || beam === "quantum_fracture") {
+    } else if (card.includes("quantum") || beam === "quantum_fracture" || card.includes("shatter")) {
       playSfx("quantum", power * 1.1);
       playSfx("phase", power * 0.45);
-    } else if (card.includes("laser_hydra") || card.includes("dominion")) {
-      playSfx("dominion", power * 1.05);
+    } else if (
+      card.includes("laser_hydra") ||
+      card.includes("dominion") ||
+      card.includes("overlord") ||
+      beam === "overlord_frame" ||
+      beam === "dominion_core"
+    ) {
+      playSfx(card.includes("overlord") || beam === "overlord_frame" ? "overlord" : "dominion", power * 1.05);
       playSfx("plasma", power * 0.55);
+    } else if (card.includes("kinetic") || beam === "kinetic_break") {
+      playSfx("kinetic", power * 1.15);
+      playSfx("charge_rush", power * 0.5);
+    } else if (card.includes("aether") || beam === "aether_shell") {
+      playSfx("aether", power * 1.05);
+      playSfx("shield_up", power * 0.45);
+    } else if (card.includes("null_spear") || beam === "null_spear") {
+      playSfx("null", power * 1.15);
+      playSfx("blade", power * 0.5);
+    } else if (card.includes("spectral")) {
+      playSfx("void", power * 1.05);
+      playSfx("lifesteal", power * 0.55);
+    } else if (card.includes("biosteel")) {
+      playSfx("nature", power * 1.0);
+      playSfx("clash", power * 0.55);
     } else if (
       card.includes("vector") ||
       card.includes("prism") ||
@@ -1297,7 +1398,7 @@ export function playCombatSfx(opts: {
       playSfx("rift", power * 1.1);
     } else if (card.includes("ferro") || beam === "ferro_spike") {
       playSfx("ferro", power * 1.15);
-    } else if (card.includes("quantum") || beam === "quantum_fracture") {
+    } else if (card.includes("quantum") || beam === "quantum_fracture" || card.includes("shatter")) {
       playSfx("quantum", power * 1.1);
     } else if (
       card.includes("pulse_cascade") ||
@@ -1309,6 +1410,25 @@ export function playCombatSfx(opts: {
       beam === "dominion_core"
     ) {
       playSfx("dominion", power * 1.2);
+    } else if (
+      card.includes("overlord") ||
+      beam === "overlord_frame"
+    ) {
+      playSfx("overlord", power * 1.2);
+    } else if (card.includes("null_spear") || beam === "null_spear") {
+      playSfx("null", power * 1.15);
+    } else if (card.includes("aether") || beam === "aether_shell") {
+      playSfx("aether", power * 1.1);
+    } else if (card.includes("kinetic") || beam === "kinetic_break") {
+      playSfx("kinetic", power * 1.15);
+    } else if (card.includes("plasma_net") || beam === "plasma_net") {
+      playSfx("plasma", power * 1.1);
+      playSfx("aoe_burst", power * 0.7);
+    } else if (card.includes("eclipse") || beam === "eclipse_lens") {
+      playSfx("eclipse", power * 1.15);
+    } else if (card.includes("mag_rail") || card.includes("rail_array")) {
+      playSfx("rail", power * 1.2);
+      playSfx("ferro", power * 0.55);
     } else if (
       card.includes("frost_matrix") ||
       beam === "frost_matrix"

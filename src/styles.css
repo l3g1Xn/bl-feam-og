@@ -299,6 +299,43 @@
   }
 }
 
+/* Tall foldables / dual-pane — keep board centered, avoid edge clip */
+@media (min-height: 780px) and (max-width: 480px) and (orientation: portrait) {
+  .battle-stage {
+    max-width: 100%;
+  }
+  .battle-hand {
+    min-height: 5.25rem;
+  }
+}
+
+/* Short landscape tablets / foldables unfolded */
+@media (orientation: landscape) and (max-height: 420px) {
+  .battle-hand {
+    min-height: 3.85rem;
+  }
+  .minion-token {
+    min-width: 2.85rem;
+  }
+  button.end-turn,
+  .end-turn-btn {
+    min-height: 2.5rem;
+  }
+}
+
+/* Hover-capable desktop polish stays; touch devices get denser spacing */
+@media (hover: none) and (pointer: coarse) {
+  .app-shell {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  input,
+  textarea {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+}
+
 /* Tablets / large phones in portrait — use extra width without stretching HUD */
 @media (min-width: 600px) and (max-width: 1024px) and (orientation: portrait) {
   .battle-stage {
