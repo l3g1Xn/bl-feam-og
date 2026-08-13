@@ -1,7 +1,7 @@
 # Battle Legions: For We Are Many
 
 <p align="center">
-  <img src="public/ui/title_logo_v1.06.666.jpg" alt="Battle Legions v1.06.666" width="720" />
+  <img src="public/ui/title_logo_v1.06.666.svg" alt="Battle Legions v1.06.666 · Wave H" width="720" />
 </p>
 
 > Offline collectible card combat where high-tech legions fight with medieval physics, lasers, and math that actually tells you the truth.
@@ -15,7 +15,7 @@ Welcome, commander. This is the short, slightly sarcastic field manual for **Bat
 **Direct APK (recommended):**  
 **[Download BattleLegions.apk — Release 1.06.666](https://github.com/l3g1Xn/bl-feam-og/releases/download/apk-release-1.06.666/BattleLegions.apk)**
 
-- **Size:** ~101 MB (TraX included · 350 MB hard cap)
+- **Size:** ~116 MB (TraX included · 350 MB hard cap)
 - **Platform:** Android (signed offline package, landscape)
 - **Release page:** [apk-release-1.06.666](https://github.com/l3g1Xn/bl-feam-og/releases/tag/apk-release-1.06.666)
 - **Web / site practice:** play in browser at the Grok-hosted site (same rules, no PIN vault)
@@ -31,10 +31,10 @@ You run a modern combat legion armed with:
 - Steel, lasers, and beams that would make a tech priest blush
 - Minions with **Taunt**, **Immune**, **Reborn**, and board-wide buffs
 - Store exclusives (yes, including **Dominus Reximus** — the unit your tickets warned you about)
-- **Store Waves A–G** with weekly rotation deals
+- **Store Waves A–H** with weekly rotation deals
 - A live math HUD so "was that lethal?" is never a mystery novel
 
-Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle SFX (nova / grav / swarm / null / kinetic layers), and an opponent whose name looks like it escaped a 2003 IRC channel.
+Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle SFX (volt / glyph / halo / tungsten / tesla / orbit layers), and an opponent whose name looks like it escaped a 2003 IRC channel.
 
 ---
 
@@ -51,7 +51,7 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle
 | Thing | What it does |
 | --- | --- |
 | **Ranked practice** | Normal / Hard AI — same rules, different pain |
-| **Ticket store** | Spend tickets on exclusives (Wave A–G rotation, prices ×2 rebalance, level-gated) |
+| **Ticket store** | Spend tickets on exclusives (Wave A–H rotation, prices ×2 rebalance, level-gated) |
 | **Collection** | Own cards, build the deck, view portraits |
 | **LX_SAVE_GAME** | Auto-save on close; load from the main menu (local only) |
 | **PIN vault (APK)** | Local lock on reopen — no cloud, no forgot-password email |
@@ -59,7 +59,7 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle
 ### Audio and graphics
 
 - **Legion TraX soundtrack** — Part 1 and Part 2 only
-- Combat SFX stay layered (ion / photon / nova / grav / swarm / null / kinetic / eclipse / overlord / execute); music ducks during battle
+- Combat SFX stay layered (ion / photon / nova / grav / swarm / null / kinetic / eclipse / overlord / volt / glyph / halo / tungsten / tesla / orbit / execute); music ducks during battle
 - Multi-layer battle VFX (beams, particles, hit-stop, residual trails)
 - Graphics quality live: **Low → UltraHD**
 - Canvas-drawn menu chrome on launcher panels, store, and in-match exit menu
@@ -69,24 +69,25 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle
 
 ## Version notes
 
-**1.06.666** — *Legion TraX + combat polish + Wave G stock*
+**1.06.666** — *Legion TraX + combat polish + Wave H stock*
 
-- Brand stamp **1.06.666** (versionCode 106666) — version held; Wave G content rotates
+- Brand stamp **1.06.666** (versionCode 106666) — version held; Wave H content rotates
 - Legion TraX Part 1 and Part 2 soundtrack
-- Typed combat engine with denser VFX/SFX (nova · grav · swarm · prism · corona · storm · ferro · quantum · cascade · dominion · null · aether · kinetic · eclipse · overlord beams)
-- Store Waves A / B / C / D / E / F / **G** weekly rotation (Wave G null/aether/overlord stock)
-- Fresh version-stamped title logo on launcher and README (2026.08.12)
+- Typed combat engine with denser VFX/SFX (nova · grav · swarm · prism · corona · storm · ferro · quantum · cascade · dominion · null · aether · kinetic · eclipse · overlord · volt · glyph · halo · tungsten · tesla · orbit beams)
+- Store Waves A / B / C / D / E / F / G / **H** weekly rotation (Wave H halo/volt/glyph/tungsten stock)
+- Fresh version-stamped title logo on launcher and README (2026.08.13)
 - Mobile-first safe areas, coarse-pointer targets, landscape phone / foldable layouts
 - Official Gradle release build · targetSdk 34
 - 350 MB APK ceiling retained
 
-### Maintenance (2026.08.12)
+### Maintenance (2026.08.13)
 
-- **Wave G** exclusives: Null Spear · Aether Ward · Kinetic Breaker · Plasma Net · Spectral Rider · Mag-Rail Array · Biosteel Golem · Eclipse Lens · Shatter Node · Overlord Frame
-- Weekly store rotation now cycles **A → B → C → D → E → F → G**
-- New battle SFX layers: null · aether · kinetic · eclipse · overlord
-- Expanded beam VFX tints + particle budgets for Wave G protocols
+- **Wave H** exclusives: Volt Lance · Glyph Sentinel · Tungsten Ram · Halo Burst · Orbit Drone · Tesla Coil · Glyph Key · Halo Crown · Volt Runner · Tungsten Throne
+- Weekly store rotation now cycles **A → B → C → D → E → F → G → H**
+- New battle SFX layers: volt · glyph · halo · tungsten · tesla · orbit
+- Expanded beam VFX tints + particle budgets for Wave H protocols
 - Foldable / coarse-pointer / safe-area polish pass
+- Portrait reuse via `CARD_ART_ALIAS` — no duplicate JPGs (APK budget)
 
 ---
 
@@ -96,7 +97,7 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle
 2. Install, open, and set PIN if asked
 3. Hit **Play** (or continue a save)
 4. Deploy, trade, read the math HUD, and do not face into Taunt
-5. Spend tickets in the store — check weekly Wave G deals
+5. Spend tickets in the store — check weekly Wave H deals
 
 ---
 
