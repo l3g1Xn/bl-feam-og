@@ -12,6 +12,8 @@ import {
   subscribeGraphics,
 } from "@/game/graphics";
 import { playCombatSfx, unlockAudio } from "@/game/audio";
+import { playWaveHSfx } from "@/game/audioWaveH";
+import { isWaveHBeam, waveHParticleKind, waveHTint } from "@/game/fxBeams";
 import { keywordLabel } from "@/game/cards";
 import { cn } from "@/lib/utils";
 
@@ -114,6 +116,8 @@ function particleKindForSchool(
 }
 
 function beamTintFor(beam?: string, fallback = "#b0b8c8"): string {
+  const extra = waveHTint(beam);
+  if (extra) return extra;
   switch (beam) {
     case "ion_lance":
       return "#7ce8ff";
@@ -268,7 +272,6 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
     });
   }, []);
 
-  // Particle canvas loop
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -320,7 +323,6 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
       }
       ctx.globalAlpha = 1;
 
-      // Trauma shake decay on stage
       if (traumaRef.current > 0.001) {
         traumaRef.current *= 0.9;
         const stage = document.getElementById("battle-stage");
@@ -345,7 +347,6 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
     };
   }, []);
 
-  // Hit-stop CSS freeze
   useEffect(() => {
     const stage = document.getElementById("battle-stage");
     if (!stage) return;
@@ -360,6 +361,12 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
     runningId.current = fx.id;
 
     unlockAudio();
+    playWaveHSfx({
+      cardId: fx.cardId,
+      beam: fx.beam,
+      kind: fx.kind,
+      damage: fx.damage,
+    });
     const reduced = !motionEnabled();
     const profile = profileRef.current;
     const from = rectCenter(findEntity(fx.fromKey));
@@ -367,7 +374,8 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
     const color = schoolColor(fx.school);
     const glow = schoolGlow(fx.school);
     const pKind =
-      fx.beam === "lifesteal_siphon" || fx.beam === "singularity" || fx.beam === "rift_cut" || fx.beam === "quantum_fracture" || fx.beam === "eclipse_lens" || fx.beam === "null_spear"
+      waveHParticleKind(fx.beam) ??
+      (fx.beam === "lifesteal_siphon" || fx.beam === "singularity" || fx.beam === "rift_cut" || fx.beam === "quantum_fracture" || fx.beam === "eclipse_lens" || fx.beam === "null_spear"
         ? "void"
         : fx.beam === "ion_lance" || fx.beam === "prism_lance" || fx.beam === "storm_lance" || fx.beam === "ferro_spike" || fx.beam === "pulse_cascade" || fx.beam === "kinetic_break" || fx.beam === "aether_shell"
           ? "arc"
@@ -377,7 +385,7 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
               ? "ember"
               : fx.beam === "grav_well" || fx.beam === "frost_matrix"
                 ? "smoke"
-                : particleKindForSchool(fx.school);
+                : particleKindForSchool(fx.school));
 
     const stage = rootRef.current?.parentElement ?? document.body;
     promoteLayer(stage as HTMLElement, true);
@@ -496,6 +504,7 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
 
     if (!reduced && from && to) {
       const isBeamish =
+        isWaveHBeam(fx.beam) ||
         fx.beam === "laser" ||
         fx.beam === "arcane_beam" ||
         fx.beam === "frost_bolt" ||
@@ -534,25 +543,25 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
         const thick =
           fx.kind === "dominus"
             ? 7
-            : fx.beam === "rail_line"
+            : fx.beam === "rail_line" || fx.beam === "tungsten_ram"
               ? 6
-              : fx.beam === "photon_grid"
+              : fx.beam === "photon_grid" || fx.beam === "halo_burst"
                 ? 5.5
                 : fx.beam === "lifesteal_siphon"
                   ? 4.5
                   : fx.aoe
                     ? 5.5
-                    : fx.beam === "ion_lance"
+                    : fx.beam === "ion_lance" || fx.beam === "volt_lance" || fx.beam === "tesla_arc"
                       ? 4
                       : 3.5;
         const beamTint = beamTintFor(fx.beam, color);
         const haloColor =
-          fx.beam === "ion_lance"
-            ? "rgba(124,232,255,0.7)"
+          fx.beam === "ion_lance" || fx.beam === "volt_lance" || fx.beam === "tesla_arc"
+            ? "rgba(108,255,208,0.7)"
             : fx.beam === "lifesteal_siphon"
               ? "rgba(196,138,224,0.75)"
-              : fx.beam === "photon_grid"
-                ? "rgba(255,208,112,0.65)"
+              : fx.beam === "photon_grid" || fx.beam === "halo_burst"
+                ? "rgba(255,224,112,0.65)"
                 : glow;
         const core: BeamLine = {
           id: `b-${fx.id}`,
@@ -579,7 +588,6 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
           setBeams((b) => b.filter((x) => x.id !== core.id && x.id !== halo.id));
         }, Math.min(fx.durationMs * 0.65, 420));
 
-        // Reverse siphon for lifesteal
         if (fx.beam === "lifesteal_siphon" || fx.keywords?.includes("lifesteal")) {
           const siphon: BeamLine = {
             id: `bs-${fx.id}`,
@@ -650,7 +658,9 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
       if (
         fx.kind === "melee" ||
         fx.beam === "slash" ||
-        fx.beam === "laser"
+        fx.beam === "laser" ||
+        fx.beam === "tungsten_ram" ||
+        fx.beam === "volt_lance"
       ) {
         const ang = (Math.atan2(to.y - from.y, to.x - from.x) * 180) / Math.PI;
         const len = Math.hypot(to.x - from.x, to.y - from.y);
@@ -688,7 +698,7 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
         Math.min(
           5,
           fx.rings ??
-            (fx.aoe || fx.kind === "dominus"
+            (fx.aoe || fx.kind === "dominus" || fx.beam === "halo_burst"
               ? 4
               : fx.damage
                 ? 2
@@ -700,11 +710,13 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
       const waveColor =
         fx.beam === "lifesteal_siphon"
           ? "#c48ae0"
-          : fx.beam === "ion_lance"
-            ? "#7ce8ff"
-            : fx.beam === "aegis_shell"
-              ? "#8ec8ff"
-              : color;
+          : fx.beam === "ion_lance" || fx.beam === "volt_lance" || fx.beam === "tesla_arc"
+            ? "#6cffd0"
+            : fx.beam === "halo_burst"
+              ? "#ffe070"
+              : fx.beam === "aegis_shell" || fx.beam === "glyph_ward"
+                ? "#8ec8ff"
+                : color;
       for (let i = 0; i < ringCount; i++) {
         const wave: Shockwave = {
           id: `s-${fx.id}-${i}`,
@@ -767,7 +779,7 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
           id: `d-${fx.id}`,
           x: to.x,
           y: to.y - 12,
-          text: `−${fx.damage}`,
+          text: `\u2212${fx.damage}`,
           color: "var(--color-danger)",
         });
       }
@@ -776,7 +788,7 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
           id: `r-${fx.id}`,
           x: from.x,
           y: from.y - 12,
-          text: `−${fx.returnDamage}`,
+          text: `\u2212${fx.returnDamage}`,
           color: "var(--color-warn)",
         });
       }
