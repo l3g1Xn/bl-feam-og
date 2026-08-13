@@ -60,7 +60,13 @@ export type BeamStyle =
   | "kinetic_break"
   | "plasma_net"
   | "eclipse_lens"
-  | "overlord_frame";
+  | "overlord_frame"
+  | "volt_lance"
+  | "glyph_ward"
+  | "halo_burst"
+  | "tungsten_ram"
+  | "tesla_arc"
+  | "orbit_ring";
 
 export interface FxEvent {
   id: number;
@@ -135,6 +141,12 @@ export function schoolToBeam(
     return "nature_vine";
   if (id.includes("dominion")) return "dominion_core";
   if (id.includes("overlord")) return "overlord_frame";
+  if (id.includes("tungsten")) return "tungsten_ram";
+  if (id.includes("volt")) return "volt_lance";
+  if (id.includes("halo")) return "halo_burst";
+  if (id.includes("glyph")) return "glyph_ward";
+  if (id.includes("tesla")) return "tesla_arc";
+  if (id.includes("orbit_drone") || id.includes("orbit_ring")) return "orbit_ring";
   if (id.includes("null_spear")) return "null_spear";
   if (id.includes("aether")) return "aether_shell";
   if (id.includes("kinetic")) return "kinetic_break";
@@ -290,6 +302,12 @@ export function meleeFx(opts: {
   if (id.includes("rift") || id.includes("void_stitch") || id.includes("spectral")) beam = "rift_cut";
   if (id.includes("prism") || id.includes("shatter")) beam = "prism_lance";
   if (id.includes("aether") || id.includes("biosteel")) beam = "aegis_shell";
+  if (id.includes("tungsten")) beam = "tungsten_ram";
+  if (id.includes("tesla")) beam = "tesla_arc";
+  if (id.includes("volt")) beam = "volt_lance";
+  if (id.includes("glyph")) beam = "glyph_ward";
+  if (id.includes("orbit_drone")) beam = "orbit_ring";
+  if (id.includes("halo")) beam = "halo_burst";
   if (hasLs) beam = "lifesteal_siphon";
   return {
     id: nextFxId(),
@@ -379,7 +397,13 @@ export function spellFx(opts: {
     beam === "kinetic_break" ||
     beam === "plasma_net" ||
     beam === "eclipse_lens" ||
-    beam === "overlord_frame";
+    beam === "overlord_frame" ||
+    beam === "volt_lance" ||
+    beam === "glyph_ward" ||
+    beam === "halo_burst" ||
+    beam === "tungsten_ram" ||
+    beam === "tesla_arc" ||
+    beam === "orbit_ring";
 
   return {
     id: nextFxId(),
@@ -453,11 +477,13 @@ export function summonFx(opts: {
       ? "dominus_ring"
       : shielded
         ? "aegis_shell"
-        : id.includes("swarm") || id.includes("echo")
+        : id.includes("swarm") || id.includes("echo") || id.includes("orbit_drone")
           ? "swarm_cloud"
           : id.includes("chrono") || id.includes("phase")
             ? "phase_rift"
-            : "arcane_beam",
+            : id.includes("volt") || id.includes("tesla")
+              ? "tesla_arc"
+              : "arcane_beam",
     durationMs: reborn ? 540 : shielded ? 520 : 480,
     trauma: reborn ? 0.18 : shielded ? 0.14 : 0.11,
     hitStopMs: reborn ? 32 : 18,
@@ -599,6 +625,30 @@ export function beamLabel(beam?: BeamStyle): string {
       return "Frost Matrix";
     case "dominion_core":
       return "Dominion Core";
+    case "null_spear":
+      return "Null Spear";
+    case "aether_shell":
+      return "Aether Shell";
+    case "kinetic_break":
+      return "Kinetic Break";
+    case "plasma_net":
+      return "Plasma Net";
+    case "eclipse_lens":
+      return "Eclipse Lens";
+    case "overlord_frame":
+      return "Overlord Frame";
+    case "volt_lance":
+      return "Volt Lance";
+    case "glyph_ward":
+      return "Glyph Ward";
+    case "halo_burst":
+      return "Halo Burst";
+    case "tungsten_ram":
+      return "Tungsten Ram";
+    case "tesla_arc":
+      return "Tesla Arc";
+    case "orbit_ring":
+      return "Orbit Ring";
     case "slash":
     default:
       return "Blade Clash";
