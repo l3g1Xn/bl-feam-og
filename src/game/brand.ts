@@ -24,8 +24,8 @@ export const GITHUB_APK_URL =
 export const GITHUB_RELEASE_PAGE =
   "https://github.com/l3g1Xn/bl-feam-og/releases/tag/apk-release-1.06.666";
 
-/** Ship stamp — Wave G stock + denser combat SFX/VFX (version held at 1.06.666). */
-export const BUILD_ID = "2026.08.12-v1.06.666-waveG";
+/** Ship stamp — Wave H halo/volt/glyph/tungsten stock + combat SFX/VFX (version held at 1.06.666). */
+export const BUILD_ID = "2026.08.13-v1.06.666-waveH";
 
 /** Title logo asset (version-stamped banner for launcher / README). */
-export const TITLE_LOGO_SRC = "/ui/title_logo_v1.06.666.jpg";
+export const TITLE_LOGO_SRC = "/ui/title_logo_v1.06.666.svg";
