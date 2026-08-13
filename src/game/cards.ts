@@ -1175,6 +1175,120 @@ export const CARD_POOL: CardDef[] = [
     keywords: ["taunt", "shield", "reborn"],
     art: "ember",
   },
+
+  // Store stock wave H — 2026.08.13 maint (version held at 1.06.666)
+  {
+    id: "volt_lance",
+    name: "Volt Lance",
+    cost: 4,
+    type: "spell",
+    storeExclusive: true,
+    text: "Deal 5 (+Spell Power) — high-voltage kill-spike.",
+    spell: { kind: "damage", amount: 5, target: "enemy" },
+    art: "arcane",
+  },
+  {
+    id: "glyph_sentinel",
+    name: "Glyph Sentinel",
+    cost: 4,
+    type: "minion",
+    storeExclusive: true,
+    attack: 2,
+    health: 6,
+    text: "Taunt. Shield. Rune-locked perimeter turret.",
+    keywords: ["taunt", "shield"],
+    art: "arcane",
+  },
+  {
+    id: "tungsten_ram",
+    name: "Tungsten Ram",
+    cost: 5,
+    type: "minion",
+    storeExclusive: true,
+    attack: 5,
+    health: 4,
+    text: "Charge. Dense-metal breach chassis.",
+    keywords: ["charge"],
+    art: "steel",
+  },
+  {
+    id: "halo_burst",
+    name: "Halo Burst",
+    cost: 5,
+    type: "spell",
+    storeExclusive: true,
+    text: "Deal 3 (+Spell Power) to all enemies. Radiant flare ring.",
+    spell: { kind: "damage", amount: 3, target: "all_enemies" },
+    art: "arcane",
+  },
+  {
+    id: "orbit_drone",
+    name: "Orbit Drone",
+    cost: 3,
+    type: "minion",
+    storeExclusive: true,
+    attack: 2,
+    health: 3,
+    text: "Rush. Reborn. Satellite escort that never stays down.",
+    keywords: ["rush", "reborn"],
+    art: "ember",
+  },
+  {
+    id: "tesla_coil",
+    name: "Tesla Coil",
+    cost: 4,
+    type: "minion",
+    storeExclusive: true,
+    attack: 3,
+    health: 5,
+    text: "Taunt. Arc-capacitor tower.",
+    keywords: ["taunt"],
+    art: "arcane",
+  },
+  {
+    id: "glyph_key",
+    name: "Glyph Key",
+    cost: 3,
+    type: "spell",
+    storeExclusive: true,
+    text: "Gain +2 Spell Power. Draw 1 — cipher unlock.",
+    spell: { kind: "spell_power", amount: 2, draw: 1 },
+    art: "arcane",
+  },
+  {
+    id: "halo_crown",
+    name: "Halo Crown",
+    cost: 5,
+    type: "spell",
+    storeExclusive: true,
+    text: "Give all friendly minions +2/+2 radiant command.",
+    spell: { kind: "buff_all_friendly", attack: 2, health: 2 },
+    art: "arcane",
+  },
+  {
+    id: "volt_runner",
+    name: "Volt Runner",
+    cost: 3,
+    type: "minion",
+    storeExclusive: true,
+    attack: 4,
+    health: 2,
+    text: "Charge. Overclocked shock infantry.",
+    keywords: ["charge"],
+    art: "ember",
+  },
+  {
+    id: "tungsten_throne",
+    name: "Tungsten Throne",
+    cost: 8,
+    type: "minion",
+    storeExclusive: true,
+    attack: 8,
+    health: 9,
+    text: "Taunt. Shield. Reborn. Capital tungsten siege seat.",
+    keywords: ["taunt", "shield", "reborn"],
+    art: "steel",
+  },
 ];
 
 export const CARD_MAP: Record<string, CardDef> = Object.fromEntries(
@@ -1187,8 +1301,22 @@ export function getCard(id: string): CardDef {
   return c;
 }
 
+/** Reuse existing portraits — no duplicate JPGs (APK budget). */
+export const CARD_ART_ALIAS: Record<string, string> = {
+  volt_lance: "ion_lance",
+  glyph_sentinel: "pulse_sentinel",
+  tungsten_ram: "iron_colossus",
+  halo_burst: "nova_core",
+  orbit_drone: "echo_drone",
+  tesla_coil: "hex_lattice",
+  glyph_key: "orbital_scan",
+  halo_crown: "legion_beacon",
+  volt_runner: "flicker_blade",
+  tungsten_throne: "overlord_frame",
+};
+
 export function cardArtSrc(id: string): string {
-  return `/cards/${id}.jpg`;
+  return `/cards/${CARD_ART_ALIAS[id] ?? id}.jpg`;
 }
 
 export function classLabel(art: CardDef["art"]): string {
@@ -1351,6 +1479,20 @@ export const STORE_STOCK_WAVE_G_IDS = [
   "overlord_frame",
 ] as const;
 
+/** Wave H exclusives — halo / volt / glyph / tungsten stock (2026.08.13 maint). */
+export const STORE_STOCK_WAVE_H_IDS = [
+  "volt_lance",
+  "glyph_sentinel",
+  "tungsten_ram",
+  "halo_burst",
+  "orbit_drone",
+  "tesla_coil",
+  "glyph_key",
+  "halo_crown",
+  "volt_runner",
+  "tungsten_throne",
+] as const;
+
 /** Combined stock used by rotation spotlighting. */
 export const ALL_STOCK_WAVE_IDS = [
   ...STORE_STOCK_WAVE_IDS,
@@ -1360,6 +1502,7 @@ export const ALL_STOCK_WAVE_IDS = [
   ...STORE_STOCK_WAVE_E_IDS,
   ...STORE_STOCK_WAVE_F_IDS,
   ...STORE_STOCK_WAVE_G_IDS,
+  ...STORE_STOCK_WAVE_H_IDS,
 ] as const;
 
 export function minionValueScore(attack: number, health: number, cost: number): number {
