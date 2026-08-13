@@ -29,3 +29,7 @@ export const BUILD_ID = "2026.08.13-v1.06.666-waveH";
 
 /** Title logo asset (version-stamped banner for launcher / README). */
 export const TITLE_LOGO_SRC = "/ui/title_logo_v1.06.666.svg";
+
+/** Home / store wave badge — do not bump APK version when this cycles. */
+export const STORE_WAVE_LABEL = "Store Wave A–H";
+export const STORE_STOCK_BLURB = "Wave H store stock";
