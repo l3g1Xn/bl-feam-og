@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="Battle Legions v1.06.666 Wave H">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#07080c"/>
+      <stop offset="45%" stop-color="#12161f"/>
+      <stop offset="100%" stop-color="#1a120c"/>
+    </linearGradient>
+    <linearGradient id="steel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f2f4f8"/>
+      <stop offset="42%" stop-color="#c8d0dc"/>
+      <stop offset="100%" stop-color="#8a93a6"/>
+    </linearGradient>
+    <linearGradient id="blaze" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ff8c3a"/>
+      <stop offset="50%" stop-color="#ff6a1a"/>
+      <stop offset="100%" stop-color="#e8922a"/>
+    </linearGradient>
+    <linearGradient id="volt" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6cffd0"/>
+      <stop offset="100%" stop-color="#70fff0"/>
+    </linearGradient>
+    <radialGradient id="halo" cx="50%" cy="48%" r="48%">
+      <stop offset="0%" stop-color="#ff6a1a" stop-opacity="0.28"/>
+      <stop offset="55%" stop-color="#6cffd0" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#07080c" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="glow" x="-20%" y="-40%" width="140%" height="180%">
+      <feGaussianBlur stdDeviation="6" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <rect x="36" y="36" width="1528" height="828" fill="none" stroke="#ff6a1a" stroke-opacity="0.45" stroke-width="2"/>
+  <rect x="48" y="48" width="1504" height="804" fill="none" stroke="#6cffd0" stroke-opacity="0.22" stroke-width="1"/>
+  <circle cx="800" cy="430" r="340" fill="url(#halo)"/>
+  <polygon points="800,110 830,190 800,170 770,190" fill="url(#blaze)" opacity="0.9"/>
+  <path d="M180 250 L260 210 L220 250 L260 290 Z" fill="url(#volt)" opacity="0.55"/>
+  <path d="M1420 650 L1340 690 L1380 650 L1340 610 Z" fill="url(#blaze)" opacity="0.5"/>
+  <path d="M120 720 H480 M1120 180 H1480" stroke="#ff6a1a" stroke-opacity="0.35" stroke-width="2"/>
+  <path d="M200 200 H380 M1220 700 H1400" stroke="#6cffd0" stroke-opacity="0.28" stroke-width="1.5"/>
+  <text x="800" y="248" text-anchor="middle" fill="#ff6a1a" font-family="Segoe UI, system-ui, sans-serif" font-size="28" letter-spacing="14" font-weight="700">LEGIXN COMMAND</text>
+  <text x="800" y="400" text-anchor="middle" fill="url(#steel)" font-family="Segoe UI, system-ui, sans-serif" font-size="118" letter-spacing="10" font-weight="800" filter="url(#glow)">BATTLE</text>
+  <text x="800" y="530" text-anchor="middle" fill="url(#blaze)" font-family="Segoe UI, system-ui, sans-serif" font-size="128" letter-spacing="18" font-weight="800" filter="url(#glow)">LEGIONS</text>
+  <text x="800" y="600" text-anchor="middle" fill="#9aa4b5" font-family="Segoe UI, system-ui, sans-serif" font-size="26" letter-spacing="12" font-weight="600">FOR WE ARE MANY</text>
+  <rect x="560" y="640" width="480" height="56" rx="28" fill="#10131a" stroke="#ff6a1a" stroke-width="1.5"/>
+  <text x="800" y="677" text-anchor="middle" fill="#f2f4f8" font-family="ui-monospace, SF Mono, Menlo, Consolas, monospace" font-size="22" letter-spacing="3" font-weight="700">v1.06.666  ·  WAVE H</text>
+  <text x="800" y="780" text-anchor="middle" fill="#6b7488" font-family="Segoe UI, system-ui, sans-serif" font-size="16" letter-spacing="4">2026.08.13 MAINT  ·  HALO / VOLT / TUNGSTEN</text>
+</svg>
