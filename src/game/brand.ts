@@ -8,9 +8,11 @@ export const APK_DOWNLOAD_NAME = "BattleLegions.apk";
 /** Local / site-relative path (preview + hosts that allow large binaries). */
 export const APK_DOWNLOAD_PATH = "/downloads/BattleLegions.apk";
 /** Semantic version printed on the site and in the Android package. */
-export const APK_VERSION = "1.06.666";
-/** Approx size for UI copy — TraX soundtrack included (2 suites). */
-export const APK_SIZE_LABEL = "~116 MB";
+export const APK_VERSION = "1.0.7";
+/** Edition subtitle for 1.0.7. */
+export const APK_EDITION = "Cooked By Many";
+/** Approx size for UI copy — TraX soundtrack included (9 individual tracks). */
+export const APK_SIZE_LABEL = "~120 MB";
 /** Hard APK size ceiling (bytes) — 350 MB packed target with TraX + stock art. */
 export const APK_MAX_BYTES = 350 * 1024 * 1024;
 /**
@@ -18,14 +20,14 @@ export const APK_MAX_BYTES = 350 * 1024 * 1024;
  * Private repo: must be signed into GitHub as the owner to fetch.
  */
 export const GITHUB_REPO = "l3g1Xn/bl-feam-og";
-export const GITHUB_RELEASE_TAG = "apk-release-1.06.666";
+export const GITHUB_RELEASE_TAG = "apk-release-1.0.7";
 export const GITHUB_APK_URL =
-  "https://github.com/l3g1Xn/bl-feam-og/releases/download/apk-release-1.06.666/BattleLegions.apk";
+  "https://github.com/l3g1Xn/bl-feam-og/releases/download/apk-release-1.0.7/BattleLegions.apk";
 export const GITHUB_RELEASE_PAGE =
-  "https://github.com/l3g1Xn/bl-feam-og/releases/tag/apk-release-1.06.666";
+  "https://github.com/l3g1Xn/bl-feam-og/releases/tag/apk-release-1.0.7";
 
-/** Ship stamp — Wave J iridium/magma/quartz/nimbus/axiom stock + combat SFX/VFX (version held at 1.06.666). */
-export const BUILD_ID = "2026.08.15-v1.06.666-waveJ";
+/** Ship stamp — 1.0.7 Cooked By Many · 9-track TraX split · Wave J art complete. */
+export const BUILD_ID = "2026.08.15-v1.0.7-cooked-by-many";
 
 /** Title logo asset (version-stamped banner for launcher / README). */
 export const TITLE_LOGO_SRC = "/ui/title_logo_v1.06.666.svg";
