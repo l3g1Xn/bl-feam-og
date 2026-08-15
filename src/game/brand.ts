@@ -24,12 +24,12 @@ export const GITHUB_APK_URL =
 export const GITHUB_RELEASE_PAGE =
   "https://github.com/l3g1Xn/bl-feam-og/releases/tag/apk-release-1.06.666";
 
-/** Ship stamp — Wave H halo/volt/glyph/tungsten stock + combat SFX/VFX (version held at 1.06.666). */
-export const BUILD_ID = "2026.08.13-v1.06.666-waveH";
+/** Ship stamp — Wave I helion/cobalt/graphene/sonic/riftglass stock + combat SFX/VFX (version held at 1.06.666). */
+export const BUILD_ID = "2026.08.15-v1.06.666-waveI";
 
 /** Title logo asset (version-stamped banner for launcher / README). */
 export const TITLE_LOGO_SRC = "/ui/title_logo_v1.06.666.svg";
 
 /** Home / store wave badge — do not bump APK version when this cycles. */
-export const STORE_WAVE_LABEL = "Store Wave A–H";
-export const STORE_STOCK_BLURB = "Wave H store stock";
+export const STORE_WAVE_LABEL = "Store Wave A–I";
+export const STORE_STOCK_BLURB = "Wave I store stock";
