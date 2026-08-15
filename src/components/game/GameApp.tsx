@@ -256,6 +256,7 @@ function EndScreen() {
   const saveGameLocal = useGameStore((s) => s.saveGameLocal);
   const math = useGameStore((s) => s.math);
   const enemyName = useGameStore((s) => s.enemyName);
+  const matchId = useGameStore((s) => s.matchId);
   const rewardMatch = useMetaStore((s) => s.rewardMatch);
   const victory = phase === "victory";
   const [reward, setReward] = useState<MatchRewardResult | null>(null);
@@ -267,8 +268,8 @@ function EndScreen() {
     paid.current = true;
     unlockAudio();
     playSfx(victory ? "glory" : "defeat");
-    setReward(rewardMatch(victory));
-  }, [victory, rewardMatch]);
+    setReward(rewardMatch(victory, matchId));
+  }, [victory, rewardMatch, matchId]);
 
   return (
     <div className="relative flex h-dvh flex-col items-center justify-center overflow-hidden bg-bg px-4">
@@ -294,10 +295,16 @@ function EndScreen() {
           </p>
           {reward && (
             <div className="mt-4 flex max-w-sm flex-col items-center gap-1.5 text-center">
-              <div className="rounded-full border border-attack/40 bg-attack/15 px-4 py-1.5 text-sm font-semibold text-attack">
-                +{reward.tickets} tickets · +{reward.xp} XP
-              </div>
-              {reward.leveledUp && (
+              {reward.alreadyClaimed ? (
+                <div className="rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-sm font-semibold text-fg-muted">
+                  Rewards already claimed for this match
+                </div>
+              ) : (
+                <div className="rounded-full border border-attack/40 bg-attack/15 px-4 py-1.5 text-sm font-semibold text-attack">
+                  +{reward.tickets} tickets · +{reward.xp} XP
+                </div>
+              )}
+              {reward.leveledUp && !reward.alreadyClaimed && (
                 <div className="text-sm font-semibold text-primary">
                   Legion level {reward.newLevel}!
                 </div>
