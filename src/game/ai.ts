@@ -7,11 +7,9 @@ import {
 import {
   entityKeyHero,
   entityKeyMinion,
-  meleeFx,
-  spellFx,
-  summonFx,
   type FxEvent,
 } from "./fx";
+import { meleeFx, spellFx, summonFx } from "./fxPlay";
 import { hasTaunt, spellNeedsTarget } from "./math";
 import type { GameState, MinionInstance, SpellEffect, TargetRef } from "./types";
 
@@ -194,7 +192,6 @@ export async function runEnemyTurn(
 
     } else if (playFx && handDiff > 0) {
       const beforeHand = [...s.enemy.hand];
-      const afterHand = new Set(trial.enemy.hand);
       const cardId = beforeHand.find((id) => {
         const bc = beforeHand.filter((x) => x === id).length;
         const ac = trial.enemy.hand.filter((x) => x === id).length;
@@ -239,7 +236,6 @@ export async function runEnemyTurn(
     if (s.phase === "victory" || s.phase === "defeat") return;
   }
 
-  // Attacks
   safety = 14;
   while (safety-- > 0) {
     const attackers = s.enemy.board.filter((m) => m.canAttack && m.attack > 0);
@@ -247,7 +243,6 @@ export async function runEnemyTurn(
     const attacker = attackers.sort((a, b) => b.attack - a.attack)[0]!;
     const target = pickAttackTarget(s, attacker);
     if (!target) {
-      // exhaust
       s = {
         ...s,
         enemy: {
