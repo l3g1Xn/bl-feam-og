@@ -1,8 +1,10 @@
 /**
  * Wave H battle SFX — layered on top of school routing.
  * Reuses synthesized primitives (no binary audio, APK-safe).
+ * Unmatched cues fall through to Wave I (helion / cobalt / graphene / sonic / riftglass).
  */
 import { playSfx } from "./audio";
+import { playWaveISfx } from "./audioWaveI";
 
 export function playWaveHSfx(opts: {
   cardId?: string;
@@ -27,7 +29,7 @@ export function playWaveHSfx(opts: {
     beam === "tungsten_ram" ||
     beam === "tesla_arc" ||
     beam === "orbit_ring";
-  if (!hit) return false;
+  if (!hit) return playWaveISfx(opts);
 
   if (card.includes("volt") || beam === "volt_lance") {
     playSfx("ion", power * 1.15);
