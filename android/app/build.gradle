@@ -16,14 +16,19 @@ android {
     }
     signingConfigs {
         release {
-            // Passwords ONLY via CI env — never commit secrets.
+            // Passwords + optional path ONLY via CI env — never commit secrets or the .jks.
             def storePass = System.getenv("BL_STORE_PASS")
             def keyPass = System.getenv("BL_KEY_PASS")
+            def ksPath = System.getenv("BL_KEYSTORE_PATH")
             if (storePass == null || keyPass == null) {
                 // Unsigned local builds still compile; release CI must inject secrets.
                 println "WARNING: BL_STORE_PASS / BL_KEY_PASS not set — release signing skipped"
             } else {
-                storeFile file("../../mobile/signing/battlelegions-release.jks")
+                if (ksPath != null && !ksPath.isEmpty()) {
+                    storeFile file(ksPath)
+                } else {
+                    storeFile file("../../mobile/signing/battlelegions-release.jks")
+                }
                 storePassword storePass
                 keyAlias "battlelegions"
                 keyPassword keyPass

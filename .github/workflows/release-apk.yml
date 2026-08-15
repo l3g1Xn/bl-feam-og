@@ -34,8 +34,12 @@ jobs:
 
       - name: Install dependencies
         run: |
-          # Resolve overrides (uuid 11.1.1 / nanoid 3.3.18) and write lockfile
-          npm install --no-fund --no-audit
+          # Prefer lockfile when present; otherwise resolve overrides (uuid/nanoid)
+          if [ -f package-lock.json ]; then
+            npm ci --no-fund --no-audit || npm install --no-fund --no-audit
+          else
+            npm install --no-fund --no-audit
+          fi
 
       - name: Commit regenerated package-lock.json
         run: |
@@ -66,11 +70,32 @@ jobs:
           sed -i 's/targetSdkVersion = 36/targetSdkVersion = 34/' android/variables.gradle || true
           grep targetSdkVersion android/variables.gradle
 
+      - name: Materialize release keystore from secrets
+        env:
+          BL_KEYSTORE_BASE64: ${{ secrets.BL_KEYSTORE_BASE64 }}
+          BL_STORE_PASS: ${{ secrets.BL_STORE_PASS }}
+          BL_KEY_PASS: ${{ secrets.BL_KEY_PASS }}
+        run: |
+          set -euo pipefail
+          if [ -z "${BL_KEYSTORE_BASE64:-}" ] || [ -z "${BL_STORE_PASS:-}" ] || [ -z "${BL_KEY_PASS:-}" ]; then
+            echo "::error::Missing required secrets: BL_KEYSTORE_BASE64, BL_STORE_PASS, BL_KEY_PASS"
+            echo "Add them under Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+          mkdir -p mobile/signing
+          echo "$BL_KEYSTORE_BASE64" | base64 -d > mobile/signing/battlelegions-release.jks
+          chmod 600 mobile/signing/battlelegions-release.jks
+          # Sanity-check the keystore without printing secrets
+          keytool -list -keystore mobile/signing/battlelegions-release.jks -storepass "$BL_STORE_PASS" | head -5
+          echo "Keystore materialized at mobile/signing/battlelegions-release.jks"
+
       - name: Build release APK
         env:
-          BL_STORE_PASS: BL4WeAreMany!
-          BL_KEY_PASS: BL4WeAreMany!
+          BL_STORE_PASS: ${{ secrets.BL_STORE_PASS }}
+          BL_KEY_PASS: ${{ secrets.BL_KEY_PASS }}
+          BL_KEYSTORE_PATH: ${{ github.workspace }}/mobile/signing/battlelegions-release.jks
         run: |
+          set -euo pipefail
           export ANDROID_SDK_ROOT="$ANDROID_HOME"
           npm run build:mobile
           npx cap sync android
@@ -78,20 +103,47 @@ jobs:
           cd android
           ./gradlew assembleRelease --no-daemon
 
-      - name: Verify APK alignment
+      - name: Verify APK alignment and signing
         run: |
+          set -euo pipefail
           APK=android/app/build/outputs/apk/release/app-release.apk
           ls -lh "$APK"
           "$ANDROID_HOME/build-tools/35.0.0/zipalign" -c -p 4 "$APK"
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | head -5
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | head -8
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK" || true
+          # resources.arsc must be uncompressed and 4-byte aligned (API 30+)
+          unzip -lv "$APK" | awk '/resources\.arsc/ {print; if ($3 != "Stored") exit 2}' || {
+            echo "::warning::resources.arsc may not be Stored; check alignment carefully"
+          }
 
       - name: Publish to release apk-release-1.06.666
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -euo pipefail
           cp android/app/build/outputs/apk/release/app-release.apk /tmp/BattleLegions.apk
+          NOTES=$(cat <<'MD'
+          **Battle Legions v1.06.666** — offline APK (version held).
+
+          ### 2026.08.15 maintenance
+          - Store Waves **A → I** weekly rotation (Wave H + Wave I stock)
+          - Legion TraX soundtrack · denser combat SFX/VFX
+          - targetSdk 34 · aligned resources.arsc · Gradle-signed release
+          - Signing: keystore injected from Actions secrets (no keystore file in git)
+
+          **Download:** [BattleLegions.apk](https://github.com/l3g1Xn/bl-feam-og/releases/download/apk-release-1.06.666/BattleLegions.apk)
+
+          Hard cap: 350 MB packed · TraX included.
+          MD
+          )
           gh release view apk-release-1.06.666 >/dev/null 2>&1 || \
-            gh release create apk-release-1.06.666 --title "Battle Legions v1.06.666 — Legion TraX" --notes "Official Gradle build · TraX only · targetSdk 34 · aligned resources.arsc"
+            gh release create apk-release-1.06.666 \
+              --title "Battle Legions v1.06.666 — Legion TraX + Wave I" \
+              --notes "$NOTES"
+          # Refresh notes + asset on every successful build
+          gh release edit apk-release-1.06.666 \
+            --title "Battle Legions v1.06.666 — Legion TraX + Wave I" \
+            --notes "$NOTES" || true
           gh release upload apk-release-1.06.666 /tmp/BattleLegions.apk --clobber
           gh release upload v1.06.666 /tmp/BattleLegions.apk --clobber || true
           echo "Uploaded fixed BattleLegions.apk"
