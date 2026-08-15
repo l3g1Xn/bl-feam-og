@@ -1,7 +1,7 @@
 # Battle Legions: For We Are Many
 
 <p align="center">
-  <img src="public/ui/title_logo_v1.06.666.svg" alt="Battle Legions v1.06.666 · Wave J" width="720" />
+  <img src="public/ui/title_logo_v1.06.666.svg" alt="Battle Legions v1.0.7 · Cooked By Many" width="720" />
 </p>
 
 > Offline collectible card combat where high-tech legions fight with medieval physics, lasers, and math that actually tells you the truth.
@@ -10,14 +10,14 @@ Welcome, commander. This is the short, slightly sarcastic field manual for **Bat
 
 ---
 
-## Download the game (v1.06.666)
+## Download the game (v1.0.7 — Cooked By Many)
 
 **Direct APK (recommended):**  
-**[Download BattleLegions.apk — Release 1.06.666](https://github.com/l3g1Xn/bl-feam-og/releases/download/apk-release-1.06.666/BattleLegions.apk)**
+**[Download BattleLegions.apk — Release 1.0.7](https://github.com/l3g1Xn/bl-feam-og/releases/download/apk-release-1.0.7/BattleLegions.apk)**
 
-- **Size:** ~116 MB (TraX included · 350 MB hard cap)
-- **Platform:** Android (signed offline package, landscape)
-- **Release page:** [apk-release-1.06.666](https://github.com/l3g1Xn/bl-feam-og/releases/tag/apk-release-1.06.666)
+- **Size:** ~129 MB (TraX 9-track soundtrack included · 750 MB hard cap)
+- **Platform:** Android (signed offline package, landscape, targetSdk 34 / Samsung compatible)
+- **Release page:** [apk-release-1.0.7](https://github.com/l3g1Xn/bl-feam-og/releases/tag/apk-release-1.0.7)
 - **Web / site practice:** play in browser at the Grok-hosted site (same rules, no PIN vault)
 
 Install the APK, unlock the PIN vault once if prompted, and you are in **LEGIXN COMMAND**. The web build lands straight on command. PIN is APK-only (local vault, no cloud).
@@ -58,7 +58,7 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle
 
 ### Audio and graphics
 
-- **Legion TraX soundtrack** — Part 1 and Part 2 only
+- **Legion TraX soundtrack** — 9 individual tracks (split from originals)
 - Combat SFX stay layered (Wave H + I + J iridium / magma / quartz / nimbus / axiom); music ducks during battle
 - Multi-layer battle VFX (beams, particles, hit-stop, residual trails)
 - Graphics quality live: **Low → UltraHD**
@@ -68,29 +68,25 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle
 
 ## Version notes
 
-**1.06.666** — *Legion TraX + combat polish + Wave J stock*
+**1.0.7** — *Cooked By Many · TraX + Wave J + reward-lock*
 
-- Brand stamp **1.06.666** (versionCode 106666) — version held; Wave J content rotates
+- Brand stamp **1.0.7** (versionCode 100007) — Cooked By Many edition
 - Store Waves A / B / C / D / E / F / G / H / I / **J** weekly rotation
-- Fresh version-stamped title logo (2026.08.15 · Wave J)
-- `uuid` override **11.1.1** (GHSA-w5hq-g745-h8pq / CVE-2026-41907)
-- `nanoid` override **3.3.18** (GHSA-2v37-7h3g-55p8 / CVE-2026-67213)
-- 350 MB APK ceiling retained · targetSdk 34
+- Full TraX 9-track soundtrack baked in
+- `uuid` override **11.1.1** · `nanoid` override **3.3.18**
+- 750 MB APK ceiling · targetSdk 34 (Samsung compatible)
 
-### Maintenance (2026.08.15 — Wave J)
+### Maintenance patch (2026.08.15 — reward-lock)
 
-- **Wave J** exclusives: Iridium Lance · Quartz Sentinel · Magma Ram · Nimbus Burst · Axiom Drone · Quartz Coil · Iridium Key · Magma Crown · Nimbus Runner · Axiom Throne
-- Weekly store rotation now cycles **A → J**
-- New battle SFX/VFX layers: iridium · magma · quartz · nimbus · axiom
-- Portrait reuse via `WAVE_J_ART_ALIAS` — no duplicate JPGs (APK budget)
-- Foldable / coarse-pointer / safe-area / 280px / hinge-band polish
-- Repo hardening: `SECURITY.md`, Dependabot weekly, CODEOWNERS, uuid + nanoid pins, keystore out of tree
+- **Ticket / XP save-scum closed.** Every match carries a stable `matchId`. Rewards are paid once and recorded in a persisted ledger (`rewardedMatchIds`, capped at 64). Reloading a near-end save and finishing again yields zero tickets/XP and an "already claimed" notice on the End screen.
+- BUILD_ID: `2026.08.15-v1.0.7-reward-lock`
+- Version numbers unchanged (still 1.0.7 / 100007).
 
 ---
 
 ## Quick start checklist
 
-1. Grab the APK: [BattleLegions.apk (1.06.666)](https://github.com/l3g1Xn/bl-feam-og/releases/download/apk-release-1.06.666/BattleLegions.apk)
+1. Grab the APK: [BattleLegions.apk (1.0.7)](https://github.com/l3g1Xn/bl-feam-og/releases/download/apk-release-1.0.7/BattleLegions.apk)
 2. Install, open, and set PIN if asked
 3. Hit **Play** (or continue a save)
 4. Deploy, trade, read the math HUD, and do not face into Taunt
@@ -101,8 +97,7 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle
 ## Repository protection
 
 - Canonical repo: **[l3g1Xn/bl-feam-og](https://github.com/l3g1Xn/bl-feam-og)**
-- Releases only under tags matching `v1.06.666` / `apk-release-1.06.666` unless a major bugfix or full UI/UX art overhaul warrants a bump
+- Releases under tag `apk-release-1.0.7` (version held for this maintenance patch)
 - Do not re-scaffold duplicate same-premise card battlers into this tree
 - Security policy: [SECURITY.md](SECURITY.md)
-- Dependabot watches npm + GitHub Actions weekly
 - CODEOWNERS: @l3g1Xn
