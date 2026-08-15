@@ -17,12 +17,10 @@ import { cardArtSrc, getCard } from "./cards";
 import {
   entityKeyHero,
   entityKeyMinion,
-  meleeFx,
-  spellFx,
-  summonFx,
   waitFrames,
   type FxEvent,
 } from "./fx";
+import { meleeFx, spellFx, summonFx } from "./fxPlay";
 import { computeCombatPreview, computeMathSnapshot, hasTaunt } from "./math";
 import {
   clearMatchSave,
