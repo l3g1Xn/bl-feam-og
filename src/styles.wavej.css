@@ -1,0 +1,71 @@
+/* wave-j-mobile-2026-08-15 — 280px phones, hinge foldables, hybrid stylus, short landscape */
+@media (max-width: 280px) {
+  html {
+    font-size: clamp(9px, 3.2vmin + 4px, 12px);
+  }
+  .title-logo {
+    max-height: min(20vh, 7.5rem);
+  }
+  .minion-token {
+    min-width: 2.5rem;
+  }
+  .battle-hand {
+    min-height: 3.6rem;
+  }
+}
+
+/* Hybrid hover + coarse (Surface Duo / foldable stylus) */
+@media (pointer: coarse) and (hover: hover) {
+  .minion-token {
+    min-width: 3.25rem;
+  }
+  .launcher-shell button,
+  .game-menu button {
+    min-height: 46px;
+  }
+}
+
+/* Ultra-short landscape (gamepad phones, car mounts, fold outer) */
+@media (orientation: landscape) and (max-height: 360px) {
+  html {
+    font-size: clamp(9px, 2vmin + 6px, 12px);
+  }
+  .battle-hand {
+    min-height: 3.4rem;
+  }
+  .minion-token {
+    min-width: 2.6rem;
+  }
+  .title-logo {
+    max-height: min(18vh, 6.5rem);
+  }
+}
+
+/* Hinge / dual-screen center — keep store + battle out of the fold */
+@media (min-width: 640px) and (max-width: 840px) and (orientation: landscape) {
+  .battle-stage {
+    max-width: min(100%, 48rem);
+    margin-inline: auto;
+  }
+  .app-shell {
+    --store-cols: 2;
+  }
+}
+
+@supports (padding: env(safe-area-inset-bottom)) {
+  .launcher-shell,
+  .battle-stage,
+  .battle-hand,
+  .end-turn-row {
+    padding-bottom: max(0.45rem, env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-beam-residual,
+  .fx-shockwave,
+  .fx-weapon-slash,
+  .fx-banner {
+    animation: none !important;
+  }
+}
