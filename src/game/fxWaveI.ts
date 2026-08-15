@@ -1,15 +1,14 @@
-import type { BeamStyle } from "./fx";
+/** Wave I beam routing — presentation only, no import from fx.ts (avoids cycles). */
 
-/** Map Wave I card ids onto beam styles already tinted in fxBeams. */
-export function waveIBeamFor(cardId?: string): BeamStyle | null {
+export function waveIBeamFor(cardId?: string): string | null {
   const id = (cardId ?? "").toLowerCase();
   if (!id) return null;
-  if (id.includes("riftglass")) return "riftglass_ring" as BeamStyle;
-  if (id.includes("cobalt")) return "cobalt_lance" as BeamStyle;
-  if (id.includes("graphene")) return "graphene_ward" as BeamStyle;
-  if (id.includes("helion")) return "helion_burst" as BeamStyle;
-  if (id.includes("sonic_ram")) return "sonic_ram" as BeamStyle;
-  if (id.includes("sonic")) return "sonic_coil" as BeamStyle;
+  if (id.includes("riftglass")) return "riftglass_ring";
+  if (id.includes("cobalt")) return "cobalt_lance";
+  if (id.includes("graphene")) return "graphene_ward";
+  if (id.includes("helion")) return "helion_burst";
+  if (id.includes("sonic_ram")) return "sonic_ram";
+  if (id.includes("sonic")) return "sonic_coil";
   return null;
 }
 
@@ -29,7 +28,7 @@ export function waveIBeamLabel(beam?: string): string | null {
     case "cobalt_lance":
       return "Cobalt Lance";
     case "graphene_ward":
-    return "Graphene Ward";
+      return "Graphene Ward";
     case "helion_burst":
       return "Helion Burst";
     case "sonic_ram":
