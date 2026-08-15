@@ -17,6 +17,7 @@ import {
   getCard,
   isStoreExclusive,
 } from "./cards";
+import { STORE_STOCK_WAVE_I_IDS } from "./cardsWaveI";
 
 export type RotatedOffer = {
   id: string;
@@ -32,7 +33,10 @@ export type RotatedOffer = {
 };
 
 const STARTER_OWNED = new Set(buildStarterDeck());
-const WAVE_SET = new Set<string>(ALL_STOCK_WAVE_IDS as readonly string[]);
+const WAVE_SET = new Set<string>([
+  ...(ALL_STOCK_WAVE_IDS as readonly string[]),
+  ...(STORE_STOCK_WAVE_I_IDS as readonly string[]),
+]);
 
 function safeInt(n: number, min: number, max: number, fallback: number): number {
   if (!Number.isFinite(n)) return fallback;
@@ -50,7 +54,8 @@ export function ticketPrice(cardId: string, level: number): number {
   if (
     cardId === "dominion_core" ||
     cardId === "overlord_frame" ||
-    cardId === "tungsten_throne"
+    cardId === "tungsten_throne" ||
+    cardId === "riftglass_throne"
   )
     base = 380;
   base *= 2;
@@ -84,7 +89,12 @@ export function ticketPrice(cardId: string, level: number): number {
     cardId === "halo_burst" ||
     cardId === "tungsten_ram" ||
     cardId === "halo_crown" ||
-    cardId === "tungsten_throne"
+    cardId === "tungsten_throne" ||
+    cardId === "cobalt_lance" ||
+    cardId === "helion_burst" ||
+    cardId === "sonic_ram" ||
+    cardId === "graphene_sentinel" ||
+    cardId === "riftglass_throne"
   ) {
     base = Math.round(base * 1.08);
   }
@@ -121,11 +131,12 @@ const WAVE_POOLS = [
   STORE_STOCK_WAVE_F_IDS,
   STORE_STOCK_WAVE_G_IDS,
   STORE_STOCK_WAVE_H_IDS,
+  STORE_STOCK_WAVE_I_IDS,
 ] as const;
 
-/** Cycle A → B → C → D → E → F → G → H by week hash so stock never stagnates. */
+/** Cycle A → B → C → D → E → F → G → H → I by week hash so stock never stagnates. */
 export function activeWavePool(week = storeWeekKey()): readonly string[] {
-  const n = hashStr(week) % 8;
+  const n = hashStr(week) % 9;
   return WAVE_POOLS[n]!;
 }
 
@@ -149,7 +160,6 @@ export function weeklyDealIds(week = storeWeekKey()): string[] {
     ...order.filter((id) => !(wave as readonly string[]).includes(id)),
   ];
   const deals = waveFirst.slice(0, 3);
-  // Surface one card from a different wave so stock never stagnates
   const altPool = WAVE_POOLS.find((p) => p !== wave) ?? STORE_STOCK_WAVE_B_IDS;
   const alt = altPool.find((id) => !deals.includes(id));
   if (alt && deals.length >= 2) {
@@ -169,7 +179,8 @@ export function minLevelFor(cardId: string): number {
   if (
     cardId === "dominion_core" ||
     cardId === "overlord_frame" ||
-    cardId === "tungsten_throne"
+    cardId === "tungsten_throne" ||
+    cardId === "riftglass_throne"
   )
     return 5;
   if (
@@ -194,7 +205,11 @@ export function minLevelFor(cardId: string): number {
     cardId === "kinetic_breaker" ||
     cardId === "volt_lance" ||
     cardId === "halo_burst" ||
-    cardId === "tungsten_ram"
+    cardId === "tungsten_ram" ||
+    cardId === "cobalt_lance" ||
+    cardId === "helion_burst" ||
+    cardId === "sonic_ram" ||
+    cardId === "graphene_sentinel"
   )
     return 4;
   if (
@@ -223,7 +238,12 @@ export function minLevelFor(cardId: string): number {
     cardId === "glyph_sentinel" ||
     cardId === "tesla_coil" ||
     cardId === "halo_crown" ||
-    cardId === "orbit_drone"
+    cardId === "orbit_drone" ||
+    cardId === "sonic_coil" ||
+    cardId === "cobalt_key" ||
+    cardId === "helion_crown" ||
+    cardId === "graphene_runner" ||
+    cardId === "riftglass_drone"
   )
     return 3;
   if (isStoreExclusive(cardId)) return 2;
@@ -305,6 +325,8 @@ export function rotationLabel(week = storeWeekKey()): string {
                 ? "Wave F"
                 : wave === STORE_STOCK_WAVE_G_IDS
                   ? "Wave G"
-                  : "Wave H";
+                  : wave === STORE_STOCK_WAVE_H_IDS
+                    ? "Wave H"
+                    : "Wave I";
   return `${waveName} · Week ${week} deals: ${deals}`;
 }
