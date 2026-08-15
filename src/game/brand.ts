@@ -12,9 +12,9 @@ export const APK_VERSION = "1.0.7";
 /** Edition subtitle for 1.0.7. */
 export const APK_EDITION = "Cooked By Many";
 /** Approx size for UI copy — TraX soundtrack included (9 individual tracks). */
-export const APK_SIZE_LABEL = "~120 MB";
-/** Hard APK size ceiling (bytes) — 350 MB packed target with TraX + stock art. */
-export const APK_MAX_BYTES = 350 * 1024 * 1024;
+export const APK_SIZE_LABEL = "~129 MB";
+/** Hard APK size ceiling (bytes) — 750 MB packed target (user-raised for max production assets). */
+export const APK_MAX_BYTES = 750 * 1024 * 1024;
 /**
  * Canonical backup host — same binary as the site Download button.
  * Private repo: must be signed into GitHub as the owner to fetch.
