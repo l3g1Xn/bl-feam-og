@@ -10,6 +10,7 @@ on:
       - "public/music/**"
       - "scripts/**"
       - "package.json"
+      - "package-lock.json"
       - "vite.mobile.config.ts"
       - ".github/workflows/release-apk.yml"
 
@@ -32,7 +33,9 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          # Keep lockfile in sync with package.json overrides (uuid/nanoid pins)
+          npm install --no-fund --no-audit
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
