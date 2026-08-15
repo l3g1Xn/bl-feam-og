@@ -1,9 +1,19 @@
 /**
- * Legion TraX soundtrack — two long-form suites replacing the old 10-track set.
- * Part 1 → Part 2 rotation (menu + battle-ducked).
+ * Legion TraX soundtrack — nine individual tracks carefully split from the
+ * original two long-form suites at natural silence points (no hard crops).
+ * Menu rotation + battle-duck volume.
  */
 
-export type MusicTrackId = "01_legionx_trax_part1" | "02_legion_trax_part2";
+export type MusicTrackId =
+  | "01_command_open"
+  | "02_march_protocol"
+  | "03_lattice_advance"
+  | "04_legion_rise"
+  | "05_war_anthem"
+  | "06_breach_protocol"
+  | "07_harmonic_siege"
+  | "08_overlord_march"
+  | "09_final_protocol";
 
 export const MENU_TRACKS: {
   id: MusicTrackId;
@@ -13,17 +23,66 @@ export const MENU_TRACKS: {
   group: "original" | "edm";
 }[] = [
   {
-    id: "01_legionx_trax_part1",
-    title: "LegionX TraX Part 1",
-    mood: "LegionX suite — command open & march",
-    src: "/music/01_legionx_trax_part1.mp3",
+    id: "01_command_open",
+    title: "Command Open",
+    mood: "LegionX suite — command shell open",
+    src: "/music/01_command_open.mp3",
     group: "original",
   },
   {
-    id: "02_legion_trax_part2",
-    title: "Legion TraX Part 2",
-    mood: "Legion TraX suite — war anthem extension",
-    src: "/music/02_legion_trax_part2.mp3",
+    id: "02_march_protocol",
+    title: "March Protocol",
+    mood: "LegionX suite — march into the breach",
+    src: "/music/02_march_protocol.mp3",
+    group: "original",
+  },
+  {
+    id: "03_lattice_advance",
+    title: "Lattice Advance",
+    mood: "LegionX suite — carbon lattice advance",
+    src: "/music/03_lattice_advance.mp3",
+    group: "original",
+  },
+  {
+    id: "04_legion_rise",
+    title: "Legion Rise",
+    mood: "LegionX suite — rise of the legion",
+    src: "/music/04_legion_rise.mp3",
+    group: "original",
+  },
+  {
+    id: "05_war_anthem",
+    title: "War Anthem",
+    mood: "Legion TraX — war anthem open",
+    src: "/music/05_war_anthem.mp3",
+    group: "original",
+  },
+  {
+    id: "06_breach_protocol",
+    title: "Breach Protocol",
+    mood: "Legion TraX — breach and clear",
+    src: "/music/06_breach_protocol.mp3",
+    group: "original",
+  },
+  {
+    id: "07_harmonic_siege",
+    title: "Harmonic Siege",
+    mood: "Legion TraX — resonant siege",
+    src: "/music/07_harmonic_siege.mp3",
+    group: "original",
+  },
+  {
+    id: "08_overlord_march",
+    title: "Overlord March",
+    mood: "Legion TraX — overlord command march",
+    src: "/music/08_overlord_march.mp3",
+    group: "original",
+  },
+  {
+    id: "09_final_protocol",
+    title: "Final Protocol",
+    mood: "Legion TraX — final protocol close",
+    src: "/music/09_final_protocol.mp3",
     group: "original",
   },
 ];
@@ -90,8 +149,8 @@ export function isMusicMuted() {
 export function currentTrack() {
   return (
     MENU_TRACKS[index] ?? {
-      id: "01_legionx_trax_part1" as MusicTrackId,
-      title: "LegionX TraX",
+      id: "01_command_open" as MusicTrackId,
+      title: "Legion TraX",
       mood: "",
       src: "",
       group: "original" as const,
