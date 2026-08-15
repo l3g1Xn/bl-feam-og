@@ -1,7 +1,7 @@
 # Battle Legions: For We Are Many
 
 <p align="center">
-  <img src="public/ui/title_logo_v1.06.666.svg" alt="Battle Legions v1.06.666 · Wave I" width="720" />
+  <img src="public/ui/title_logo_v1.06.666.svg" alt="Battle Legions v1.06.666 · Wave J" width="720" />
 </p>
 
 > Offline collectible card combat where high-tech legions fight with medieval physics, lasers, and math that actually tells you the truth.
@@ -31,10 +31,10 @@ You run a modern combat legion armed with:
 - Steel, lasers, and beams that would make a tech priest blush
 - Minions with **Taunt**, **Immune**, **Reborn**, and board-wide buffs
 - Store exclusives (yes, including **Dominus Reximus**)
-- **Store Waves A–I** with weekly rotation deals
+- **Store Waves A–J** with weekly rotation deals
 - A live math HUD so "was that lethal?" is never a mystery novel
 
-Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle SFX (helion / cobalt / graphene / sonic / riftglass on top of Wave H), and an opponent whose name looks like it escaped a 2003 IRC channel.
+Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle SFX (iridium / magma / quartz / nimbus / axiom on top of Wave I), and an opponent whose name looks like it escaped a 2003 IRC channel.
 
 ---
 
@@ -51,7 +51,7 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle
 | Thing | What it does |
 | --- | --- |
 | **Ranked practice** | Normal / Hard AI — same rules, different pain |
-| **Ticket store** | Spend tickets on exclusives (Wave A–I rotation, prices ×2, level-gated) |
+| **Ticket store** | Spend tickets on exclusives (Wave A–J rotation, prices ×2, level-gated) |
 | **Collection** | Own cards, build the deck, view portraits |
 | **LX_SAVE_GAME** | Auto-save on close; load from the main menu (local only) |
 | **PIN vault (APK)** | Local lock on reopen — no cloud |
@@ -59,7 +59,7 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle
 ### Audio and graphics
 
 - **Legion TraX soundtrack** — Part 1 and Part 2 only
-- Combat SFX stay layered (Wave H + Wave I helion / cobalt / graphene / sonic / riftglass); music ducks during battle
+- Combat SFX stay layered (Wave H + I + J iridium / magma / quartz / nimbus / axiom); music ducks during battle
 - Multi-layer battle VFX (beams, particles, hit-stop, residual trails)
 - Graphics quality live: **Low → UltraHD**
 - Mobile-first safe areas, coarse-pointer hit targets, landscape phone / foldable layouts
@@ -68,21 +68,23 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle
 
 ## Version notes
 
-**1.06.666** — *Legion TraX + combat polish + Wave I stock*
+**1.06.666** — *Legion TraX + combat polish + Wave J stock*
 
-- Brand stamp **1.06.666** (versionCode 106666) — version held; Wave I content rotates
-- Store Waves A / B / C / D / E / F / G / H / **I** weekly rotation
-- Fresh version-stamped title logo (2026.08.15)
+- Brand stamp **1.06.666** (versionCode 106666) — version held; Wave J content rotates
+- Store Waves A / B / C / D / E / F / G / H / I / **J** weekly rotation
+- Fresh version-stamped title logo (2026.08.15 · Wave J)
 - `uuid` override **11.1.1** (GHSA-w5hq-g745-h8pq / CVE-2026-41907)
+- `nanoid` override **3.3.18** (GHSA-2v37-7h3g-55p8 / CVE-2026-67213)
 - 350 MB APK ceiling retained · targetSdk 34
 
-### Maintenance (2026.08.15)
+### Maintenance (2026.08.15 — Wave J)
 
-- **Wave I** exclusives: Cobalt Lance · Graphene Sentinel · Sonic Ram · Helion Burst · Riftglass Drone · Sonic Coil · Cobalt Key · Helion Crown · Graphene Runner · Riftglass Throne
-- Weekly store rotation now cycles **A → I**
-- New battle SFX/VFX layers: helion · cobalt · graphene · sonic · riftglass
-- Portrait reuse via `WAVE_I_ART_ALIAS` — no duplicate JPGs (APK budget)
-- Repo hardening: `SECURITY.md`, Dependabot weekly, CODEOWNERS, uuid pin
+- **Wave J** exclusives: Iridium Lance · Quartz Sentinel · Magma Ram · Nimbus Burst · Axiom Drone · Quartz Coil · Iridium Key · Magma Crown · Nimbus Runner · Axiom Throne
+- Weekly store rotation now cycles **A → J**
+- New battle SFX/VFX layers: iridium · magma · quartz · nimbus · axiom
+- Portrait reuse via `WAVE_J_ART_ALIAS` — no duplicate JPGs (APK budget)
+- Foldable / coarse-pointer / safe-area / 280px / hinge-band polish
+- Repo hardening: `SECURITY.md`, Dependabot weekly, CODEOWNERS, uuid + nanoid pins, keystore out of tree
 
 ---
 
@@ -92,7 +94,7 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle
 2. Install, open, and set PIN if asked
 3. Hit **Play** (or continue a save)
 4. Deploy, trade, read the math HUD, and do not face into Taunt
-5. Spend tickets in the store — check weekly Wave I deals
+5. Spend tickets in the store — check weekly Wave J deals
 
 ---
 

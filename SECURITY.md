@@ -28,8 +28,9 @@ Include:
 - Transitive pins via `overrides`:
   - `uuid` **11.1.1** (GHSA-w5hq-g745-h8pq / CVE-2026-41907)
   - `nanoid` **3.3.18** (GHSA-2v37-7h3g-55p8 / CVE-2026-67213)
+- Release keystore is **not** in the tree — GitHub Actions secrets only
 - No secrets in source; release tags stay `v1.06.666` / `apk-release-1.06.666`
-- Mobile-safe: landscape + foldable layouts, coarse-pointer targets, safe-area insets, `prefers-reduced-motion`
+- Mobile-safe: landscape + foldable + 280px + hinge-band layouts, coarse-pointer targets, safe-area insets, `prefers-reduced-motion`
 - CODEOWNERS: @l3g1Xn
 
 ## Scope notes

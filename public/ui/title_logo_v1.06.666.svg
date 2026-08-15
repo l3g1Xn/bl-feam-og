@@ -1,32 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="Battle Legions v1.06.666 Wave I">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="Battle Legions v1.06.666 Wave J">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#05070c"/>
-      <stop offset="42%" stop-color="#0b1420"/>
-      <stop offset="100%" stop-color="#1a100c"/>
+      <stop offset="40%" stop-color="#0c1018"/>
+      <stop offset="100%" stop-color="#1a0c08"/>
     </linearGradient>
     <linearGradient id="steel" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#f4f7fb"/>
       <stop offset="48%" stop-color="#c5d0dc"/>
       <stop offset="100%" stop-color="#8a96a8"/>
     </linearGradient>
-    <linearGradient id="helion" x1="0" y1="0" x2="1" y2="0">
+    <linearGradient id="magma" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0%" stop-color="#ff9a3a"/>
-      <stop offset="50%" stop-color="#ff6a1a"/>
-      <stop offset="100%" stop-color="#ff7a30"/>
+      <stop offset="50%" stop-color="#ff4a18"/>
+      <stop offset="100%" stop-color="#ff6a1a"/>
     </linearGradient>
-    <linearGradient id="cobalt" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#5ee0ff"/>
-      <stop offset="100%" stop-color="#2aa8d8"/>
+    <linearGradient id="iridium" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#c8dce8"/>
+      <stop offset="100%" stop-color="#8ab0c4"/>
     </linearGradient>
-    <linearGradient id="sonic" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#c8a0ff"/>
-      <stop offset="100%" stop-color="#b080ff"/>
+    <linearGradient id="quartz" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#e0c8ff"/>
+      <stop offset="100%" stop-color="#d0b0ff"/>
     </linearGradient>
-    <radialGradient id="corona" cx="50%" cy="46%" r="50%">
-      <stop offset="0%" stop-color="#ff7a30" stop-opacity="0.32"/>
-      <stop offset="38%" stop-color="#5ee0ff" stop-opacity="0.10"/>
+    <linearGradient id="axiom" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#70ffc0"/>
+      <stop offset="100%" stop-color="#38d898"/>
+    </linearGradient>
+    <radialGradient id="corona" cx="50%" cy="46%" r="52%">
+      <stop offset="0%" stop-color="#ff4a18" stop-opacity="0.30"/>
+      <stop offset="36%" stop-color="#70ffc0" stop-opacity="0.10"/>
       <stop offset="100%" stop-color="#05070c" stop-opacity="0"/>
     </radialGradient>
     <filter id="glow" x="-20%" y="-40%" width="140%" height="180%">
@@ -35,25 +39,25 @@
     </filter>
   </defs>
   <rect width="1600" height="900" fill="url(#bg)"/>
-  <rect x="34" y="34" width="1532" height="832" fill="none" stroke="#ff7a30" stroke-opacity="0.42" stroke-width="2"/>
-  <rect x="48" y="48" width="1504" height="804" fill="none" stroke="#5ee0ff" stroke-opacity="0.24" stroke-width="1"/>
+  <rect x="34" y="34" width="1532" height="832" fill="none" stroke="#ff4a18" stroke-opacity="0.46" stroke-width="2"/>
+  <rect x="48" y="48" width="1504" height="804" fill="none" stroke="#70ffc0" stroke-opacity="0.22" stroke-width="1"/>
   <circle cx="800" cy="420" r="360" fill="url(#corona)"/>
-  <circle cx="800" cy="420" r="210" fill="none" stroke="#c8a0ff" stroke-opacity="0.18" stroke-width="2"/>
-  <circle cx="800" cy="420" r="268" fill="none" stroke="#70ffe8" stroke-opacity="0.12" stroke-width="1"/>
-  <polygon points="800,96 828,176 800,158 772,176" fill="url(#helion)" opacity="0.92"/>
-  <path d="M148 236 L248 188 L206 236 L248 284 Z" fill="url(#cobalt)" opacity="0.58"/>
-  <path d="M1452 668 L1352 716 L1394 668 L1352 620 Z" fill="url(#helion)" opacity="0.52"/>
-  <path d="M210 690 L270 650 L230 690 L270 730 Z" fill="#9aacbe" opacity="0.45"/>
-  <path d="M1330 210 L1390 170 L1350 210 L1390 250 Z" fill="url(#sonic)" opacity="0.5"/>
-  <path d="M110 740 H470 M1130 164 H1490" stroke="#ff7a30" stroke-opacity="0.34" stroke-width="2"/>
-  <path d="M186 186 H392 M1210 714 H1418" stroke="#5ee0ff" stroke-opacity="0.3" stroke-width="1.5"/>
-  <path d="M220 420 L520 390" stroke="#5ee0ff" stroke-opacity="0.22" stroke-width="3"/>
-  <path d="M1080 450 L1380 480" stroke="#c8a0ff" stroke-opacity="0.2" stroke-width="3"/>
-  <text x="800" y="236" text-anchor="middle" fill="#ff7a30" font-family="Segoe UI, system-ui, sans-serif" font-size="28" letter-spacing="14" font-weight="700">LEGIXN COMMAND</text>
+  <circle cx="800" cy="420" r="214" fill="none" stroke="#e0c8ff" stroke-opacity="0.18" stroke-width="2"/>
+  <circle cx="800" cy="420" r="272" fill="none" stroke="#a8d4ff" stroke-opacity="0.12" stroke-width="1"/>
+  <polygon points="800,92 830,174 800,156 770,174" fill="url(#magma)" opacity="0.94"/>
+  <path d="M150 230 L254 178 L210 230 L254 282 Z" fill="url(#iridium)" opacity="0.62"/>
+  <path d="M1450 672 L1346 724 L1390 672 L1346 620 Z" fill="url(#magma)" opacity="0.54"/>
+  <path d="M206 694 L272 650 L228 694 L272 738 Z" fill="url(#quartz)" opacity="0.48"/>
+  <path d="M1328 206 L1394 162 L1350 206 L1394 250 Z" fill="url(#axiom)" opacity="0.5"/>
+  <path d="M108 742 H468 M1130 160 H1492" stroke="#ff4a18" stroke-opacity="0.36" stroke-width="2"/>
+  <path d="M184 184 H396 M1208 716 H1420" stroke="#70ffc0" stroke-opacity="0.28" stroke-width="1.5"/>
+  <path d="M218 418 L518 388" stroke="#c8dce8" stroke-opacity="0.24" stroke-width="3"/>
+  <path d="M1082 452 L1382 482" stroke="#e0c8ff" stroke-opacity="0.22" stroke-width="3"/>
+  <text x="800" y="236" text-anchor="middle" fill="#ff4a18" font-family="Segoe UI, system-ui, sans-serif" font-size="28" letter-spacing="14" font-weight="700">LEGIXN COMMAND</text>
   <text x="800" y="392" text-anchor="middle" fill="url(#steel)" font-family="Segoe UI, system-ui, sans-serif" font-size="118" letter-spacing="10" font-weight="800" filter="url(#glow)">BATTLE</text>
-  <text x="800" y="524" text-anchor="middle" fill="url(#helion)" font-family="Segoe UI, system-ui, sans-serif" font-size="128" letter-spacing="18" font-weight="800" filter="url(#glow)">LEGIONS</text>
+  <text x="800" y="524" text-anchor="middle" fill="url(#magma)" font-family="Segoe UI, system-ui, sans-serif" font-size="128" letter-spacing="18" font-weight="800" filter="url(#glow)">LEGIONS</text>
   <text x="800" y="596" text-anchor="middle" fill="#9aa6b8" font-family="Segoe UI, system-ui, sans-serif" font-size="26" letter-spacing="12" font-weight="600">FOR WE ARE MANY</text>
-  <rect x="548" y="634" width="504" height="58" rx="29" fill="#0a1018" stroke="#5ee0ff" stroke-width="1.6"/>
-  <text x="800" y="672" text-anchor="middle" fill="#f2f6fa" font-family="ui-monospace, SF Mono, Menlo, Consolas, monospace" font-size="22" letter-spacing="3" font-weight="700">v1.06.666  ·  WAVE I</text>
-  <text x="800" y="776" text-anchor="middle" fill="#6d768a" font-family="Segoe UI, system-ui, sans-serif" font-size="15" letter-spacing="3.2">2026.08.15 MAINT  ·  HELION / COBALT / GRAPHENE / SONIC / RIFTGLASS</text>
+  <rect x="548" y="634" width="504" height="58" rx="29" fill="#0a1018" stroke="#70ffc0" stroke-width="1.6"/>
+  <text x="800" y="672" text-anchor="middle" fill="#f2f6fa" font-family="ui-monospace, SF Mono, Menlo, Consolas, monospace" font-size="22" letter-spacing="3" font-weight="700">v1.06.666  ·  WAVE J</text>
+  <text x="800" y="776" text-anchor="middle" fill="#6d768a" font-family="Segoe UI, system-ui, sans-serif" font-size="15" letter-spacing="3.2">2026.08.15 MAINT  ·  IRIDIUM / MAGMA / QUARTZ / NIMBUS / AXIOM</text>
 </svg>
