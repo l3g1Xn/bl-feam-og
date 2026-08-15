@@ -24,9 +24,13 @@ Include:
 
 - Offline game — no cloud accounts, no remote save
 - PIN vault is **APK-only** and local (never transmitted)
-- Dependabot enabled for npm; `uuid` pinned via `overrides` to **11.1.1** (GHSA-w5hq-g745-h8pq / CVE-2026-41907)
+- Dependabot enabled for npm + GitHub Actions (weekly)
+- Transitive pins via `overrides`:
+  - `uuid` **11.1.1** (GHSA-w5hq-g745-h8pq / CVE-2026-41907)
+  - `nanoid` **3.3.18** (GHSA-2v37-7h3g-55p8 / CVE-2026-67213)
 - No secrets in source; release tags stay `v1.06.666` / `apk-release-1.06.666`
 - Mobile-safe: landscape + foldable layouts, coarse-pointer targets, safe-area insets, `prefers-reduced-motion`
+- CODEOWNERS: @l3g1Xn
 
 ## Scope notes
 
