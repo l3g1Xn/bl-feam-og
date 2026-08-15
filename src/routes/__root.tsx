@@ -6,6 +6,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import appCss from "../styles.css?url";
+import waveJCss from "../styles.wavej.css?url";
 import { BUILD_ID, GAME_TITLE } from "@/game/brand";
 
 export const Route = createRootRoute({
@@ -35,6 +36,7 @@ export const Route = createRootRoute({
     ],
     links: [
       { rel: "stylesheet", href: appCss },
+      { rel: "stylesheet", href: waveJCss },
       { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "apple-touch-icon", href: "/icons/icon-192.png" },
     ],
