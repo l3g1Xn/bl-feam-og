@@ -30,7 +30,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-          cache: npm
+          # cache: npm  # re-enable after package-lock.json is committed and stable
 
       - name: Install dependencies
         run: |
