@@ -6,11 +6,14 @@ import {
   type FxEvent,
 } from "./fx";
 import { isWaveIHeavy, waveIBeamFor } from "./fxWaveI";
+import { isWaveJHeavy, waveJBeamFor } from "./fxWaveJ";
 
-function applyWaveI<T extends FxEvent>(ev: T, cardId?: string): T {
+function applyWaveLayers<T extends FxEvent>(ev: T, cardId?: string): T {
+  const wj = waveJBeamFor(cardId);
+  if (wj) ev.beam = wj as BeamStyle;
   const wi = waveIBeamFor(cardId);
-  if (wi) ev.beam = wi as BeamStyle;
-  if (isWaveIHeavy(ev.beam)) {
+  if (wi && !wj) ev.beam = wi as BeamStyle;
+  if (isWaveJHeavy(ev.beam) || isWaveIHeavy(ev.beam)) {
     ev.durationMs = Math.max(ev.durationMs, 820);
     ev.trauma = Math.min(1, (ev.trauma ?? 0.28) + 0.1);
     ev.hitStopMs = Math.max(ev.hitStopMs ?? 0, 60);
@@ -23,13 +26,13 @@ function applyWaveI<T extends FxEvent>(ev: T, cardId?: string): T {
 }
 
 export function meleeFx(...args: Parameters<typeof baseMeleeFx>): FxEvent {
-  return applyWaveI(baseMeleeFx(...args), args[0]?.cardId);
+  return applyWaveLayers(baseMeleeFx(...args), args[0]?.cardId);
 }
 
 export function spellFx(...args: Parameters<typeof baseSpellFx>): FxEvent {
-  return applyWaveI(baseSpellFx(...args), args[0]?.cardId);
+  return applyWaveLayers(baseSpellFx(...args), args[0]?.cardId);
 }
 
 export function summonFx(...args: Parameters<typeof baseSummonFx>): FxEvent {
-  return applyWaveI(baseSummonFx(...args), args[0]?.cardId);
+  return applyWaveLayers(baseSummonFx(...args), args[0]?.cardId);
 }

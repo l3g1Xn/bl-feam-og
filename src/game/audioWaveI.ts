@@ -1,8 +1,10 @@
 /**
  * Wave I battle SFX — layered on top of school routing.
  * Reuses synthesized primitives (no binary audio, APK-safe).
+ * Unmatched cues fall through to Wave J (iridium / magma / quartz / nimbus / axiom).
  */
 import { playSfx } from "./audio";
+import { playWaveJSfx } from "./audioWaveJ";
 
 export function playWaveISfx(opts: {
   cardId?: string;
@@ -26,7 +28,7 @@ export function playWaveISfx(opts: {
     beam === "sonic_ram" ||
     beam === "sonic_coil" ||
     beam === "riftglass_ring";
-  if (!hit) return false;
+  if (!hit) return playWaveJSfx(opts);
 
   if (card.includes("cobalt") || beam === "cobalt_lance") {
     playSfx("frost", power * 1.15);
