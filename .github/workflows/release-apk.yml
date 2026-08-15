@@ -34,8 +34,24 @@ jobs:
 
       - name: Install dependencies
         run: |
-          # Keep lockfile in sync with package.json overrides (uuid/nanoid pins)
+          # Resolve overrides (uuid 11.1.1 / nanoid 3.3.18) and write lockfile
           npm install --no-fund --no-audit
+
+      - name: Commit regenerated package-lock.json
+        run: |
+          if [ -f package-lock.json ] && ! git diff --quiet package-lock.json 2>/dev/null; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add package-lock.json
+            git commit -m "chore(ci): regenerate package-lock for uuid/nanoid security overrides" || true
+            git push || true
+          elif [ -f package-lock.json ] && [ -z "$(git ls-files package-lock.json)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add package-lock.json
+            git commit -m "chore(ci): add package-lock for uuid/nanoid security overrides" || true
+            git push || true
+          fi
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
@@ -74,7 +90,6 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cp android/app/build/outputs/apk/release/app-release.apk /tmp/BattleLegions.apk
-          # Delete broken asset if present, then upload fixed APK
           gh release view apk-release-1.06.666 >/dev/null 2>&1 || \
             gh release create apk-release-1.06.666 --title "Battle Legions v1.06.666 — Legion TraX" --notes "Official Gradle build · TraX only · targetSdk 34 · aligned resources.arsc"
           gh release upload apk-release-1.06.666 /tmp/BattleLegions.apk --clobber
