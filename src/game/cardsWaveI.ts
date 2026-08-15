@@ -1,4 +1,5 @@
 import type { CardDef } from "./types";
+import { CARD_ART_ALIAS, CARD_MAP, CARD_POOL } from "./cards";
 
 /** Wave I exclusives — 2026.08.15 maint (version held at 1.06.666). */
 export const WAVE_I_CARDS: CardDef[] = [
@@ -142,3 +143,21 @@ export const STORE_STOCK_WAVE_I_IDS = [
   "graphene_runner",
   "riftglass_throne",
 ] as const;
+
+let installed = false;
+
+/** Idempotent — mutates the live pool so Wave I is collectible without rewriting cards.ts. */
+export function installWaveI(): void {
+  if (installed) return;
+  installed = true;
+  for (const c of WAVE_I_CARDS) {
+    if (!CARD_MAP[c.id]) {
+      CARD_POOL.push(c);
+      CARD_MAP[c.id] = c;
+    }
+    const alias = WAVE_I_ART_ALIAS[c.id];
+    if (alias) CARD_ART_ALIAS[c.id] = alias;
+  }
+}
+
+installWaveI();
