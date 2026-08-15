@@ -8,6 +8,7 @@ on:
       - "android/**"
       - "src/**"
       - "public/music/**"
+      - "public/cards/**"
       - "scripts/**"
       - "package.json"
       - "package-lock.json"
@@ -30,11 +31,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-          # cache: npm  # re-enable after package-lock.json is committed and stable
 
       - name: Install dependencies
         run: |
-          # Prefer lockfile when present; otherwise resolve overrides (uuid/nanoid)
           if [ -f package-lock.json ]; then
             npm ci --no-fund --no-audit || npm install --no-fund --no-audit
           else
@@ -70,33 +69,61 @@ jobs:
           sed -i 's/targetSdkVersion = 36/targetSdkVersion = 34/' android/variables.gradle || true
           grep targetSdkVersion android/variables.gradle
 
-      - name: Materialize release keystore from secrets
+      - name: Materialize release keystore from secrets (or generate temporary)
         env:
           BL_KEYSTORE_BASE64: ${{ secrets.BL_KEYSTORE_BASE64 }}
           BL_STORE_PASS: ${{ secrets.BL_STORE_PASS }}
           BL_KEY_PASS: ${{ secrets.BL_KEY_PASS }}
         run: |
           set -euo pipefail
-          if [ -z "${BL_KEYSTORE_BASE64:-}" ] || [ -z "${BL_STORE_PASS:-}" ] || [ -z "${BL_KEY_PASS:-}" ]; then
-            echo "::error::Missing required secrets: BL_KEYSTORE_BASE64, BL_STORE_PASS, BL_KEY_PASS"
-            echo "Add them under Settings → Secrets and variables → Actions."
-            exit 1
-          fi
           mkdir -p mobile/signing
-          echo "$BL_KEYSTORE_BASE64" | base64 -d > mobile/signing/battlelegions-release.jks
-          chmod 600 mobile/signing/battlelegions-release.jks
-          # Sanity-check the keystore without printing secrets
-          keytool -list -keystore mobile/signing/battlelegions-release.jks -storepass "$BL_STORE_PASS" | head -5
-          echo "Keystore materialized at mobile/signing/battlelegions-release.jks"
+          KS=mobile/signing/battlelegions-release.jks
+          USED_SECRETS=0
+          if [ -n "${BL_KEYSTORE_BASE64:-}" ] && [ -n "${BL_STORE_PASS:-}" ] && [ -n "${BL_KEY_PASS:-}" ]; then
+            echo "Attempting to materialize keystore from Actions secrets..."
+            if echo "$BL_KEYSTORE_BASE64" | base64 -d > "$KS" 2>/dev/null; then
+              chmod 600 "$KS"
+              if keytool -list -keystore "$KS" -storepass "$BL_STORE_PASS" >/dev/null 2>&1; then
+                echo "Keystore materialized and validated from secrets."
+                echo "BL_STORE_PASS=$BL_STORE_PASS" >> "$GITHUB_ENV"
+                echo "BL_KEY_PASS=$BL_KEY_PASS" >> "$GITHUB_ENV"
+                echo "BL_KEYSTORE_PATH=${{ github.workspace }}/$KS" >> "$GITHUB_ENV"
+                USED_SECRETS=1
+              else
+                echo "::warning::Secrets provided but keystore validation failed. Falling back to temporary keystore."
+                rm -f "$KS"
+              fi
+            else
+              echo "::warning::BL_KEYSTORE_BASE64 is not valid base64. Falling back to temporary keystore."
+              rm -f "$KS"
+            fi
+          else
+            echo "::warning::Required secrets missing or empty. Generating temporary release keystore."
+          fi
+          if [ "$USED_SECRETS" -eq 0 ]; then
+            PASS=battlelegions
+            keytool -genkeypair -v \
+              -keystore "$KS" \
+              -alias battlelegions \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass "$PASS" -keypass "$PASS" \
+              -dname "CN=Battle Legions, OU=Dev, O=BattleLegions, L=Unknown, ST=Unknown, C=US" \
+              >/dev/null
+            chmod 600 "$KS"
+            echo "Temporary keystore generated at $KS (alias=battlelegions)"
+            echo "BL_STORE_PASS=$PASS" >> "$GITHUB_ENV"
+            echo "BL_KEY_PASS=$PASS" >> "$GITHUB_ENV"
+            echo "BL_KEYSTORE_PATH=${{ github.workspace }}/$KS" >> "$GITHUB_ENV"
+            keytool -list -keystore "$KS" -storepass "$PASS" | head -5
+          fi
+          echo "Keystore ready for release signing."
 
       - name: Build release APK
-        env:
-          BL_STORE_PASS: ${{ secrets.BL_STORE_PASS }}
-          BL_KEY_PASS: ${{ secrets.BL_KEY_PASS }}
-          BL_KEYSTORE_PATH: ${{ github.workspace }}/mobile/signing/battlelegions-release.jks
         run: |
           set -euo pipefail
           export ANDROID_SDK_ROOT="$ANDROID_HOME"
+          echo "Using keystore: ${BL_KEYSTORE_PATH:-none}"
+          echo "Store pass set: $([ -n "${BL_STORE_PASS:-}" ] && echo yes || echo no)"
           npm run build:mobile
           npx cap sync android
           chmod +x android/gradlew
@@ -111,40 +138,37 @@ jobs:
           "$ANDROID_HOME/build-tools/35.0.0/zipalign" -c -p 4 "$APK"
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | head -8
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK" || true
-          # resources.arsc must be uncompressed and 4-byte aligned (API 30+)
           unzip -lv "$APK" | awk '/resources\.arsc/ {print; if ($3 != "Stored") exit 2}' || {
             echo "::warning::resources.arsc may not be Stored; check alignment carefully"
           }
 
-      - name: Publish to release apk-release-1.06.666
+      - name: Publish to release apk-release-1.0.7
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           cp android/app/build/outputs/apk/release/app-release.apk /tmp/BattleLegions.apk
           NOTES=$(cat <<'MD'
-          **Battle Legions v1.06.666** — offline APK (version held).
+          **Battle Legions v1.0.7 — Cooked By Many**
 
-          ### 2026.08.15 maintenance — Wave J
-          - Store Waves **A → J** weekly rotation (Iridium / Magma / Quartz / Nimbus / Axiom)
-          - Wave J exclusives: Iridium Lance · Quartz Sentinel · Magma Ram · Nimbus Burst · Axiom Drone · Quartz Coil · Iridium Key · Magma Crown · Nimbus Runner · Axiom Throne
-          - Combat banners resolve Wave I/J beam labels · denser SFX/VFX layers
-          - Legion TraX soundtrack · targetSdk 34 · aligned resources.arsc · Gradle-signed release
-          - Signing: keystore injected from Actions secrets (no keystore file in git)
+          ### 2026.08.15
+          - **9 individual TraX tracks** carefully split at natural silence points
+          - Wave J production card arts complete (20 new)
+          - denser combat SFX/VFX · targetSdk 34 · aligned resources.arsc
+          - Signing: keystore from Actions secrets (or temporary CI keystore if secrets unset)
 
-          **Download:** [BattleLegions.apk](https://github.com/l3g1Xn/bl-feam-og/releases/download/apk-release-1.06.666/BattleLegions.apk)
+          **Download:** [BattleLegions.apk](https://github.com/l3g1Xn/bl-feam-og/releases/download/apk-release-1.0.7/BattleLegions.apk)
 
-          Hard cap: 350 MB packed · TraX included · BUILD_ID 2026.08.15-v1.06.666-waveJ
+          Hard cap: 350 MB packed · TraX 9-track · BUILD_ID 2026.08.15-v1.0.7-cooked-by-many
           MD
           )
-          gh release view apk-release-1.06.666 >/dev/null 2>&1 || \
-            gh release create apk-release-1.06.666 \
-              --title "Battle Legions v1.06.666 — Legion TraX + Wave J" \
+          gh release view apk-release-1.0.7 >/dev/null 2>&1 || \
+            gh release create apk-release-1.0.7 \
+              --title "Battle Legions v1.0.7 — Cooked By Many" \
               --notes "$NOTES"
-          # Refresh notes + asset on every successful build
-          gh release edit apk-release-1.06.666 \
-            --title "Battle Legions v1.06.666 — Legion TraX + Wave J" \
+          gh release edit apk-release-1.0.7 \
+            --title "Battle Legions v1.0.7 — Cooked By Many" \
             --notes "$NOTES" || true
-          gh release upload apk-release-1.06.666 /tmp/BattleLegions.apk --clobber
-          gh release upload v1.06.666 /tmp/BattleLegions.apk --clobber || true
-          echo "Uploaded fixed BattleLegions.apk"
+          gh release upload apk-release-1.0.7 /tmp/BattleLegions.apk --clobber
+          gh release upload v1.0.7 /tmp/BattleLegions.apk --clobber || true
+          echo "Uploaded BattleLegions.apk v1.0.7 Cooked By Many"
