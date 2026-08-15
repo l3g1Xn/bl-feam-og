@@ -26,8 +26,8 @@ export const GITHUB_APK_URL =
 export const GITHUB_RELEASE_PAGE =
   "https://github.com/l3g1Xn/bl-feam-og/releases/tag/apk-release-1.0.7";
 
-/** Ship stamp — 1.0.7 Cooked By Many · 9-track TraX split · Wave J art complete. */
-export const BUILD_ID = "2026.08.15-v1.0.7-cooked-by-many";
+/** Ship stamp — 1.0.7 Cooked By Many · reward-lock maintenance (matchId once-only). */
+export const BUILD_ID = "2026.08.15-v1.0.7-reward-lock";
 
 /** Title logo asset (version-stamped banner for launcher / README). */
 export const TITLE_LOGO_SRC = "/ui/title_logo_v1.06.666.svg";
