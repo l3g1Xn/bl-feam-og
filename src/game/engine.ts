@@ -53,6 +53,18 @@ export function resetEngineIds(): void {
   actionSeq = 0;
 }
 
+/** Stable unique id for one match lifetime (reward lock + save). */
+export function newMatchId(): string {
+  try {
+    if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+      return crypto.randomUUID();
+    }
+  } catch {
+    /* fall through */
+  }
+  return `m${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
 /* ─── RNG ────────────────────────────────────────────────────────── */
 
 export function fisherYates<T>(arr: T[], rng: () => number = Math.random): T[] {
@@ -184,8 +196,18 @@ function sanitizePlayer(p: PlayerState): PlayerState {
 
 /** Sanitize a full state (load / resume safety). */
 export function sanitizeGameState(state: GameState): GameState {
+  const rawId =
+    typeof state.matchId === "string" && state.matchId.trim().length > 0
+      ? state.matchId.trim()
+      : "";
+  // Legacy saves without matchId get a deterministic fingerprint so the
+  // reward lock still binds if the same near-end save is reloaded.
+  const matchId =
+    rawId ||
+    `legacy-${safeInt(state.turn, 0)}-${state.enemyName || "x"}-${safeInt(state.player?.heroHp, 0)}-${safeInt(state.enemy?.heroHp, 0)}`;
   return {
     ...state,
+    matchId,
     turn: Math.max(0, safeInt(state.turn, 0)),
     player: sanitizePlayer(state.player),
     enemy: sanitizePlayer(state.enemy),
@@ -216,6 +238,7 @@ export function createNewGame(
     player,
     enemy,
     enemyName,
+    matchId: newMatchId(),
     selection: { kind: "none" },
     log: [
       { id: 1, text: `Opponent linked: ${enemyName}`, tone: "system" },
