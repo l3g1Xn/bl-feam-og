@@ -125,24 +125,25 @@ jobs:
           NOTES=$(cat <<'MD'
           **Battle Legions v1.06.666** — offline APK (version held).
 
-          ### 2026.08.15 maintenance
-          - Store Waves **A → I** weekly rotation (Wave H + Wave I stock)
-          - Legion TraX soundtrack · denser combat SFX/VFX
-          - targetSdk 34 · aligned resources.arsc · Gradle-signed release
+          ### 2026.08.15 maintenance — Wave J
+          - Store Waves **A → J** weekly rotation (Iridium / Magma / Quartz / Nimbus / Axiom)
+          - Wave J exclusives: Iridium Lance · Quartz Sentinel · Magma Ram · Nimbus Burst · Axiom Drone · Quartz Coil · Iridium Key · Magma Crown · Nimbus Runner · Axiom Throne
+          - Combat banners resolve Wave I/J beam labels · denser SFX/VFX layers
+          - Legion TraX soundtrack · targetSdk 34 · aligned resources.arsc · Gradle-signed release
           - Signing: keystore injected from Actions secrets (no keystore file in git)
 
           **Download:** [BattleLegions.apk](https://github.com/l3g1Xn/bl-feam-og/releases/download/apk-release-1.06.666/BattleLegions.apk)
 
-          Hard cap: 350 MB packed · TraX included.
+          Hard cap: 350 MB packed · TraX included · BUILD_ID 2026.08.15-v1.06.666-waveJ
           MD
           )
           gh release view apk-release-1.06.666 >/dev/null 2>&1 || \
             gh release create apk-release-1.06.666 \
-              --title "Battle Legions v1.06.666 — Legion TraX + Wave I" \
+              --title "Battle Legions v1.06.666 — Legion TraX + Wave J" \
               --notes "$NOTES"
           # Refresh notes + asset on every successful build
           gh release edit apk-release-1.06.666 \
-            --title "Battle Legions v1.06.666 — Legion TraX + Wave I" \
+            --title "Battle Legions v1.06.666 — Legion TraX + Wave J" \
             --notes "$NOTES" || true
           gh release upload apk-release-1.06.666 /tmp/BattleLegions.apk --clobber
           gh release upload v1.06.666 /tmp/BattleLegions.apk --clobber || true
