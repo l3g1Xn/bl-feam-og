@@ -27,7 +27,7 @@ jobs:
           distribution: temurin
           java-version: "21"
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: "22"
           # cache: npm  # re-enable after package-lock.json is committed and stable
