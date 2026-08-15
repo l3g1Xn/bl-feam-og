@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import type { FxEvent } from "@/game/fx";
 import {
-  beamLabel,
   schoolColor,
   schoolGlow,
   motionEnabled,
 } from "@/game/fx";
+import { resolveBeamLabel } from "@/game/fxBanner";
 import {
   getGraphicsProfile,
   promoteLayer,
@@ -458,7 +458,7 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
 
     if (fx.banner || fx.cardName) {
       const tags: string[] = [];
-      if (fx.beam) tags.push(beamLabel(fx.beam));
+      if (fx.beam) tags.push(resolveBeamLabel(fx.beam));
       for (const k of fx.keywords ?? []) tags.push(keywordLabel(k));
       if (fx.spellKind) tags.push(fx.spellKind.replace(/_/g, " "));
       const b: Banner = {
