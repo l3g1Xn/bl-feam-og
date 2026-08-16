@@ -123,7 +123,7 @@ jobs:
           set -euo pipefail
           export ANDROID_SDK_ROOT="$ANDROID_HOME"
           echo "Using keystore: ${BL_KEYSTORE_PATH:-none}"
-          echo "Store pass set: $([ -n "${BL_STORE_PASS:-}" ] && echo yes || echo no)"
+          echo "Store pass set: $([ -n \"${BL_STORE_PASS:-}\" ] && echo yes || echo no)"
           npm run build:mobile
           npx cap sync android
           chmod +x android/gradlew
@@ -156,10 +156,11 @@ jobs:
           - Wave J production card arts complete (20 new)
           - denser combat SFX/VFX · targetSdk 34 · aligned resources.arsc
           - Signing: keystore from Actions secrets (or temporary CI keystore if secrets unset)
+          - **Reward-lock:** matchId + rewardedMatchIds (cap 64) — tickets/XP paid once per match
 
           **Download:** [BattleLegions.apk](https://github.com/l3g1Xn/bl-feam-og/releases/download/apk-release-1.0.7/BattleLegions.apk)
 
-          Hard cap: 350 MB packed · TraX 9-track · BUILD_ID 2026.08.15-v1.0.7-cooked-by-many
+          Hard cap: 750 MB packed · TraX 9-track · BUILD_ID 2026.08.15-v1.0.7-reward-lock
           MD
           )
           gh release view apk-release-1.0.7 >/dev/null 2>&1 || \
