@@ -11,6 +11,9 @@ const REGISTRY_KEY = "bl-vault-registry-v1";
 const ACTIVE_KEY = "bl-vault-active-v1";
 const SESSION_UNLOCKED = "bl-vault-session-unlocked";
 
+/** Cap the once-paid matchId ledger so sealed vaults stay bounded. */
+const REWARDED_MATCH_CAP = 64;
+
 export type MetaSnapshot = {
   tickets: number;
   totalXp: number;
@@ -22,6 +25,8 @@ export type MetaSnapshot = {
   reducedShake: boolean;
   sfxVolume: number;
   sfxMuted: boolean;
+  /** Once-paid matchIds — optional so pre-1.0.7 vaults still unseal. */
+  rewardedMatchIds?: string[];
 };
 
 export type VaultProfile = {
@@ -62,6 +67,21 @@ function safeInt(n: number, min: number, max: number, fallback: number): number 
   return Math.max(min, Math.min(max, Math.trunc(n)));
 }
 
+/** Trim, unique, cap 64. Never invents ids. */
+export function sanitizeRewardedMatchIds(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return [];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const item of raw) {
+    if (typeof item !== "string") continue;
+    const id = item.trim();
+    if (!id || seen.has(id)) continue;
+    seen.add(id);
+    out.push(id);
+  }
+  return out.slice(-REWARDED_MATCH_CAP);
+}
+
 export function defaultSnapshot(): MetaSnapshot {
   return {
     tickets: 220,
@@ -74,6 +94,7 @@ export function defaultSnapshot(): MetaSnapshot {
     reducedShake: false,
     sfxVolume: 0.75,
     sfxMuted: false,
+    rewardedMatchIds: [],
   };
 }
 
@@ -115,6 +136,7 @@ export function sanitizeSnapshot(raw: Partial<MetaSnapshot> | null | undefined):
         ? Math.max(0, Math.min(1, p.sfxVolume))
         : d.sfxVolume,
     sfxMuted: !!p.sfxMuted,
+    rewardedMatchIds: sanitizeRewardedMatchIds(p.rewardedMatchIds),
   };
 }
 

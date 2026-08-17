@@ -28,6 +28,7 @@ function snapshotGameForSave() {
       player: s.player,
       enemy: s.enemy,
       enemyName: s.enemyName,
+      matchId: s.matchId,
       selection: { kind: "none" },
       log: s.log,
       logSeq: s.logSeq,

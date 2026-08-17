@@ -10,6 +10,7 @@ import type { GraphicsQuality } from "./graphics";
 import {
   isVaultReady,
   persistUnlockedSnapshot,
+  sanitizeRewardedMatchIds,
   type MetaSnapshot,
 } from "./deviceVault";
 import {
@@ -260,10 +261,15 @@ export const useMetaStore = create<MetaState>()(
           reducedShake: s.reducedShake,
           sfxVolume: s.sfxVolume,
           sfxMuted: s.sfxMuted,
+          rewardedMatchIds: sanitizeRewardedMatchIds(s.rewardedMatchIds),
         };
       },
 
       applySnapshot: (snap, profileLabel) => {
+        // Union vault ids with persist ids — never drop a paid matchId.
+        const incoming = sanitizeRewardedMatchIds(snap.rewardedMatchIds);
+        const existing = sanitizeRewardedMatchIds(get().rewardedMatchIds);
+        const rewardedMatchIds = sanitizeRewardedMatchIds([...existing, ...incoming]);
         set({
           tickets: safeInt(snap.tickets, 0, 9_999_999, 220),
           totalXp: safeInt(snap.totalXp, 0, 50_000_000, 0),
@@ -275,9 +281,11 @@ export const useMetaStore = create<MetaState>()(
           reducedShake: !!snap.reducedShake,
           sfxVolume: Math.max(0, Math.min(1, snap.sfxVolume)),
           sfxMuted: !!snap.sfxMuted,
+          rewardedMatchIds,
           vaultProfileLabel: profileLabel ?? get().vaultProfileLabel,
           lastMessage: profileLabel ? `Vault unlocked — ${profileLabel}` : get().lastMessage,
         });
+        flushVaultSoon();
       },
 
       addTickets: (n) => {
