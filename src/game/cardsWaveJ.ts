@@ -1,7 +1,7 @@
 import type { CardDef } from "./types";
 import { CARD_ART_ALIAS, CARD_MAP, CARD_POOL } from "./cards";
 
-/** Wave J exclusives — 2026.08.15 maint (version held at 1.06.666). */
+/** Wave J exclusives — 1.0.7 Cooked By Many (version held). */
 export const WAVE_J_CARDS: CardDef[] = [
   {
     id: "iridium_lance",
@@ -117,19 +117,8 @@ export const WAVE_J_CARDS: CardDef[] = [
   },
 ];
 
-/** Reuse existing portraits — no duplicate JPGs (APK budget). */
-export const WAVE_J_ART_ALIAS: Record<string, string> = {
-  iridium_lance: "ferro_lance",
-  quartz_sentinel: "pulse_sentinel",
-  magma_ram: "kinetic_breaker",
-  nimbus_burst: "corona_burst",
-  axiom_drone: "echo_drone",
-  quartz_coil: "hex_lattice",
-  iridium_key: "orbital_scan",
-  magma_crown: "legion_beacon",
-  nimbus_runner: "flicker_blade",
-  axiom_throne: "dominion_core",
-};
+/** Dedicated Wave J portraits live at public/cards/<id>.jpg — do not alias them away. */
+export const WAVE_J_ART_ALIAS: Record<string, string> = {};
 
 export const STORE_STOCK_WAVE_J_IDS = [
   "iridium_lance",

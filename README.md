@@ -86,9 +86,9 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle
 
 - Workflow / GitHub release NOTES aligned to **750 MB** hard cap and BUILD_ID `2026.08.15-v1.0.7-reward-lock` (was stale 350 MB / cooked-by-many). Reward-lock note above is unchanged. Version still 1.0.7 / 100007.
 
-### Maintenance patch (2026.08.17 — vault ledger + pause-save matchId)
+### Maintenance patch (2026.08.18 — Wave J arts + EndScreen + missing-id withhold)
 
-- PIN vault snapshot now carries `rewardedMatchIds` (union on restore, never drop ids). Pause/close match save now persists `matchId` so the reward lock survives app backgrounding. BUILD_ID remains `2026.08.15-v1.0.7-reward-lock`. Version still 1.0.7 / 100007.
+- Dedicated Wave J portraits (`public/cards/<id>.jpg`) are no longer remapped through `WAVE_J_ART_ALIAS` onto older cards. EndScreen **Save** removed — `isPlayablePhase` excludes victory/defeat so that button could never succeed. `rewardMatch` now withholds tickets/XP when `matchId` is missing (unbound claim blocked). BUILD_ID remains `2026.08.15-v1.0.7-reward-lock`. Version still 1.0.7 / 100007.
 
 ---
 

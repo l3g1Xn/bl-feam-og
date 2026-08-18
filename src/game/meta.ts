@@ -318,21 +318,33 @@ export const useMetaStore = create<MetaState>()(
             ? matchId.trim()
             : null;
 
+        // No matchId → withhold. Never pay an unbound claim (save-scum lock).
+        if (!id) {
+          const zero: MatchRewardResult = {
+            tickets: 0,
+            xp: 0,
+            leveledUp: false,
+            newLevel: levelFromTotalXp(get().totalXp),
+            bonusNote: "Match id missing — reward withheld.",
+            alreadyClaimed: true,
+          };
+          set({ lastReward: zero });
+          return zero;
+        }
+
         // Once-only payout: same matchId cannot be farmed via save reload.
-        if (id) {
-          const paid = get().rewardedMatchIds;
-          if (paid.includes(id)) {
-            const zero: MatchRewardResult = {
-              tickets: 0,
-              xp: 0,
-              leveledUp: false,
-              newLevel: levelFromTotalXp(get().totalXp),
-              bonusNote: "Rewards already claimed for this match.",
-              alreadyClaimed: true,
-            };
-            set({ lastReward: zero });
-            return zero;
-          }
+        const paid = get().rewardedMatchIds;
+        if (paid.includes(id)) {
+          const zero: MatchRewardResult = {
+            tickets: 0,
+            xp: 0,
+            leveledUp: false,
+            newLevel: levelFromTotalXp(get().totalXp),
+            bonusNote: "Rewards already claimed for this match.",
+            alreadyClaimed: true,
+          };
+          set({ lastReward: zero });
+          return zero;
         }
 
         const level = levelFromTotalXp(get().totalXp);
@@ -360,10 +372,7 @@ export const useMetaStore = create<MetaState>()(
         const totalTickets = tickets + extraTickets;
 
         set((s) => {
-          let rewardedMatchIds = s.rewardedMatchIds;
-          if (id) {
-            rewardedMatchIds = [...rewardedMatchIds, id].slice(-REWARDED_MATCH_CAP);
-          }
+          const rewardedMatchIds = [...s.rewardedMatchIds, id].slice(-REWARDED_MATCH_CAP);
           return {
             totalXp: safeInt(s.totalXp + xp, 0, 50_000_000, s.totalXp),
             tickets: safeInt(s.tickets + totalTickets, 0, 9_999_999, s.tickets),

@@ -6,7 +6,7 @@ Canonical repo: **l3g1Xn/bl-feam-og**
 
 | Package | Version | Status |
 | --- | --- | --- |
-| BattleLegions.apk | **1.06.666** (versionCode 106666) | Current — version held |
+| BattleLegions.apk | **1.0.7** (versionCode 100007) | Current — version held · Cooked By Many |
 
 Version is only bumped for a **major bugfix** or a full **UI/UX art overhaul**. Store stock, SFX/VFX, and weekly rotation ship under the held version.
 
@@ -24,12 +24,13 @@ Include:
 
 - Offline game — no cloud accounts, no remote save
 - PIN vault is **APK-only** and local (never transmitted)
-- Dependabot enabled for npm + GitHub Actions (weekly)
+- Reward lock: `matchId` + `rewardedMatchIds` ledger (cap 64) — tickets/XP paid once per match
+- Dependabot is **off** — do not add `.github/dependabot.yml`
 - Transitive pins via `overrides`:
   - `uuid` **11.1.1** (GHSA-w5hq-g745-h8pq / CVE-2026-41907)
   - `nanoid` **3.3.18** (GHSA-2v37-7h3g-55p8 / CVE-2026-67213)
 - Release keystore is **not** in the tree — GitHub Actions secrets only
-- No secrets in source; release tags stay `v1.06.666` / `apk-release-1.06.666`
+- No secrets in source; release tag stays `apk-release-1.0.7` (clobber APK only — do not mint new tags)
 - Mobile-safe: landscape + foldable + 280px + hinge-band layouts, coarse-pointer targets, safe-area insets, `prefers-reduced-motion`
 - CODEOWNERS: @l3g1Xn
 

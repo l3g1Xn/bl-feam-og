@@ -20,7 +20,7 @@ import { GAME_TITLE_SHORT } from "@/game/brand";
 import { playSfx, unlockAudio } from "@/game/audio";
 import { ensureMusicUnlocked, setBattleMusicDuck } from "@/game/music";
 import { cn } from "@/lib/utils";
-import { Menu, RotateCcw, Save, SkipForward, X } from "lucide-react";
+import { Menu, RotateCcw, SkipForward, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { SpellEffect } from "@/game/types";
 
@@ -253,14 +253,12 @@ function EndScreen() {
   const phase = useGameStore((s) => s.phase);
   const startGame = useGameStore((s) => s.startGame);
   const returnToMenu = useGameStore((s) => s.returnToMenu);
-  const saveGameLocal = useGameStore((s) => s.saveGameLocal);
   const math = useGameStore((s) => s.math);
   const enemyName = useGameStore((s) => s.enemyName);
   const matchId = useGameStore((s) => s.matchId);
   const rewardMatch = useMetaStore((s) => s.rewardMatch);
   const victory = phase === "victory";
   const [reward, setReward] = useState<MatchRewardResult | null>(null);
-  const [saveMsg, setSaveMsg] = useState<string | null>(null);
   const paid = useRef(false);
 
   useEffect(() => {
@@ -323,19 +321,6 @@ function EndScreen() {
               type="button"
               onClick={() => {
                 unlockAudio();
-                playSfx("ui");
-                const r = saveGameLocal();
-                setSaveMsg(r.ok ? "Match saved to device cache." : (r.error || "Save failed"));
-              }}
-              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-success/40 bg-success/15 px-6 py-3 text-sm font-semibold text-success"
-            >
-              <Save className="h-4 w-4" />
-              Save game
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                unlockAudio();
                 startGame("normal");
               }}
               className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-fg"
@@ -351,9 +336,6 @@ function EndScreen() {
               Launcher
             </button>
           </div>
-          {saveMsg && (
-            <p className="mt-3 text-center text-xs text-success">{saveMsg}</p>
-          )}
         </div>
       </div>
     </div>
