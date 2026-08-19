@@ -129,6 +129,12 @@ function cleanState(state: GameState): GameState {
 export function writeMatchSave(
   state: GameState,
 ): { ok: true; savedAt: number } | { ok: false; error: string } {
+  // Lethal attack/spell callers write the end-phase state. Do not leave the
+  // prior mid-match snapshot sitting in storage — Load game would resume it.
+  if (state.phase === "victory" || state.phase === "defeat") {
+    clearMatchSave();
+    return { ok: false, error: "Match ended — leftover save cleared." };
+  }
   if (!isPlayablePhase(state.phase)) {
     return { ok: false, error: "No active match to save." };
   }

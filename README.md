@@ -90,6 +90,10 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle
 
 - Dedicated Wave J portraits (`public/cards/<id>.jpg`) are no longer remapped through `WAVE_J_ART_ALIAS` onto older cards. EndScreen **Save** removed — `isPlayablePhase` excludes victory/defeat so that button could never succeed. `rewardMatch` now withholds tickets/XP when `matchId` is missing (unbound claim blocked). BUILD_ID remains `2026.08.15-v1.0.7-reward-lock`. Version still 1.0.7 / 100007.
 
+### Maintenance patch (2026.08.19 — clear leftover save on lethal)
+
+- `writeMatchSave` now **clears** the leftover mid-match snapshot when the incoming phase is victory/defeat (lethal attack/spell used to no-op and leave the prior board loadable). Reward-lock (`matchId` + `rewardedMatchIds`) is unchanged. BUILD_ID remains `2026.08.15-v1.0.7-reward-lock`. Version still 1.0.7 / 100007.
+
 ---
 
 ## Quick start checklist
