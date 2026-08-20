@@ -1,8 +1,23 @@
-# Wave card arts (2026-08-15 bake)
+# Wave card arts
 
-Production card arts generated for the 20 previously missing Wave I/J cards.
+Production card arts. Every store exclusive (Waves H / I / J) has a dedicated
+`public/cards/<id>.jpg` — do not re-enable `CARD_ART_ALIAS` / `WAVE_I_ART_ALIAS`
+/ `WAVE_J_ART_ALIAS` remaps.
 
-Files (drop the matching `.jpg` from `wave_card_arts_20.zip` into this directory):
+## Wave H (2026-08-20 bake)
+
+- volt_lance.jpg (arcane spell – high-voltage kill-spike)
+- glyph_sentinel.jpg (arcane minion – rune-locked Taunt Shield turret)
+- tungsten_ram.jpg (steel minion – Charge dense-metal breach)
+- halo_burst.jpg (arcane spell – radiant flare ring AOE)
+- orbit_drone.jpg (ember minion – Rush Reborn satellite escort)
+- tesla_coil.jpg (arcane minion – Taunt arc-capacitor tower)
+- glyph_key.jpg (arcane spell – cipher unlock)
+- halo_crown.jpg (arcane spell – +2/+2 radiant command)
+- volt_runner.jpg (ember minion – Charge overclocked shock infantry)
+- tungsten_throne.jpg (steel minion – Taunt Shield Reborn capital siege seat)
+
+## Wave I / J (2026-08-15 bake)
 
 - cobalt_lance.jpg (frost spell – cryo-cobalt kill-spike)
 - graphene_sentinel.jpg (steel minion – carbon-lattice Taunt Shield)
@@ -25,6 +40,6 @@ Files (drop the matching `.jpg` from `wave_card_arts_20.zip` into this directory
 - nimbus_runner.jpg (frost minion – Charge storm-sprint)
 - axiom_throne.jpg (arcane minion – Taunt Shield Reborn)
 
-Style matched to existing high-tech legion card art. Quality optimized (~250–350 KB each).
+Style matched to existing high-tech legion card art. Quality optimized (~140–350 KB each).
 
 After these files are in place, trigger the **Build and publish BattleLegions.apk** workflow for a full production bake.

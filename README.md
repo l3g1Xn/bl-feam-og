@@ -98,6 +98,10 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle
 
 - Capacitor shell (`mobile-entry.tsx`) now loads `styles.wavej.css` so foldable / 280px / coarse-pointer / hinge rules ship in the APK, not only the website. Overlay screens (End, Mulligan, PIN vault, permissions) use `.launcher-shell`; launcher header and Mulligan Menu clear the notch; EndScreen distinguishes withheld vs already-claimed. Reward-lock unchanged. BUILD_ID remains `2026.08.15-v1.0.7-reward-lock`. Version still 1.0.7 / 100007.
 
+### Maintenance patch (2026.08.20 — unique Store Wave H/I portraits)
+
+- Wave H exclusives now ship dedicated `public/cards/<id>.jpg` portraits (volt / glyph / tungsten / halo / orbit / tesla). `CARD_ART_ALIAS` and `WAVE_I_ART_ALIAS` no longer remap unique arts onto older cards — every store card has its own artwork. Local bake cap in `scripts/build-apk.mjs` synced to **750 MB**. Reward-lock (`matchId` + `rewardedMatchIds`) is unchanged. BUILD_ID remains `2026.08.15-v1.0.7-reward-lock`. Version still 1.0.7 / 100007.
+
 ---
 
 ## Quick start checklist

@@ -70,12 +70,12 @@ mkdirSync(join(root, "public/downloads"), { recursive: true });
 copyFileSync(apk, join(root, "public/downloads/BattleLegions.apk"));
 run("node", ["scripts/split-apk.mjs", dest], { env });
 
-// Packed APK ceiling: 350 MB (store limit band 350 MB–1 GB; ship dense features under cap)
-const APK_MAX = 350 * 1024 * 1024;
+// Packed APK ceiling: 750 MB (store limit band; ship dense features under cap)
+const APK_MAX = 750 * 1024 * 1024;
 const size = statSync(dest).size;
 const mb = (size / (1024 * 1024)).toFixed(1);
-console.log(`APK size: ${mb} MB / max 350 MB`);
+console.log(`APK size: ${mb} MB / max 750 MB`);
 if (size > APK_MAX) {
-  console.error(`APK exceeds 350 MB ceiling (${mb} MB). Trim assets.`);
+  console.error(`APK exceeds 750 MB ceiling (${mb} MB). Trim assets.`);
   process.exit(1);
 }

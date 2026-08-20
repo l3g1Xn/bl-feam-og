@@ -1301,19 +1301,8 @@ export function getCard(id: string): CardDef {
   return c;
 }
 
-/** Reuse existing portraits — no duplicate JPGs (APK budget). */
-export const CARD_ART_ALIAS: Record<string, string> = {
-  volt_lance: "ion_lance",
-  glyph_sentinel: "pulse_sentinel",
-  tungsten_ram: "iron_colossus",
-  halo_burst: "nova_core",
-  orbit_drone: "echo_drone",
-  tesla_coil: "hex_lattice",
-  glyph_key: "orbital_scan",
-  halo_crown: "legion_beacon",
-  volt_runner: "flicker_blade",
-  tungsten_throne: "overlord_frame",
-};
+/** Dedicated portraits live at public/cards/<id>.jpg — do not alias them away. */
+export const CARD_ART_ALIAS: Record<string, string> = {};
 
 export function cardArtSrc(id: string): string {
   return `/cards/${CARD_ART_ALIAS[id] ?? id}.jpg`;

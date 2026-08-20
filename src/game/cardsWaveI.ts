@@ -1,7 +1,7 @@
 import type { CardDef } from "./types";
 import { CARD_ART_ALIAS, CARD_MAP, CARD_POOL } from "./cards";
 
-/** Wave I exclusives — 2026.08.15 maint (version held at 1.06.666). */
+/** Wave I exclusives — 1.0.7 Cooked By Many (version held). */
 export const WAVE_I_CARDS: CardDef[] = [
   {
     id: "cobalt_lance",
@@ -117,19 +117,8 @@ export const WAVE_I_CARDS: CardDef[] = [
   },
 ];
 
-/** Reuse existing portraits — no duplicate JPGs (APK budget). */
-export const WAVE_I_ART_ALIAS: Record<string, string> = {
-  cobalt_lance: "ion_lance",
-  graphene_sentinel: "pulse_sentinel",
-  sonic_ram: "kinetic_breaker",
-  helion_burst: "corona_burst",
-  riftglass_drone: "echo_drone",
-  sonic_coil: "hex_lattice",
-  cobalt_key: "orbital_scan",
-  helion_crown: "legion_beacon",
-  graphene_runner: "flicker_blade",
-  riftglass_throne: "void_sovereign",
-};
+/** Dedicated Wave I portraits live at public/cards/<id>.jpg — do not alias them away. */
+export const WAVE_I_ART_ALIAS: Record<string, string> = {};
 
 export const STORE_STOCK_WAVE_I_IDS = [
   "cobalt_lance",
