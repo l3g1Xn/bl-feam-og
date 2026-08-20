@@ -188,7 +188,7 @@ function MulliganScreen({
   const enemyName = useGameStore((s) => s.enemyName);
 
   return (
-    <div className="relative flex h-dvh flex-col items-center justify-center overflow-y-auto bg-bg px-3 py-6 sm:px-4">
+    <div className="launcher-shell relative flex h-dvh flex-col items-center justify-center overflow-y-auto bg-bg px-3 py-6 sm:px-4">
       <AmbientStage variant="launcher" />
       <div
         className="pointer-events-none absolute inset-0 opacity-30"
@@ -204,7 +204,7 @@ function MulliganScreen({
           unlockAudio();
           setMenuOpen(true);
         }}
-        className="absolute right-3 top-3 z-20 inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-border bg-bg-elevated/90 px-3 text-xs font-medium backdrop-blur"
+        className="absolute z-20 inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-border bg-bg-elevated/90 px-3 text-xs font-medium backdrop-blur right-[max(0.75rem,env(safe-area-inset-right,0px))] top-[max(0.75rem,env(safe-area-inset-top,0px))]"
       >
         <Menu className="h-4 w-4" />
         Menu
@@ -270,7 +270,7 @@ function EndScreen() {
   }, [victory, rewardMatch, matchId]);
 
   return (
-    <div className="relative flex h-dvh flex-col items-center justify-center overflow-hidden bg-bg px-4">
+    <div className="launcher-shell relative flex h-dvh flex-col items-center justify-center overflow-hidden bg-bg px-4">
       <AmbientStage variant="launcher" />
       <div className="relative z-10 w-full max-w-md overflow-hidden rounded-3xl border border-white/12 p-6 sm:p-8">
         <CanvasChrome variant="hero" />
@@ -295,7 +295,10 @@ function EndScreen() {
             <div className="mt-4 flex max-w-sm flex-col items-center gap-1.5 text-center">
               {reward.alreadyClaimed ? (
                 <div className="rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-sm font-semibold text-fg-muted">
-                  Rewards already claimed for this match
+                  {typeof reward.bonusNote === "string" &&
+                  /withheld/i.test(reward.bonusNote)
+                    ? "Reward withheld — match was not bound"
+                    : "Rewards already claimed for this match"}
                 </div>
               ) : (
                 <div className="rounded-full border border-attack/40 bg-attack/15 px-4 py-1.5 text-sm font-semibold text-attack">
@@ -307,7 +310,7 @@ function EndScreen() {
                   Legion level {reward.newLevel}!
                 </div>
               )}
-              {reward.bonusNote && (
+              {reward.bonusNote && !reward.alreadyClaimed && (
                 <div className="text-xs text-fg-muted">{reward.bonusNote}</div>
               )}
             </div>

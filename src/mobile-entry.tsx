@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { GameApp } from "@/components/game/GameApp";
 import { getGraphicsProfile } from "@/game/graphics";
 import "./styles.css";
+import "./styles.wavej.css";
 
 // Offline mobile shell — no SSR, no auth/db. All game state is local.
 const profile = getGraphicsProfile();

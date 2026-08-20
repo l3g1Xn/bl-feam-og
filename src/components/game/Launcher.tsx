@@ -122,7 +122,7 @@ export function Launcher() {
         aria-hidden
       />
 
-      <header className="relative z-10 flex shrink-0 items-center justify-between border-b border-white/10 bg-black/70 px-3 py-2 backdrop-blur-md sm:px-5">
+      <header className="relative z-10 flex shrink-0 items-center justify-between border-b border-white/10 bg-black/70 px-3 pb-2 pt-[max(0.5rem,env(safe-area-inset-top,0px))] backdrop-blur-md sm:px-5">
         <div className="flex min-w-0 items-center gap-2.5">
           <img
             src="/ui/legixn_icon.png"

@@ -94,6 +94,10 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle
 
 - `writeMatchSave` now **clears** the leftover mid-match snapshot when the incoming phase is victory/defeat (lethal attack/spell used to no-op and leave the prior board loadable). Reward-lock (`matchId` + `rewardedMatchIds`) is unchanged. BUILD_ID remains `2026.08.15-v1.0.7-reward-lock`. Version still 1.0.7 / 100007.
 
+### Maintenance patch (2026.08.20 — APK Wave J CSS + overlay safe-area)
+
+- Capacitor shell (`mobile-entry.tsx`) now loads `styles.wavej.css` so foldable / 280px / coarse-pointer / hinge rules ship in the APK, not only the website. Overlay screens (End, Mulligan, PIN vault, permissions) use `.launcher-shell`; launcher header and Mulligan Menu clear the notch; EndScreen distinguishes withheld vs already-claimed. Reward-lock unchanged. BUILD_ID remains `2026.08.15-v1.0.7-reward-lock`. Version still 1.0.7 / 100007.
+
 ---
 
 ## Quick start checklist

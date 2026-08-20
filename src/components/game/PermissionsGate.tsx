@@ -144,7 +144,7 @@ export function PermissionsGate({ children }: { children: React.ReactNode }) {
   if (!show) return <>{children}</>;
 
   return (
-    <div className="relative flex h-dvh flex-col items-center justify-center overflow-hidden bg-bg px-4">
+    <div className="launcher-shell relative flex h-dvh flex-col items-center justify-center overflow-hidden bg-bg px-4">
       <AmbientStage variant="launcher" />
       <div className="relative z-10 w-full max-w-md rounded-3xl border border-white/10 bg-bg-elevated/95 p-5 shadow-2xl backdrop-blur-md">
         <div className="mb-3 flex items-center gap-3">

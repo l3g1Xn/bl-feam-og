@@ -73,7 +73,7 @@ export function GameMenu({
     >
       <div
         className={cn(
-          "relative flex max-h-[min(90dvh,640px)] w-full max-w-md flex-col overflow-hidden rounded-3xl border border-white/12 bg-bg-elevated/95 shadow-2xl",
+          "game-menu relative flex max-h-[min(90dvh,640px)] w-full max-w-md flex-col overflow-hidden rounded-3xl border border-white/12 bg-bg-elevated/95 shadow-2xl",
         )}
         onClick={(e) => e.stopPropagation()}
       >
