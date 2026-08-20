@@ -249,6 +249,9 @@ function MulliganScreen({
   );
 }
 
+/** Session cache: EndScreen remount (fold / PIN / StrictMode) must not re-call rewardMatch. */
+const endScreenClaimed = new Map<string, MatchRewardResult>();
+
 function EndScreen() {
   const phase = useGameStore((s) => s.phase);
   const startGame = useGameStore((s) => s.startGame);
@@ -262,11 +265,20 @@ function EndScreen() {
   const paid = useRef(false);
 
   useEffect(() => {
+    const key =
+      typeof matchId === "string" && matchId.trim().length > 0 ? matchId.trim() : "";
+    if (key && endScreenClaimed.has(key)) {
+      setReward(endScreenClaimed.get(key)!);
+      paid.current = true;
+      return;
+    }
     if (paid.current) return;
     paid.current = true;
     unlockAudio();
     playSfx(victory ? "glory" : "defeat");
-    setReward(rewardMatch(victory, matchId));
+    const result = rewardMatch(victory, matchId);
+    if (key) endScreenClaimed.set(key, result);
+    setReward(result);
   }, [victory, rewardMatch, matchId]);
 
   return (

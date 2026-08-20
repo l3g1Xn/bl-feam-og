@@ -102,6 +102,10 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle
 
 - Wave H exclusives now ship dedicated `public/cards/<id>.jpg` portraits (volt / glyph / tungsten / halo / orbit / tesla). `CARD_ART_ALIAS` and `WAVE_I_ART_ALIAS` no longer remap unique arts onto older cards — every store card has its own artwork. Local bake cap in `scripts/build-apk.mjs` synced to **750 MB**. Reward-lock (`matchId` + `rewardedMatchIds`) is unchanged. BUILD_ID remains `2026.08.15-v1.0.7-reward-lock`. Version still 1.0.7 / 100007.
 
+### Maintenance patch (2026.08.20 — unique portraits for remaining duplicate arts)
+
+- 32 older cards still shared identical JPGs (same-hash copies). Dedicated 2:3 portraits now ship for each (nova / photon / mortar / bastion / hydra / saber / hex / ion / mirror / grav / overcharge / void / siege / pulse / spellblade / cryo / omega / phase / shield / orbital / horn / quantum / swarm). EndScreen caches the paid result by `matchId` so fold/PIN remount does not flash "already claimed" after a real payout. Persist merge uses `sanitizeRewardedMatchIds`. Reward-lock (`matchId` + `rewardedMatchIds`, cap 64) is unchanged. BUILD_ID remains `2026.08.15-v1.0.7-reward-lock`. Version still 1.0.7 / 100007.
+
 ---
 
 ## Quick start checklist

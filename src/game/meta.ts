@@ -475,9 +475,7 @@ export const useMetaStore = create<MetaState>()(
         reducedShake: s.reducedShake,
         sfxVolume: s.sfxVolume,
         sfxMuted: s.sfxMuted,
-        rewardedMatchIds: Array.isArray(s.rewardedMatchIds)
-          ? s.rewardedMatchIds.slice(-REWARDED_MATCH_CAP)
-          : [],
+        rewardedMatchIds: sanitizeRewardedMatchIds(s.rewardedMatchIds),
       }),
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<MetaState>;
@@ -496,7 +494,7 @@ export const useMetaStore = create<MetaState>()(
               ? Math.max(0, Math.min(1, p.sfxVolume))
               : current.sfxVolume,
           sfxMuted: typeof p.sfxMuted === "boolean" ? p.sfxMuted : current.sfxMuted,
-          rewardedMatchIds: ids.slice(-REWARDED_MATCH_CAP),
+          rewardedMatchIds: sanitizeRewardedMatchIds(ids),
         };
       },
     },
