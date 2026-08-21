@@ -9,7 +9,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* LEGIXN / Battle Legions 1.06.666 — steel + blaze brand */
+/* LEGIXN / Battle Legions 1.0.7 — steel + blaze brand */
 @theme inline {
   --color-bg: #07080c;
   --color-bg-elevated: #10131a;

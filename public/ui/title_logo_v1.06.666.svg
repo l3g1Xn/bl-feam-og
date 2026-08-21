@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="Battle Legions v1.06.666 Wave J">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="Battle Legions v1.0.7 Cooked By Many">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#05070c"/>
@@ -57,7 +57,7 @@
   <text x="800" y="392" text-anchor="middle" fill="url(#steel)" font-family="Segoe UI, system-ui, sans-serif" font-size="118" letter-spacing="10" font-weight="800" filter="url(#glow)">BATTLE</text>
   <text x="800" y="524" text-anchor="middle" fill="url(#magma)" font-family="Segoe UI, system-ui, sans-serif" font-size="128" letter-spacing="18" font-weight="800" filter="url(#glow)">LEGIONS</text>
   <text x="800" y="596" text-anchor="middle" fill="#9aa6b8" font-family="Segoe UI, system-ui, sans-serif" font-size="26" letter-spacing="12" font-weight="600">FOR WE ARE MANY</text>
-  <rect x="548" y="634" width="504" height="58" rx="29" fill="#0a1018" stroke="#70ffc0" stroke-width="1.6"/>
-  <text x="800" y="672" text-anchor="middle" fill="#f2f6fa" font-family="ui-monospace, SF Mono, Menlo, Consolas, monospace" font-size="22" letter-spacing="3" font-weight="700">v1.06.666  ·  WAVE J</text>
+  <rect x="470" y="634" width="660" height="58" rx="29" fill="#0a1018" stroke="#70ffc0" stroke-width="1.6"/>
+  <text x="800" y="672" text-anchor="middle" fill="#f2f6fa" font-family="ui-monospace, SF Mono, Menlo, Consolas, monospace" font-size="22" letter-spacing="2.4" font-weight="700">v1.0.7  ·  COOKED BY MANY</text>
   <text x="800" y="776" text-anchor="middle" fill="#6d768a" font-family="Segoe UI, system-ui, sans-serif" font-size="15" letter-spacing="3.2">2026.08.15 MAINT  ·  IRIDIUM / MAGMA / QUARTZ / NIMBUS / AXIOM</text>
 </svg>

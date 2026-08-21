@@ -75,9 +75,8 @@ function resolveUrl(path: string): string {
 
 function manifestMatchesShip(man: Manifest): boolean {
   const v = typeof man.appVersion === "string" ? man.appVersion.trim() : "";
-  // Stale chunked package (currently 1.06.666) must not win over GitHub 1.0.7.
-  if (v && v !== APK_VERSION) return false;
-  return true;
+  // Exact ship match only. Missing / stale appVersion must fall through to GitHub 1.0.7.
+  return v === APK_VERSION;
 }
 
 async function fetchTextStrict(url: string): Promise<string> {

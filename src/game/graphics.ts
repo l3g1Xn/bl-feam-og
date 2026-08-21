@@ -2,7 +2,7 @@
  * Graphics adapter for Battle Legions — real-time quality switches.
  * Uses Chromium WebView compositor + ANGLE (not a kernel GPU driver).
  * Particle budgets sized for immersive VFX while staying APK-code-only
- * (under the 350 MB package ceiling). Mobile-first auto-tiering keeps
+ * (under the 750 MB package ceiling). Mobile-first auto-tiering keeps
  * mid-range Android phones at playable 30–60 fps.
  */
 

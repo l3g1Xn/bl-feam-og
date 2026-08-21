@@ -114,6 +114,10 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle
 
 - Site/PWA Download no longer serves the leftover chunked `/pkg` 1.06.666 APK (~101 MB, pre-reward-lock). Manifest `appVersion` must match ship **1.0.7** or the client falls through to GitHub `apk-release-1.0.7`. Launcher badges/copy now say TraX **9 tracks** and Store Waves **A–J** (were still “2 suites” / Wave A–E). Reward-lock (`matchId` + `rewardedMatchIds`, cap 64) is unchanged. BUILD_ID remains `2026.08.15-v1.0.7-reward-lock`. Version still 1.0.7 / 100007.
 
+### Maintenance patch (2026.08.21 — launcher stamp + Install page 1.0.7)
+
+- Title logo stamp now reads **v1.0.7 · Cooked By Many** (was still v1.06.666 · Wave J). `/pkg/install.html` no longer assembles the leftover 1.06.666 chunked APK — missing/stale `appVersion` falls through to GitHub `apk-release-1.0.7`. `manifestMatchesShip` now requires an exact 1.0.7 match. Reward-lock (`matchId` + `rewardedMatchIds`, cap 64) is unchanged. BUILD_ID remains `2026.08.15-v1.0.7-reward-lock`. Version still 1.0.7 / 100007.
+
 ---
 
 ## Quick start checklist

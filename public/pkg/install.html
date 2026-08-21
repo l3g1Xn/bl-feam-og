@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <title>Download BattleLegions.apk v1.06.666</title>
+    <title>Download BattleLegions.apk v1.0.7</title>
     <style>
       :root { color-scheme: dark; font-family: system-ui, sans-serif; }
       body { margin: 0; min-height: 100dvh; display: grid; place-items: center; background: #0c0e14; color: #e8eaef; padding: 1.5rem; }
@@ -23,19 +23,21 @@
   </head>
   <body>
     <div class="card">
-      <h1>Battle Legions — Android APK v1.06.666</h1>
+      <h1>Battle Legions — Android APK v1.0.7</h1>
       <p>
-        Release package matching GitHub <code>apk-release-1.06.666</code>
-        (2026.08.08-v1.06.666-maint). Assembles from <code>/pkg/</code> chunks.
+        Cooked By Many · reward-lock. Same binary as GitHub
+        <code>apk-release-1.0.7</code>. Leftover chunked 1.06.666 packages are not served.
       </p>
       <button type="button" id="go">Download BattleLegions.apk</button>
-      <a class="linkbtn" href="https://github.com/l3g1Xn/bl-feam-og/releases/download/apk-release-1.06.666/BattleLegions.apk" target="_blank" rel="noopener">GitHub backup download</a>
+      <a class="linkbtn" href="https://github.com/l3g1Xn/bl-feam-og/releases/download/apk-release-1.0.7/BattleLegions.apk" target="_blank" rel="noopener">GitHub backup download</a>
       <div class="bar" aria-hidden="true"><i id="prog"></i></div>
-      <div id="status">Ready · v1.06.666</div>
-      <p class="meta">Build 2026.08.08-v1.06.666-maint</p>
+      <div id="status">Ready · v1.0.7</div>
+      <p class="meta">Build 2026.08.15-v1.0.7-reward-lock</p>
     </div>
     <script>
       const MIME = "application/vnd.android.package-archive";
+      const SHIP = "1.0.7";
+      const GH = "https://github.com/l3g1Xn/bl-feam-og/releases/download/apk-release-1.0.7/BattleLegions.apk";
       const statusEl = document.getElementById("status");
       const progEl = document.getElementById("prog");
       const go = document.getElementById("go");
@@ -48,6 +50,11 @@
         for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
         return out;
       }
+      function openGithub() {
+        setStatus("Opening GitHub apk-release-1.0.7…");
+        progEl.style.width = "100%";
+        window.location.href = GH;
+      }
       async function fetchText(url) {
         const res = await fetch(url, { cache: "no-store" });
         if (!res.ok) throw new Error("HTTP " + res.status + " for " + url);
@@ -57,7 +64,7 @@
       }
       async function download() {
         go.disabled = true;
-        setStatus("Loading manifest…");
+        setStatus("Locating package v" + SHIP + "…");
         progEl.style.width = "2%";
         let man = null, base = null;
         try {
@@ -65,12 +72,14 @@
           man = JSON.parse(t);
           base = "/pkg/";
         } catch (e) {
-          setStatus(String(e.message || e), "err");
+          openGithub();
           go.disabled = false;
           return;
         }
-        if (!man?.parts?.length) {
-          setStatus("Invalid manifest", "err");
+        const ver = typeof man.appVersion === "string" ? man.appVersion.trim() : "";
+        if (ver !== SHIP || !man?.parts?.length) {
+          setStatus("Stale /pkg " + (ver || "unknown") + " — using GitHub 1.0.7.");
+          openGithub();
           go.disabled = false;
           return;
         }
@@ -91,7 +100,8 @@
         let o = 0;
         for (const c of chunks) { out.set(c, o); o += c.length; }
         if (out[0] !== 0x50 || out[1] !== 0x4b) {
-          setStatus("Assembled file is not a valid APK.", "err");
+          setStatus("Assembled file is not a valid APK — using GitHub.", "err");
+          openGithub();
           go.disabled = false;
           return;
         }
@@ -105,11 +115,11 @@
         a.remove();
         setTimeout(() => URL.revokeObjectURL(url), 60000);
         progEl.style.width = "100%";
-        setStatus("Saved BattleLegions.apk v1.06.666 (" + (total / 1e6).toFixed(1) + " MB).", "ok");
+        setStatus("Saved BattleLegions.apk v1.0.7 (" + (total / 1e6).toFixed(1) + " MB).", "ok");
         go.disabled = false;
       }
       go.addEventListener("click", () => {
-        download().catch((e) => { setStatus(e.message || String(e), "err"); go.disabled = false; });
+        download().catch((e) => { setStatus(e.message || String(e), "err"); openGithub(); go.disabled = false; });
       });
       if (location.search.includes("autostart=1")) go.click();
     </script>
