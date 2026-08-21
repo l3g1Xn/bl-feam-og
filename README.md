@@ -106,6 +106,10 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle
 
 - 32 older cards still shared identical JPGs (same-hash copies). Dedicated 2:3 portraits now ship for each (nova / photon / mortar / bastion / hydra / saber / hex / ion / mirror / grav / overcharge / void / siege / pulse / spellblade / cryo / omega / phase / shield / orbital / horn / quantum / swarm). EndScreen caches the paid result by `matchId` so fold/PIN remount does not flash "already claimed" after a real payout. Persist merge uses `sanitizeRewardedMatchIds`. Reward-lock (`matchId` + `rewardedMatchIds`, cap 64) is unchanged. BUILD_ID remains `2026.08.15-v1.0.7-reward-lock`. Version still 1.0.7 / 100007.
 
+### Maintenance patch (2026.08.21 — EndScreen rematch difficulty + hardware Back)
+
+- EndScreen **Play again** now rematches the finished difficulty (Hard no longer silently drops to Normal). System Back on victory/defeat returns to the launcher (`keepSave: false`) instead of arming APK exit. `sanitizeGameState` clamps `difficulty` on load. Session claim cache capped at 64. `split-apk.mjs` defaults pointed at 1.0.7 / `apk-release-1.0.7`. Reward-lock (`matchId` + `rewardedMatchIds`, cap 64) is unchanged. BUILD_ID remains `2026.08.15-v1.0.7-reward-lock`. Version still 1.0.7 / 100007.
+
 ---
 
 ## Quick start checklist

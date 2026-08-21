@@ -25,6 +25,6 @@ base64 -w0 battlelegions-release.jks            # Linux → paste into secret
 2. Decode `BL_KEYSTORE_BASE64` → `mobile/signing/battlelegions-release.jks`
 3. Gradle `assembleRelease` with `BL_STORE_PASS` / `BL_KEY_PASS` / `BL_KEYSTORE_PATH`
 4. `zipalign -c -p 4` + `apksigner verify`
-5. Upload APK to `apk-release-1.06.666` with `--clobber`
+5. Upload APK to `apk-release-1.0.7` with `--clobber`
 
 Local debug builds remain unsigned when env vars are absent.

@@ -38,6 +38,7 @@ function GameAppInner() {
   const phase = useGameStore((s) => s.phase);
   const cancelSelection = useGameStore((s) => s.cancelSelection);
   const selection = useGameStore((s) => s.selection);
+  const returnToMenu = useGameStore((s) => s.returnToMenu);
   const [menuOpen, setMenuOpen] = useState(false);
   const [backHint, setBackHint] = useState<string | null>(null);
   const lastBack = useRef(0);
@@ -64,6 +65,14 @@ function GameAppInner() {
       phase === "enemy_turn";
 
     if (!inMatch) {
+      if (phase === "victory" || phase === "defeat") {
+        lastBack.current = 0;
+        setBackHint(null);
+        unlockAudio();
+        playSfx("ui");
+        returnToMenu({ keepSave: false });
+        return true;
+      }
       if (now - lastBack.current < 1600) {
         lastBack.current = 0;
         setBackHint(null);
@@ -101,7 +110,7 @@ function GameAppInner() {
     setBackHint("Tap Back again for Exit menu");
     window.setTimeout(() => setBackHint(null), 1600);
     return true;
-  }, [phase, menuOpen, selection.kind, cancelSelection]);
+  }, [phase, menuOpen, selection.kind, cancelSelection, returnToMenu]);
 
   useEffect(() => {
     const push = () => {
@@ -259,8 +268,11 @@ function EndScreen() {
   const math = useGameStore((s) => s.math);
   const enemyName = useGameStore((s) => s.enemyName);
   const matchId = useGameStore((s) => s.matchId);
+  const difficulty = useGameStore((s) => s.difficulty);
   const rewardMatch = useMetaStore((s) => s.rewardMatch);
   const victory = phase === "victory";
+  const hard = difficulty === "hard";
+  const rematchDifficulty: "normal" | "hard" = hard ? "hard" : "normal";
   const [reward, setReward] = useState<MatchRewardResult | null>(null);
   const paid = useRef(false);
 
@@ -277,7 +289,13 @@ function EndScreen() {
     unlockAudio();
     playSfx(victory ? "glory" : "defeat");
     const result = rewardMatch(victory, matchId);
-    if (key) endScreenClaimed.set(key, result);
+    if (key) {
+      endScreenClaimed.set(key, result);
+      if (endScreenClaimed.size > 64) {
+        const oldest = endScreenClaimed.keys().next().value;
+        if (oldest) endScreenClaimed.delete(oldest);
+      }
+    }
     setReward(result);
   }, [victory, rewardMatch, matchId]);
 
@@ -297,6 +315,7 @@ function EndScreen() {
           </h2>
           <p className="mt-1 font-mono text-xs text-enemy">
             {victory ? "Crushed" : "Fell to"} {enemyName || "enemy"}
+            {hard ? " · Hard AI" : " · Ranked practice"}
           </p>
           <p className="mt-2 max-w-sm text-center text-fg-muted">
             {victory
@@ -336,16 +355,16 @@ function EndScreen() {
               type="button"
               onClick={() => {
                 unlockAudio();
-                startGame("normal");
+                startGame(rematchDifficulty);
               }}
               className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-fg"
             >
               <RotateCcw className="h-4 w-4" />
-              Play again
+              {hard ? "Play again — Hard" : "Play again"}
             </button>
             <button
               type="button"
-              onClick={() => returnToMenu()}
+              onClick={() => returnToMenu({ keepSave: false })}
               className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border bg-bg-elevated px-6 py-3 text-sm font-medium text-fg"
             >
               Launcher

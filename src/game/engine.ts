@@ -205,9 +205,11 @@ export function sanitizeGameState(state: GameState): GameState {
   const matchId =
     rawId ||
     `legacy-${safeInt(state.turn, 0)}-${state.enemyName || "x"}-${safeInt(state.player?.heroHp, 0)}-${safeInt(state.enemy?.heroHp, 0)}`;
+  const difficulty = state.difficulty === "hard" ? "hard" : "normal";
   return {
     ...state,
     matchId,
+    difficulty,
     turn: Math.max(0, safeInt(state.turn, 0)),
     player: sanitizePlayer(state.player),
     enemy: sanitizePlayer(state.enemy),
