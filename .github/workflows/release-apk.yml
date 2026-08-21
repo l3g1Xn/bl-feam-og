@@ -158,6 +158,11 @@ jobs:
           - Signing: keystore from Actions secrets (or temporary CI keystore if secrets unset)
           - **Reward-lock:** matchId + rewardedMatchIds (cap 64) — tickets/XP paid once per match
 
+          ### 2026.08.21
+          - Site Download skips stale /pkg 1.06.666 and fetches GitHub 1.0.7
+          - Launcher TraX / Wave badges match 9-track soundtrack + Waves A–J
+          - EndScreen rematch keeps Hard · hardware Back on EndScreen returns to launcher
+
           **Download:** [BattleLegions.apk](https://github.com/l3g1Xn/bl-feam-og/releases/download/apk-release-1.0.7/BattleLegions.apk)
 
           Hard cap: 750 MB packed · TraX 9-track · BUILD_ID 2026.08.15-v1.0.7-reward-lock

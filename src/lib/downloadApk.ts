@@ -1,6 +1,6 @@
 /**
  * Client-side APK download.
- * Order: /pkg parts (production-safe) → local binary → GitHub release asset.
+ * Order: /pkg parts (only if manifest appVersion matches ship) → local binary → GitHub release asset.
  * GitHub URL matches bl-feam-og release apk-release-1.0.7.
  */
 
@@ -37,6 +37,7 @@ type Manifest = {
   encoding?: string;
   sha256?: string;
   appVersion?: string;
+  buildId?: string;
 };
 
 function isPkZip(bytes: Uint8Array): boolean {
@@ -70,6 +71,13 @@ function resolveUrl(path: string): string {
   if (base === "/" || base === "") return path;
   const b = base.endsWith("/") ? base.slice(0, -1) : base;
   return `${b}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
+function manifestMatchesShip(man: Manifest): boolean {
+  const v = typeof man.appVersion === "string" ? man.appVersion.trim() : "";
+  // Stale chunked package (currently 1.06.666) must not win over GitHub 1.0.7.
+  if (v && v !== APK_VERSION) return false;
+  return true;
 }
 
 async function fetchTextStrict(url: string): Promise<string> {
@@ -252,9 +260,14 @@ export async function downloadApk(
       label: `Locating package v${APK_VERSION}…`,
     });
 
-    // 1) Chunked /pkg — same binary as GitHub release 1.0.7
+    // 1) Chunked /pkg — only when the assembled binary is the current 1.0.7 ship.
     try {
       const { man, base } = await loadManifest();
+      if (!manifestMatchesShip(man)) {
+        throw new Error(
+          `Stale /pkg package ${man.appVersion ?? "unknown"} (need ${APK_VERSION})`,
+        );
+      }
       onProgress?.({
         phase: "parts",
         done: 0,

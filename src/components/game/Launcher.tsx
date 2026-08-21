@@ -19,7 +19,7 @@ import {
   startMenuMusic,
 } from "@/game/music";
 import { useGameStore } from "@/game/store";
-import { APK_VERSION, BUILD_ID, GAME_TITLE, GAME_TITLE_SHORT, TITLE_LOGO_SRC } from "@/game/brand";
+import { APK_VERSION, BUILD_ID, GAME_TITLE, GAME_TITLE_SHORT, STORE_STOCK_BLURB, STORE_WAVE_LABEL, TITLE_LOGO_SRC } from "@/game/brand";
 import { AmbientStage } from "./AmbientStage";
 import { CanvasChrome } from "./CanvasChrome";
 import { ApkDownloadButton } from "./ApkDownloadButton";
@@ -201,7 +201,7 @@ export function Launcher() {
             <CanvasChrome variant="panel" />
             <div className="relative z-[1]">
               <div className="mb-1 flex items-center gap-1 font-medium text-primary">
-                <Music2 className="h-3 w-3" /> TraX · 2
+                <Music2 className="h-3 w-3" /> TraX · 9
               </div>
               {MENU_TRACKS.map((tr, i) => (
                 <button
@@ -379,10 +379,7 @@ function HomePanel({
             </h1>
             <p className="mt-2 max-w-xl text-sm leading-relaxed text-fg-muted">
               High-tech legion combat with medieval physics. Discombobulator beams,
-              laser protocols, Dominus Reximus exclusives, Wave G store stock, and
-
-
-
+              laser protocols, Dominus Reximus exclusives, {STORE_STOCK_BLURB}, and
               transparent combat math — same build as the Android package.
             </p>
             <div className="mt-3 flex flex-wrap items-center justify-center gap-2 text-xs text-fg-muted sm:justify-start">
@@ -394,11 +391,10 @@ function HomePanel({
               </span>
               <span className="tabular text-attack">{tickets} tickets</span>
               <span className="rounded-full border border-white/15 bg-white/5 px-2 py-1 text-fg-subtle">
-                Legion TraX · 2 suites
+                Legion TraX · 9 tracks
               </span>
               <span className="rounded-full border border-primary/25 bg-primary/10 px-2 py-1 text-primary">
-                Store Wave A/B/C/D/E
-
+                {STORE_WAVE_LABEL}
               </span>
             </div>
             <div className="mx-auto mt-2 h-1.5 w-full max-w-sm overflow-hidden rounded-full bg-black/50 sm:mx-0">
@@ -549,7 +545,7 @@ function HomePanel({
             Legion TraX soundtrack
           </h2>
           <p className="mb-3 text-[0.65rem] text-fg-subtle">
-            Two long-form suites replace the old 10-track set. Tap to play · header Skip
+            Nine individual tracks, split at natural silence points. Tap to play · header Skip
             advances. Battle ducks volume so combat SFX stay clear.
           </p>
           <div className="grid gap-2 sm:grid-cols-2">
@@ -601,7 +597,7 @@ function HomePanel({
               direction.
             </li>
             <li>
-              Legion TraX Part 1 & 2 score the command shell; battle ducks the volume.
+              Nine TraX tracks score the command shell; battle ducks the volume.
             </li>
             <li>
               School-colored beams, particles, and layered battle SFX — same as APK.
