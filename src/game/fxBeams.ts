@@ -4,12 +4,20 @@ export function waveHTint(beam?: string): string | null {
   switch (beam) {
     case "volt_lance":
       return "#6cffd0";
+    case "volt_runner":
+      return "#88ffe0";
     case "glyph_ward":
       return "#80c8ff";
+    case "glyph_key":
+      return "#9ad4ff";
     case "halo_burst":
       return "#ffe070";
+    case "halo_crown":
+      return "#ffd048";
     case "tungsten_ram":
       return "#c8b090";
+    case "tungsten_throne":
+      return "#d4c09c";
     case "tesla_arc":
       return "#70fff0";
     case "orbit_ring":
@@ -34,6 +42,8 @@ export function waveHTint(beam?: string): string | null {
       return "#70ffe8";
     case "riftglass_drone":
       return "#58f0d8";
+    case "riftglass_throne":
+      return "#40e8cc";
     case "iridium_lance":
       return "#c8dce8";
     case "iridium_key":
@@ -54,6 +64,8 @@ export function waveHTint(beam?: string): string | null {
       return "#70ffc0";
     case "axiom_drone":
       return "#58f0b0";
+    case "axiom_throne":
+      return "#40e8a0";
     default:
       return null;
   }
@@ -62,9 +74,13 @@ export function waveHTint(beam?: string): string | null {
 export function isWaveHBeam(beam?: string): boolean {
   return (
     beam === "volt_lance" ||
+    beam === "volt_runner" ||
     beam === "glyph_ward" ||
+    beam === "glyph_key" ||
     beam === "halo_burst" ||
+    beam === "halo_crown" ||
     beam === "tungsten_ram" ||
+    beam === "tungsten_throne" ||
     beam === "tesla_arc" ||
     beam === "orbit_ring" ||
     beam === "cobalt_lance" ||
@@ -77,6 +93,7 @@ export function isWaveHBeam(beam?: string): boolean {
     beam === "sonic_coil" ||
     beam === "riftglass_ring" ||
     beam === "riftglass_drone" ||
+    beam === "riftglass_throne" ||
     beam === "iridium_lance" ||
     beam === "iridium_key" ||
     beam === "quartz_ward" ||
@@ -86,7 +103,8 @@ export function isWaveHBeam(beam?: string): boolean {
     beam === "nimbus_runner" ||
     beam === "quartz_coil" ||
     beam === "axiom_ring" ||
-    beam === "axiom_drone"
+    beam === "axiom_drone" ||
+    beam === "axiom_throne"
   );
 }
 
@@ -101,7 +119,8 @@ export function isWaveIBeam(beam?: string): boolean {
     beam === "sonic_ram" ||
     beam === "sonic_coil" ||
     beam === "riftglass_ring" ||
-    beam === "riftglass_drone"
+    beam === "riftglass_drone" ||
+    beam === "riftglass_throne"
   );
 }
 
@@ -116,7 +135,8 @@ export function isWaveJBeam(beam?: string): boolean {
     beam === "nimbus_runner" ||
     beam === "quartz_coil" ||
     beam === "axiom_ring" ||
-    beam === "axiom_drone"
+    beam === "axiom_drone" ||
+    beam === "axiom_throne"
   );
 }
 
@@ -125,8 +145,10 @@ export function waveHParticleKind(
 ): "arc" | "ember" | "spark" | "void" | null {
   if (
     beam === "volt_lance" ||
+    beam === "volt_runner" ||
     beam === "tesla_arc" ||
     beam === "glyph_ward" ||
+    beam === "glyph_key" ||
     beam === "cobalt_lance" ||
     beam === "cobalt_key" ||
     beam === "sonic_coil" ||
@@ -137,6 +159,7 @@ export function waveHParticleKind(
     return "arc";
   if (
     beam === "halo_burst" ||
+    beam === "halo_crown" ||
     beam === "orbit_ring" ||
     beam === "helion_burst" ||
     beam === "helion_crown" ||
@@ -148,6 +171,7 @@ export function waveHParticleKind(
     return "ember";
   if (
     beam === "tungsten_ram" ||
+    beam === "tungsten_throne" ||
     beam === "sonic_ram" ||
     beam === "graphene_ward" ||
     beam === "graphene_runner" ||
@@ -157,8 +181,10 @@ export function waveHParticleKind(
   if (
     beam === "riftglass_ring" ||
     beam === "riftglass_drone" ||
+    beam === "riftglass_throne" ||
     beam === "axiom_ring" ||
-    beam === "axiom_drone"
+    beam === "axiom_drone" ||
+    beam === "axiom_throne"
   )
     return "void";
   return null;

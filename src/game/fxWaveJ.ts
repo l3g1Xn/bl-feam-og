@@ -4,6 +4,7 @@ export function waveJBeamFor(cardId?: string): string | null {
   const id = (cardId ?? "").toLowerCase();
   if (!id) return null;
   if (id === "axiom_drone") return "axiom_drone";
+  if (id === "axiom_throne") return "axiom_throne";
   if (id.includes("axiom")) return "axiom_ring";
   if (id === "iridium_key") return "iridium_key";
   if (id.includes("iridium")) return "iridium_lance";
@@ -27,7 +28,8 @@ export function isWaveJHeavy(beam?: string): boolean {
     beam === "nimbus_runner" ||
     beam === "quartz_coil" ||
     beam === "axiom_ring" ||
-    beam === "axiom_drone"
+    beam === "axiom_drone" ||
+    beam === "axiom_throne"
   );
 }
 
@@ -53,6 +55,8 @@ export function waveJBeamLabel(beam?: string): string | null {
       return "Axiom Ring";
     case "axiom_drone":
       return "Axiom Drone";
+    case "axiom_throne":
+      return "Axiom Throne";
     default:
       return null;
   }

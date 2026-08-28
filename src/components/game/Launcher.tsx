@@ -126,7 +126,7 @@ export function Launcher() {
         <div className="flex min-w-0 items-center gap-2.5">
           <img
             src="/ui/legixn_icon.png"
-            alt=""
+            alt="LEGIXN"
             className="h-9 w-9 shrink-0 rounded-lg object-cover legixn-ring"
             width={36}
             height={36}

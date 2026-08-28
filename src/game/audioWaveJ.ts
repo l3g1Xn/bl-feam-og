@@ -29,7 +29,8 @@ export function playWaveJSfx(opts: {
     beam === "nimbus_runner" ||
     beam === "quartz_coil" ||
     beam === "axiom_ring" ||
-    beam === "axiom_drone";
+    beam === "axiom_drone" ||
+    beam === "axiom_throne";
   if (!hit) return false;
 
   if (card === "iridium_key" || beam === "iridium_key") {
@@ -59,6 +60,9 @@ export function playWaveJSfx(opts: {
   } else if (card === "axiom_drone" || beam === "axiom_drone") {
     playSfx("quantum", power * 1.02);
     playSfx("ion", power * 0.6);
+  } else if (card === "axiom_throne" || beam === "axiom_throne") {
+    playSfx("quantum", power * 1.14);
+    playSfx("shield_up", power * 0.62);
   } else if (card.includes("axiom") || beam === "axiom_ring") {
     playSfx("quantum", power * 1.12);
     playSfx("ion", power * 0.68);

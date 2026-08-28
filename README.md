@@ -122,6 +122,10 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle
 
 - Combat banners for Wave I/J sibling cards now use their own beam labels (Iridium Key ≠ Lance, Magma Crown ≠ Ram, Nimbus Runner ≠ Burst, plus Wave I Key/Crown/Runner/Drone). Store and CardView portraits use each card’s name as `alt`. `release-apk.yml` now watches `public/ui`, `public/pkg`, `capacitor.config.ts`, and `mobile/` so logo/install-page changes bake. Reward-lock (`matchId` + `rewardedMatchIds`, cap 64) is unchanged. BUILD_ID remains `2026.08.15-v1.0.7-reward-lock`. Version still 1.0.7 / 100007.
 
+### Maintenance patch (2026.08.28 — Wave H sibling banners + I/J thrones)
+
+- Wave H exclusives no longer share combat banners (Volt Runner ≠ Lance, Glyph Key ≠ Ward, Halo Crown ≠ Burst, Tungsten Throne ≠ Ram). Halo Crown no longer falls through to “Bio Weave”. Riftglass Throne and Axiom Throne use their own beams instead of Ring. Wave H now gets the same heavy VFX density as Waves I/J. Reward-lock (`matchId` + `rewardedMatchIds`, cap 64) is unchanged. BUILD_ID remains `2026.08.15-v1.0.7-reward-lock`. Version still 1.0.7 / 100007.
+
 ---
 
 ## Quick start checklist

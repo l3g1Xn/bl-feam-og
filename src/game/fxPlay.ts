@@ -5,6 +5,7 @@ import {
   type BeamStyle,
   type FxEvent,
 } from "./fx";
+import { isWaveHHeavy, waveHBeamFor } from "./fxWaveH";
 import { isWaveIHeavy, waveIBeamFor } from "./fxWaveI";
 import { isWaveJHeavy, waveJBeamFor } from "./fxWaveJ";
 
@@ -13,7 +14,9 @@ function applyWaveLayers<T extends FxEvent>(ev: T, cardId?: string): T {
   if (wj) ev.beam = wj as BeamStyle;
   const wi = waveIBeamFor(cardId);
   if (wi && !wj) ev.beam = wi as BeamStyle;
-  if (isWaveJHeavy(ev.beam) || isWaveIHeavy(ev.beam)) {
+  const wh = waveHBeamFor(cardId);
+  if (wh && !wj && !wi) ev.beam = wh as BeamStyle;
+  if (isWaveJHeavy(ev.beam) || isWaveIHeavy(ev.beam) || isWaveHHeavy(ev.beam)) {
     ev.durationMs = Math.max(ev.durationMs, 820);
     ev.trauma = Math.min(1, (ev.trauma ?? 0.28) + 0.1);
     ev.hitStopMs = Math.max(ev.hitStopMs ?? 0, 60);

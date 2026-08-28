@@ -24,22 +24,38 @@ export function playWaveHSfx(opts: {
     card.includes("tesla") ||
     card.includes("orbit") ||
     beam === "volt_lance" ||
+    beam === "volt_runner" ||
     beam === "glyph_ward" ||
+    beam === "glyph_key" ||
     beam === "halo_burst" ||
+    beam === "halo_crown" ||
     beam === "tungsten_ram" ||
+    beam === "tungsten_throne" ||
     beam === "tesla_arc" ||
     beam === "orbit_ring";
   if (!hit) return playWaveISfx(opts);
 
-  if (card.includes("volt") || beam === "volt_lance") {
+  if (card === "volt_runner" || beam === "volt_runner") {
+    playSfx("ion", power * 1.02);
+    playSfx("phase", power * 0.58);
+  } else if (card.includes("volt") || beam === "volt_lance") {
     playSfx("ion", power * 1.15);
     playSfx("rail", power * 0.7);
+  } else if (card === "glyph_key" || beam === "glyph_key") {
+    playSfx("matrix", power * 1.0);
+    playSfx("ion", power * 0.55);
   } else if (card.includes("glyph") || beam === "glyph_ward") {
     playSfx("matrix", power * 1.1);
     playSfx("shield_up", power * 0.55);
+  } else if (card === "halo_crown" || beam === "halo_crown") {
+    playSfx("corona", power * 1.08);
+    playSfx("shield_up", power * 0.58);
   } else if (card.includes("halo") || beam === "halo_burst") {
     playSfx("corona", power * 1.15);
     playSfx("nova", power * 0.65);
+  } else if (card === "tungsten_throne" || beam === "tungsten_throne") {
+    playSfx("ferro", power * 1.08);
+    playSfx("shield_up", power * 0.62);
   } else if (card.includes("tungsten") || beam === "tungsten_ram") {
     playSfx("ferro", power * 1.15);
     playSfx("heavy_clash", power * 0.7);

@@ -4,6 +4,7 @@ export function waveIBeamFor(cardId?: string): string | null {
   const id = (cardId ?? "").toLowerCase();
   if (!id) return null;
   if (id === "riftglass_drone") return "riftglass_drone";
+  if (id === "riftglass_throne") return "riftglass_throne";
   if (id.includes("riftglass")) return "riftglass_ring";
   if (id === "cobalt_key") return "cobalt_key";
   if (id.includes("cobalt")) return "cobalt_lance";
@@ -27,7 +28,8 @@ export function isWaveIHeavy(beam?: string): boolean {
     beam === "sonic_ram" ||
     beam === "sonic_coil" ||
     beam === "riftglass_ring" ||
-    beam === "riftglass_drone"
+    beam === "riftglass_drone" ||
+    beam === "riftglass_throne"
   );
 }
 
@@ -53,6 +55,8 @@ export function waveIBeamLabel(beam?: string): string | null {
       return "Riftglass Ring";
     case "riftglass_drone":
       return "Riftglass Drone";
+    case "riftglass_throne":
+      return "Riftglass Throne";
     default:
       return null;
   }

@@ -170,6 +170,7 @@ jobs:
           ### 2026.08.28
           - Wave I/J combat beam labels no longer collapse sibling cards (Key/Lance, Crown/Ram, Runner/Burst)
           - Store + CardView portraits expose unique `alt` names · workflow watches `public/ui` / `public/pkg`
+          - Wave H sibling banners unique (Volt Runner, Glyph Key, Halo Crown, Tungsten Throne) · I/J thrones no longer share Ring
 
           **Download:** [BattleLegions.apk](https://github.com/l3g1Xn/bl-feam-og/releases/download/apk-release-1.0.7/BattleLegions.apk)
 

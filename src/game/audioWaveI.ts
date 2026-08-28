@@ -31,7 +31,8 @@ export function playWaveISfx(opts: {
     beam === "sonic_ram" ||
     beam === "sonic_coil" ||
     beam === "riftglass_ring" ||
-    beam === "riftglass_drone";
+    beam === "riftglass_drone" ||
+    beam === "riftglass_throne";
   if (!hit) return playWaveJSfx(opts);
 
   if (card === "cobalt_key" || beam === "cobalt_key") {
@@ -61,6 +62,9 @@ export function playWaveISfx(opts: {
   } else if (card === "riftglass_drone" || beam === "riftglass_drone") {
     playSfx("rift", power * 1.0);
     playSfx("phase", power * 0.58);
+  } else if (card === "riftglass_throne" || beam === "riftglass_throne") {
+    playSfx("rift", power * 1.12);
+    playSfx("shield_up", power * 0.62);
   } else if (card.includes("riftglass") || beam === "riftglass_ring") {
     playSfx("rift", power * 1.1);
     playSfx("phase", power * 0.65);
