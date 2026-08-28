@@ -81,7 +81,7 @@ export function MinionToken({
       <div className="absolute inset-0 overflow-hidden rounded-[1.05rem]">
         <img
           src={art}
-          alt=""
+          alt={def.name}
           draggable={false}
           className="h-full w-full object-cover object-[center_20%]"
           crossOrigin="anonymous"

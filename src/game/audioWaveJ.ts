@@ -21,14 +21,21 @@ export function playWaveJSfx(opts: {
     card.includes("nimbus") ||
     card.includes("axiom") ||
     beam === "iridium_lance" ||
+    beam === "iridium_key" ||
     beam === "quartz_ward" ||
     beam === "magma_ram" ||
+    beam === "magma_crown" ||
     beam === "nimbus_burst" ||
+    beam === "nimbus_runner" ||
     beam === "quartz_coil" ||
-    beam === "axiom_ring";
+    beam === "axiom_ring" ||
+    beam === "axiom_drone";
   if (!hit) return false;
 
-  if (card.includes("iridium") || beam === "iridium_lance") {
+  if (card === "iridium_key" || beam === "iridium_key") {
+    playSfx("ion", power * 1.12);
+    playSfx("matrix", power * 0.62);
+  } else if (card.includes("iridium") || beam === "iridium_lance") {
     playSfx("ferro", power * 1.15);
     playSfx("ion", power * 0.7);
   } else if (card.includes("quartz_coil") || beam === "quartz_coil") {
@@ -37,12 +44,21 @@ export function playWaveJSfx(opts: {
   } else if (card.includes("quartz") || beam === "quartz_ward") {
     playSfx("matrix", power * 1.05);
     playSfx("shield_up", power * 0.62);
+  } else if (card === "magma_crown" || beam === "magma_crown") {
+    playSfx("nova", power * 1.08);
+    playSfx("corona", power * 0.7);
   } else if (card.includes("magma") || beam === "magma_ram") {
     playSfx("nova", power * 1.18);
     playSfx("heavy_clash", power * 0.72);
+  } else if (card === "nimbus_runner" || beam === "nimbus_runner") {
+    playSfx("storm", power * 1.05);
+    playSfx("phase", power * 0.58);
   } else if (card.includes("nimbus") || beam === "nimbus_burst") {
     playSfx("storm", power * 1.15);
     playSfx("phase", power * 0.65);
+  } else if (card === "axiom_drone" || beam === "axiom_drone") {
+    playSfx("quantum", power * 1.02);
+    playSfx("ion", power * 0.6);
   } else if (card.includes("axiom") || beam === "axiom_ring") {
     playSfx("quantum", power * 1.12);
     playSfx("ion", power * 0.68);

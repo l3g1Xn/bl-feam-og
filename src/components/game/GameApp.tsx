@@ -412,7 +412,7 @@ function BattleInspect() {
         {activeFx.artSrc && (
           <img
             src={activeFx.artSrc}
-            alt=""
+            alt={activeFx.cardName}
             className="h-9 w-9 shrink-0 rounded-md object-cover"
           />
         )}
@@ -438,7 +438,7 @@ function BattleInspect() {
       <div className="flex items-center gap-2 overflow-hidden">
         <img
           src={cardArtSrc(def.id)}
-          alt=""
+          alt={def.name}
           className="h-9 w-9 shrink-0 rounded-md object-cover"
         />
         <div className="min-w-0">
@@ -467,7 +467,7 @@ function BattleInspect() {
       <div className="flex items-center gap-2 overflow-hidden">
         <img
           src={cardArtSrc(def.id)}
-          alt=""
+          alt={def.name}
           className="h-9 w-9 shrink-0 rounded-md object-cover"
         />
         <div className="min-w-0">

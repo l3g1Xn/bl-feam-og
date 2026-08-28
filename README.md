@@ -118,6 +118,10 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle
 
 - Title logo stamp now reads **v1.0.7 · Cooked By Many** (was still v1.06.666 · Wave J). `/pkg/install.html` no longer assembles the leftover 1.06.666 chunked APK — missing/stale `appVersion` falls through to GitHub `apk-release-1.0.7`. `manifestMatchesShip` now requires an exact 1.0.7 match. Reward-lock (`matchId` + `rewardedMatchIds`, cap 64) is unchanged. BUILD_ID remains `2026.08.15-v1.0.7-reward-lock`. Version still 1.0.7 / 100007.
 
+### Maintenance patch (2026.08.28 — Wave I/J beam labels + Store art alts)
+
+- Combat banners for Wave I/J sibling cards now use their own beam labels (Iridium Key ≠ Lance, Magma Crown ≠ Ram, Nimbus Runner ≠ Burst, plus Wave I Key/Crown/Runner/Drone). Store and CardView portraits use each card’s name as `alt`. `release-apk.yml` now watches `public/ui`, `public/pkg`, `capacitor.config.ts`, and `mobile/` so logo/install-page changes bake. Reward-lock (`matchId` + `rewardedMatchIds`, cap 64) is unchanged. BUILD_ID remains `2026.08.15-v1.0.7-reward-lock`. Version still 1.0.7 / 100007.
+
 ---
 
 ## Quick start checklist

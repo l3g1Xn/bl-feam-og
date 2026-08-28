@@ -149,7 +149,7 @@ export function CardView({
       <div className={cn("relative w-full overflow-hidden", sizes.art)}>
         <img
           src={art}
-          alt=""
+          alt={def.name}
           draggable={false}
           className="card-art h-full w-full"
           crossOrigin="anonymous"

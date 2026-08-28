@@ -815,7 +815,7 @@ function StorePanel() {
               <div className="relative z-[1] aspect-[3/4] overflow-hidden">
                 <img
                   src={cardArtSrc(c.id)}
-                  alt=""
+                  alt={c.name}
                   className="h-full w-full object-cover object-[center_18%]"
                   draggable={false}
                   loading="lazy"

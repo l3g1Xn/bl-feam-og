@@ -23,19 +23,32 @@ export function playWaveISfx(opts: {
     card.includes("sonic") ||
     card.includes("riftglass") ||
     beam === "cobalt_lance" ||
+    beam === "cobalt_key" ||
     beam === "graphene_ward" ||
+    beam === "graphene_runner" ||
     beam === "helion_burst" ||
+    beam === "helion_crown" ||
     beam === "sonic_ram" ||
     beam === "sonic_coil" ||
-    beam === "riftglass_ring";
+    beam === "riftglass_ring" ||
+    beam === "riftglass_drone";
   if (!hit) return playWaveJSfx(opts);
 
-  if (card.includes("cobalt") || beam === "cobalt_lance") {
+  if (card === "cobalt_key" || beam === "cobalt_key") {
+    playSfx("frost", power * 1.05);
+    playSfx("matrix", power * 0.62);
+  } else if (card.includes("cobalt") || beam === "cobalt_lance") {
     playSfx("frost", power * 1.15);
     playSfx("ion", power * 0.7);
+  } else if (card === "graphene_runner" || beam === "graphene_runner") {
+    playSfx("ferro", power * 0.98);
+    playSfx("phase", power * 0.55);
   } else if (card.includes("graphene") || beam === "graphene_ward") {
     playSfx("ferro", power * 1.05);
     playSfx("shield_up", power * 0.6);
+  } else if (card === "helion_crown" || beam === "helion_crown") {
+    playSfx("corona", power * 1.1);
+    playSfx("shield_up", power * 0.58);
   } else if (card.includes("helion") || beam === "helion_burst") {
     playSfx("corona", power * 1.2);
     playSfx("nova", power * 0.7);
@@ -45,6 +58,9 @@ export function playWaveISfx(opts: {
   } else if (card.includes("sonic") || beam === "sonic_coil") {
     playSfx("storm", power * 1.1);
     playSfx("ion", power * 0.65);
+  } else if (card === "riftglass_drone" || beam === "riftglass_drone") {
+    playSfx("rift", power * 1.0);
+    playSfx("phase", power * 0.58);
   } else if (card.includes("riftglass") || beam === "riftglass_ring") {
     playSfx("rift", power * 1.1);
     playSfx("phase", power * 0.65);

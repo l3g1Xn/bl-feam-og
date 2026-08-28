@@ -981,7 +981,7 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
             {banner.art && (
               <img
                 src={banner.art}
-                alt=""
+                alt={banner.title}
                 className="h-11 w-11 shrink-0 rounded-lg object-cover ring-1 ring-white/20"
               />
             )}
