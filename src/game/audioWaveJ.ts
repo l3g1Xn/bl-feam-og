@@ -23,6 +23,7 @@ export function playWaveJSfx(opts: {
     beam === "iridium_lance" ||
     beam === "iridium_key" ||
     beam === "quartz_ward" ||
+    beam === "quartz_sentinel" ||
     beam === "magma_ram" ||
     beam === "magma_crown" ||
     beam === "nimbus_burst" ||

@@ -42,4 +42,23 @@ Production card arts. Every store exclusive (Waves H / I / J) has a dedicated
 
 Style matched to existing high-tech legion card art. Quality optimized (~140–350 KB each).
 
+## Visual-duplicate bake (2026-09-04)
+
+Eleven older cards still shared a near-identical portrait (byte hashes differed,
+compositions did not). Dedicated 2:3 JPGs now ship for:
+
+- iron_colossus.jpg (Siege Chassis — squat laser artillery wall)
+- precise_cut.jpg (Precision Laser — surgical targeting beam)
+- scorch_study.jpg (Scorch Analysis — thermal forensic study)
+- reaper_wraith.jpg (Reaper Wraith — phase scythe + Reborn afterimage)
+- void_sovereign.jpg (Void Sovereign — crowned void emperor)
+- blood_pact.jpg (Blood Pact — crimson ritual contract)
+- grav_anchor.jpg (Grav Anchor — gravity pylon, not ice)
+- ion_symphony.jpg (Ion Symphony — capacitor choir)
+- shieldbearer.jpg (Aegis Operator — soldier with tower shield)
+- math_golem.jpg (Logic Core — equation golem)
+- warden.jpg (Riot Bastion — compact riot tower)
+
+Do not copy-encode these from sibling cards.
+
 After these files are in place, trigger the **Build and publish BattleLegions.apk** workflow for a full production bake.

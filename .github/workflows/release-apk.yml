@@ -172,6 +172,11 @@ jobs:
           - Store + CardView portraits expose unique `alt` names · workflow watches `public/ui` / `public/pkg`
           - Wave H sibling banners unique (Volt Runner, Glyph Key, Halo Crown, Tungsten Throne) · I/J thrones no longer share Ring
 
+          ### 2026.09.04
+          - 11 visual-duplicate portraits replaced with dedicated 2:3 arts (Siege Chassis, Precision Laser, Scorch Analysis, Reaper Wraith, Void Sovereign, Blood Pact, Grav Anchor, Ion Symphony, Aegis Operator, Logic Core, Riot Bastion)
+          - Glyph / Graphene / Quartz Sentinel combat banners no longer collapse to Ward
+          - Overlay launcher-shell clears the notch (safe-area-inset-top)
+
           **Download:** [BattleLegions.apk](https://github.com/l3g1Xn/bl-feam-og/releases/download/apk-release-1.0.7/BattleLegions.apk)
 
           Hard cap: 750 MB packed · TraX 9-track · BUILD_ID 2026.08.15-v1.0.7-reward-lock

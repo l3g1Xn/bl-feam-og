@@ -10,6 +10,8 @@ export function waveHTint(beam?: string): string | null {
       return "#80c8ff";
     case "glyph_key":
       return "#9ad4ff";
+    case "glyph_sentinel":
+      return "#6ab8ff";
     case "halo_burst":
       return "#ffe070";
     case "halo_crown":
@@ -30,6 +32,8 @@ export function waveHTint(beam?: string): string | null {
       return "#9aacbe";
     case "graphene_runner":
       return "#b0c0ce";
+    case "graphene_sentinel":
+      return "#8aa0b4";
     case "helion_burst":
       return "#ff7a30";
     case "helion_crown":
@@ -50,6 +54,8 @@ export function waveHTint(beam?: string): string | null {
       return "#d4e6f0";
     case "quartz_ward":
       return "#e0c8ff";
+    case "quartz_sentinel":
+      return "#ecc8ff";
     case "magma_ram":
       return "#ff4a18";
     case "magma_crown":
@@ -77,6 +83,7 @@ export function isWaveHBeam(beam?: string): boolean {
     beam === "volt_runner" ||
     beam === "glyph_ward" ||
     beam === "glyph_key" ||
+    beam === "glyph_sentinel" ||
     beam === "halo_burst" ||
     beam === "halo_crown" ||
     beam === "tungsten_ram" ||
@@ -87,6 +94,7 @@ export function isWaveHBeam(beam?: string): boolean {
     beam === "cobalt_key" ||
     beam === "graphene_ward" ||
     beam === "graphene_runner" ||
+    beam === "graphene_sentinel" ||
     beam === "helion_burst" ||
     beam === "helion_crown" ||
     beam === "sonic_ram" ||
@@ -97,6 +105,7 @@ export function isWaveHBeam(beam?: string): boolean {
     beam === "iridium_lance" ||
     beam === "iridium_key" ||
     beam === "quartz_ward" ||
+    beam === "quartz_sentinel" ||
     beam === "magma_ram" ||
     beam === "magma_crown" ||
     beam === "nimbus_burst" ||
@@ -114,6 +123,7 @@ export function isWaveIBeam(beam?: string): boolean {
     beam === "cobalt_key" ||
     beam === "graphene_ward" ||
     beam === "graphene_runner" ||
+    beam === "graphene_sentinel" ||
     beam === "helion_burst" ||
     beam === "helion_crown" ||
     beam === "sonic_ram" ||
@@ -129,6 +139,7 @@ export function isWaveJBeam(beam?: string): boolean {
     beam === "iridium_lance" ||
     beam === "iridium_key" ||
     beam === "quartz_ward" ||
+    beam === "quartz_sentinel" ||
     beam === "magma_ram" ||
     beam === "magma_crown" ||
     beam === "nimbus_burst" ||
@@ -149,6 +160,7 @@ export function waveHParticleKind(
     beam === "tesla_arc" ||
     beam === "glyph_ward" ||
     beam === "glyph_key" ||
+    beam === "glyph_sentinel" ||
     beam === "cobalt_lance" ||
     beam === "cobalt_key" ||
     beam === "sonic_coil" ||
@@ -175,7 +187,9 @@ export function waveHParticleKind(
     beam === "sonic_ram" ||
     beam === "graphene_ward" ||
     beam === "graphene_runner" ||
-    beam === "quartz_ward"
+    beam === "graphene_sentinel" ||
+    beam === "quartz_ward" ||
+    beam === "quartz_sentinel"
   )
     return "spark";
   if (

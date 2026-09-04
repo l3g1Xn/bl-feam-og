@@ -26,6 +26,7 @@ export function playWaveISfx(opts: {
     beam === "cobalt_key" ||
     beam === "graphene_ward" ||
     beam === "graphene_runner" ||
+    beam === "graphene_sentinel" ||
     beam === "helion_burst" ||
     beam === "helion_crown" ||
     beam === "sonic_ram" ||

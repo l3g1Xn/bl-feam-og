@@ -126,6 +126,10 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle
 
 - Wave H exclusives no longer share combat banners (Volt Runner ≠ Lance, Glyph Key ≠ Ward, Halo Crown ≠ Burst, Tungsten Throne ≠ Ram). Halo Crown no longer falls through to “Bio Weave”. Riftglass Throne and Axiom Throne use their own beams instead of Ring. Wave H now gets the same heavy VFX density as Waves I/J. Reward-lock (`matchId` + `rewardedMatchIds`, cap 64) is unchanged. BUILD_ID remains `2026.08.15-v1.0.7-reward-lock`. Version still 1.0.7 / 100007.
 
+### Maintenance patch (2026.09.04 — unique portraits for visual-duplicate arts + Sentinel banners)
+
+- 11 older cards still shared a near-identical portrait (ahash twins: Siege Chassis / Apex Colossus, Precision Laser / Chrono Blade, Scorch Analysis / Firelance, Reaper Wraith / Night Ops, Void Sovereign / Void Operative, Blood Pact / Nano Leech, Grav Anchor / Cryo Ward, Ion Symphony / Magma Titan, Aegis Operator / Flux Barrier, Logic Core / Amplify Core, Riot Bastion / Legion Beacon). Dedicated 2:3 JPGs now ship per card. Glyph / Graphene / Quartz Sentinel combat banners no longer collapse to “Ward”. Overlay `launcher-shell` clears the notch (`safe-area-inset-top`). Reward-lock (`matchId` + `rewardedMatchIds`, cap 64) is unchanged. BUILD_ID remains `2026.08.15-v1.0.7-reward-lock`. Version still 1.0.7 / 100007.
+
 ---
 
 ## Quick start checklist

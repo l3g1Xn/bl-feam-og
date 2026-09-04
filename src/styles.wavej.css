@@ -53,6 +53,9 @@
 }
 
 @supports (padding: env(safe-area-inset-bottom)) {
+  .launcher-shell {
+    padding-top: max(0.45rem, env(safe-area-inset-top, 0px));
+  }
   .launcher-shell,
   .battle-stage,
   .battle-hand,

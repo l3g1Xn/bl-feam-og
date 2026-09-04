@@ -6,6 +6,7 @@ export function waveHBeamFor(cardId?: string): string | null {
   if (id === "volt_runner") return "volt_runner";
   if (id.includes("volt")) return "volt_lance";
   if (id === "glyph_key") return "glyph_key";
+  if (id === "glyph_sentinel") return "glyph_sentinel";
   if (id.includes("glyph")) return "glyph_ward";
   if (id === "halo_crown") return "halo_crown";
   if (id.includes("halo")) return "halo_burst";
@@ -22,6 +23,7 @@ export function isWaveHHeavy(beam?: string): boolean {
     beam === "volt_runner" ||
     beam === "glyph_ward" ||
     beam === "glyph_key" ||
+    beam === "glyph_sentinel" ||
     beam === "halo_burst" ||
     beam === "halo_crown" ||
     beam === "tungsten_ram" ||
@@ -41,6 +43,8 @@ export function waveHBeamLabel(beam?: string): string | null {
       return "Glyph Ward";
     case "glyph_key":
       return "Glyph Key";
+    case "glyph_sentinel":
+      return "Glyph Sentinel";
     case "halo_burst":
       return "Halo Burst";
     case "halo_crown":

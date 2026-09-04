@@ -9,6 +9,7 @@ export function waveJBeamFor(cardId?: string): string | null {
   if (id === "iridium_key") return "iridium_key";
   if (id.includes("iridium")) return "iridium_lance";
   if (id === "quartz_coil") return "quartz_coil";
+  if (id === "quartz_sentinel") return "quartz_sentinel";
   if (id.includes("quartz")) return "quartz_ward";
   if (id === "magma_crown") return "magma_crown";
   if (id.includes("magma")) return "magma_ram";
@@ -22,6 +23,7 @@ export function isWaveJHeavy(beam?: string): boolean {
     beam === "iridium_lance" ||
     beam === "iridium_key" ||
     beam === "quartz_ward" ||
+    beam === "quartz_sentinel" ||
     beam === "magma_ram" ||
     beam === "magma_crown" ||
     beam === "nimbus_burst" ||
@@ -41,6 +43,8 @@ export function waveJBeamLabel(beam?: string): string | null {
       return "Iridium Key";
     case "quartz_ward":
       return "Quartz Ward";
+    case "quartz_sentinel":
+      return "Quartz Sentinel";
     case "magma_ram":
       return "Magma Ram";
     case "magma_crown":

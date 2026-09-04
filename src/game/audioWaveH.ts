@@ -27,6 +27,7 @@ export function playWaveHSfx(opts: {
     beam === "volt_runner" ||
     beam === "glyph_ward" ||
     beam === "glyph_key" ||
+    beam === "glyph_sentinel" ||
     beam === "halo_burst" ||
     beam === "halo_crown" ||
     beam === "tungsten_ram" ||

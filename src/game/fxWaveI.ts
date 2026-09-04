@@ -9,6 +9,7 @@ export function waveIBeamFor(cardId?: string): string | null {
   if (id === "cobalt_key") return "cobalt_key";
   if (id.includes("cobalt")) return "cobalt_lance";
   if (id === "graphene_runner") return "graphene_runner";
+  if (id === "graphene_sentinel") return "graphene_sentinel";
   if (id.includes("graphene")) return "graphene_ward";
   if (id === "helion_crown") return "helion_crown";
   if (id.includes("helion")) return "helion_burst";
@@ -23,6 +24,7 @@ export function isWaveIHeavy(beam?: string): boolean {
     beam === "cobalt_key" ||
     beam === "graphene_ward" ||
     beam === "graphene_runner" ||
+    beam === "graphene_sentinel" ||
     beam === "helion_burst" ||
     beam === "helion_crown" ||
     beam === "sonic_ram" ||
@@ -43,6 +45,8 @@ export function waveIBeamLabel(beam?: string): string | null {
       return "Graphene Ward";
     case "graphene_runner":
       return "Graphene Runner";
+    case "graphene_sentinel":
+      return "Graphene Sentinel";
     case "helion_burst":
       return "Helion Burst";
     case "helion_crown":
