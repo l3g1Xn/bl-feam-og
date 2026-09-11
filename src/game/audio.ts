@@ -1314,7 +1314,7 @@ export function playCombatSfx(opts: {
       beam === "photon_grid"
     ) {
       playSfx(
-        beam === "ion_lance" || card.includes("ion")
+        beam === "ion_lance" || beam === "ion_grid" || card.startsWith("ion_")
           ? "ion"
           : beam === "photon_grid" || card.includes("photon")
             ? "photon"
@@ -1458,7 +1458,13 @@ export function playCombatSfx(opts: {
       beam === "phase_rift"
     ) {
       playSfx("phase", power * 1.05);
-    } else if (card.includes("ion") || beam === "ion_lance") {
+    } else if (card === "legion_horn" || beam === "legion_signal") {
+      playSfx("matrix", power * 1.05);
+      playSfx("shield_up", power * 0.55);
+    } else if (card === "orbital_scan" || beam === "orbital_scan") {
+      playSfx("photon", power * 1.0);
+      playSfx("matrix", power * 0.6);
+    } else if (card.startsWith("ion_") || beam === "ion_lance" || beam === "ion_grid") {
       playSfx("ion", power * 1.1);
     } else if (school === "frost" || beam === "frost_bolt") {
       playSfx("frost", power * 1.1);

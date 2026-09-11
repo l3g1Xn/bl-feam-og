@@ -130,6 +130,10 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle
 
 - 11 older cards still shared a near-identical portrait (ahash twins: Siege Chassis / Apex Colossus, Precision Laser / Chrono Blade, Scorch Analysis / Firelance, Reaper Wraith / Night Ops, Void Sovereign / Void Operative, Blood Pact / Nano Leech, Grav Anchor / Cryo Ward, Ion Symphony / Magma Titan, Aegis Operator / Flux Barrier, Logic Core / Amplify Core, Riot Bastion / Legion Beacon). Dedicated 2:3 JPGs now ship per card. Glyph / Graphene / Quartz Sentinel combat banners no longer collapse to “Ward”. Overlay `launcher-shell` clears the notch (`safe-area-inset-top`). Reward-lock (`matchId` + `rewardedMatchIds`, cap 64) is unchanged. BUILD_ID remains `2026.08.15-v1.0.7-reward-lock`. Version still 1.0.7 / 100007.
 
+### Maintenance patch (2026.09.11 — Ion/Orbit banner false-positives + Bio Weave)
+
+- Combat banners no longer steal identity via substring matches: `ion` no longer tags Legion Signal / Bastion / Helion; `orbit` no longer tags Orbital Scan as Orbit Ring. Ion Grid has its own beam (≠ Ion Lance). Generic buff fallback to “Bio Weave” now runs after named-card routing so Legion Signal, Shield Matrix, Legion Beacon, and Nano Swarm keep their own callouts. Reward-lock (`matchId` + `rewardedMatchIds`, cap 64) is unchanged. BUILD_ID remains `2026.08.15-v1.0.7-reward-lock`. Version still 1.0.7 / 100007.
+
 ---
 
 ## Quick start checklist

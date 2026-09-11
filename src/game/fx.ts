@@ -66,7 +66,10 @@ export type BeamStyle =
   | "halo_burst"
   | "tungsten_ram"
   | "tesla_arc"
-  | "orbit_ring";
+  | "orbit_ring"
+  | "ion_grid"
+  | "legion_signal"
+  | "orbital_scan";
 
 export interface FxEvent {
   id: number;
@@ -137,8 +140,12 @@ export function schoolToBeam(
   if (spellKind === "dominus_reximus") return "dominus_ring";
   if (spellKind === "heal") return "heal_pulse";
   if (spellKind === "aegis") return "aegis_shell";
-  if (spellKind === "buff" || spellKind === "buff_all_friendly")
-    return "nature_vine";
+  // Named-card routing first. Generic buff → Bio Weave is the last-resort
+  // fallback so exclusives (Legion Signal, Shield Matrix, Nano Swarm, …)
+  // keep their own banners instead of collapsing like Halo Crown used to.
+  if (id === "legion_horn") return "legion_signal";
+  if (id === "ion_grid") return "ion_grid";
+  if (id === "orbital_scan") return "orbital_scan";
   if (id.includes("dominion")) return "dominion_core";
   if (id.includes("overlord")) return "overlord_frame";
   if (id.includes("tungsten")) return "tungsten_ram";
@@ -146,7 +153,7 @@ export function schoolToBeam(
   if (id.includes("halo")) return "halo_burst";
   if (id.includes("glyph")) return "glyph_ward";
   if (id.includes("tesla")) return "tesla_arc";
-  if (id.includes("orbit_drone") || id.includes("orbit_ring")) return "orbit_ring";
+  if (id === "orbit_drone" || id.includes("orbit_ring")) return "orbit_ring";
   if (id.includes("null_spear")) return "null_spear";
   if (id.includes("aether")) return "aether_shell";
   if (id.includes("kinetic")) return "kinetic_break";
@@ -177,7 +184,8 @@ export function schoolToBeam(
   if (id.includes("singularity")) return "singularity";
   if (id.includes("swarm") || id.includes("nano")) return "swarm_cloud";
   if (id.includes("nova") || id.includes("cataclysm")) return "nova_burst";
-  if (id.includes("ion")) return "ion_lance";
+  // "ion" is a substring of legion / bastion / helion — only real ion_* cards.
+  if (id === "ion_lance" || id.startsWith("ion_")) return "ion_lance";
   if (id.includes("photon") || id.includes("barrage")) return "photon_grid";
   if (id.includes("rail") || id.includes("sniper")) return "rail_line";
   if (id.includes("blood") || id.includes("leech") || id.includes("pact") || id.includes("harvester") || id.includes("void_pike") || id.includes("chrono"))
@@ -187,6 +195,8 @@ export function schoolToBeam(
     return "arcane_beam";
   if (id.includes("matrix") || id.includes("bastion") || id.includes("phalanx") || id.includes("shield") || id.includes("warden") || id.includes("flux"))
     return "aegis_shell";
+  if (spellKind === "buff" || spellKind === "buff_all_friendly")
+    return "nature_vine";
   switch (school) {
     case "ember":
       return "ember_orb";
@@ -289,7 +299,7 @@ export function meleeFx(opts: {
           ? "shadow_bolt"
           : "slash";
   if (id.includes("rail") || id.includes("sniper")) beam = "rail_line";
-  if (id.includes("ion")) beam = "ion_lance";
+  if (id === "ion_lance" || id.startsWith("ion_")) beam = "ion_lance";
   if (id.includes("plasma") || id.includes("saber") || id.includes("laser_hydra")) beam = "ember_orb";
   if (id.includes("swarm") || id.includes("flicker") || id.includes("echo"))
     beam = "swarm_cloud";
@@ -403,7 +413,10 @@ export function spellFx(opts: {
     beam === "halo_burst" ||
     beam === "tungsten_ram" ||
     beam === "tesla_arc" ||
-    beam === "orbit_ring";
+    beam === "orbit_ring" ||
+    beam === "ion_grid" ||
+    beam === "legion_signal" ||
+    beam === "orbital_scan";
 
   return {
     id: nextFxId(),
@@ -649,6 +662,12 @@ export function beamLabel(beam?: BeamStyle): string {
       return "Tesla Arc";
     case "orbit_ring":
       return "Orbit Ring";
+    case "ion_grid":
+      return "Ion Grid";
+    case "legion_signal":
+      return "Legion Signal";
+    case "orbital_scan":
+      return "Orbital Scan";
     case "slash":
     default:
       return "Blade Clash";

@@ -13,7 +13,7 @@ export function waveHBeamFor(cardId?: string): string | null {
   if (id === "tungsten_throne") return "tungsten_throne";
   if (id.includes("tungsten")) return "tungsten_ram";
   if (id.includes("tesla")) return "tesla_arc";
-  if (id.includes("orbit")) return "orbit_ring";
+  if (id === "orbit_drone") return "orbit_ring";
   return null;
 }
 

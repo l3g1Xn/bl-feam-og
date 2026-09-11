@@ -24,6 +24,12 @@ export function waveHTint(beam?: string): string | null {
       return "#70fff0";
     case "orbit_ring":
       return "#ffa060";
+    case "ion_grid":
+      return "#5ad4ff";
+    case "legion_signal":
+      return "#d4c878";
+    case "orbital_scan":
+      return "#7ec8ff";
     case "cobalt_lance":
       return "#5ee0ff";
     case "cobalt_key":

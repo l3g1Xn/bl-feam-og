@@ -121,6 +121,12 @@ function beamTintFor(beam?: string, fallback = "#b0b8c8"): string {
   switch (beam) {
     case "ion_lance":
       return "#7ce8ff";
+    case "ion_grid":
+      return "#5ad4ff";
+    case "legion_signal":
+      return "#d4c878";
+    case "orbital_scan":
+      return "#7ec8ff";
     case "photon_grid":
       return "#ffd070";
     case "rail_line":
@@ -377,7 +383,7 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
       waveHParticleKind(fx.beam) ??
       (fx.beam === "lifesteal_siphon" || fx.beam === "singularity" || fx.beam === "rift_cut" || fx.beam === "quantum_fracture" || fx.beam === "eclipse_lens" || fx.beam === "null_spear"
         ? "void"
-        : fx.beam === "ion_lance" || fx.beam === "prism_lance" || fx.beam === "storm_lance" || fx.beam === "ferro_spike" || fx.beam === "pulse_cascade" || fx.beam === "kinetic_break" || fx.beam === "aether_shell"
+        : fx.beam === "ion_lance" || fx.beam === "ion_grid" || fx.beam === "prism_lance" || fx.beam === "storm_lance" || fx.beam === "ferro_spike" || fx.beam === "pulse_cascade" || fx.beam === "kinetic_break" || fx.beam === "aether_shell" || fx.beam === "orbital_scan"
           ? "arc"
           : fx.beam === "swarm_cloud" || fx.beam === "helix_weave"
             ? "leaf"
@@ -511,6 +517,9 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
         fx.beam === "shadow_bolt" ||
         fx.beam === "ember_orb" ||
         fx.beam === "ion_lance" ||
+        fx.beam === "ion_grid" ||
+        fx.beam === "legion_signal" ||
+        fx.beam === "orbital_scan" ||
         fx.beam === "photon_grid" ||
         fx.beam === "rail_line" ||
         fx.beam === "nature_vine" ||
@@ -551,12 +560,12 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
                   ? 4.5
                   : fx.aoe
                     ? 5.5
-                    : fx.beam === "ion_lance" || fx.beam === "volt_lance" || fx.beam === "tesla_arc"
+                    : fx.beam === "ion_lance" || fx.beam === "ion_grid" || fx.beam === "volt_lance" || fx.beam === "tesla_arc"
                       ? 4
                       : 3.5;
         const beamTint = beamTintFor(fx.beam, color);
         const haloColor =
-          fx.beam === "ion_lance" || fx.beam === "volt_lance" || fx.beam === "tesla_arc"
+          fx.beam === "ion_lance" || fx.beam === "ion_grid" || fx.beam === "volt_lance" || fx.beam === "tesla_arc"
             ? "rgba(108,255,208,0.7)"
             : fx.beam === "lifesteal_siphon"
               ? "rgba(196,138,224,0.75)"
@@ -710,7 +719,7 @@ export function CombatFxLayer({ fx, onDone }: CombatFxLayerProps) {
       const waveColor =
         fx.beam === "lifesteal_siphon"
           ? "#c48ae0"
-          : fx.beam === "ion_lance" || fx.beam === "volt_lance" || fx.beam === "tesla_arc"
+          : fx.beam === "ion_lance" || fx.beam === "ion_grid" || fx.beam === "volt_lance" || fx.beam === "tesla_arc"
             ? "#6cffd0"
             : fx.beam === "halo_burst"
               ? "#ffe070"

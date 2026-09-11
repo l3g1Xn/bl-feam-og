@@ -22,7 +22,7 @@ export function playWaveHSfx(opts: {
     card.includes("halo") ||
     card.includes("tungsten") ||
     card.includes("tesla") ||
-    card.includes("orbit") ||
+    card === "orbit_drone" ||
     beam === "volt_lance" ||
     beam === "volt_runner" ||
     beam === "glyph_ward" ||
@@ -63,7 +63,7 @@ export function playWaveHSfx(opts: {
   } else if (card.includes("tesla") || beam === "tesla_arc") {
     playSfx("ion", power * 1.1);
     playSfx("storm", power * 0.75);
-  } else if (card.includes("orbit") || beam === "orbit_ring") {
+  } else if (card === "orbit_drone" || beam === "orbit_ring") {
     playSfx("swarm", power * 1.05);
     playSfx("phase", power * 0.6);
   }
