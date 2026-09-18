@@ -138,6 +138,10 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle
 
 - Four leftover ahash twins replaced with dedicated 2:3 arts (Chrono Blade ≠ Laser Edge, Nova Hex ≠ Sweep Laser, Arc Catalyst ≠ Arc Bolt, Titan Wrath ≠ Orbital Cataclysm). Grav Anchor no longer shows Gravity Well / Aegis Shell; Ion Symphony no longer shows Matrix Lock. Reward-lock (`matchId` + `rewardedMatchIds`, cap 64) is unchanged. BUILD_ID remains `2026.08.15-v1.0.7-reward-lock`. Version still 1.0.7 / 100007.
 
+### Maintenance patch (2026.09.18 — Android SDK CI `tools` package)
+
+- `release-apk.yml` now uses `android-actions/setup-android@v4` with `packages: platform-tools`. Google stopped serving the obsolete `sdkmanager tools` package, which was failing the APK bake. Reward-lock (`matchId` + `rewardedMatchIds`, cap 64) is unchanged. BUILD_ID remains `2026.08.15-v1.0.7-reward-lock`. Version still 1.0.7 / 100007.
+
 ---
 
 ## Quick start checklist
