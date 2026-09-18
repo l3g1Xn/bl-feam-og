@@ -69,7 +69,9 @@ export type BeamStyle =
   | "orbit_ring"
   | "ion_grid"
   | "legion_signal"
-  | "orbital_scan";
+  | "orbital_scan"
+  | "grav_anchor"
+  | "ion_symphony";
 
 export interface FxEvent {
   id: number;
@@ -146,6 +148,8 @@ export function schoolToBeam(
   if (id === "legion_horn") return "legion_signal";
   if (id === "ion_grid") return "ion_grid";
   if (id === "orbital_scan") return "orbital_scan";
+  if (id === "grav_anchor") return "grav_anchor";
+  if (id === "ion_symphony") return "ion_symphony";
   if (id.includes("dominion")) return "dominion_core";
   if (id.includes("overlord")) return "overlord_frame";
   if (id.includes("tungsten")) return "tungsten_ram";
@@ -176,11 +180,11 @@ export function schoolToBeam(
   if (id.includes("helix") || id.includes("bio_surge") || id.includes("synapse")) return "helix_weave";
   if (id.includes("storm_lancer") || id.includes("storm_lance") || id.includes("laser_hydra")) return "storm_lance";
   if (id.includes("rift") || id.includes("obsidian") || id.includes("void_stitch")) return "rift_cut";
-  if (id.includes("flux") || id.includes("matrix") || id.includes("beacon") || id.includes("ion_symphony") || id.includes("mirror_guard"))
+  if (id.includes("flux") || id.includes("matrix") || id.includes("beacon") || id.includes("mirror_guard"))
     return "matrix_lock";
   if (id.includes("phase") || id.includes("flicker") || id.includes("echo"))
     return "phase_rift";
-  if (id.includes("grav") || id.includes("singularity") || id.includes("titan_clamp")) return "grav_well";
+  if (id === "grav_well" || id.includes("singularity") || id.includes("titan_clamp")) return "grav_well";
   if (id.includes("singularity")) return "singularity";
   if (id.includes("swarm") || id.includes("nano")) return "swarm_cloud";
   if (id.includes("nova") || id.includes("cataclysm")) return "nova_burst";
@@ -305,8 +309,9 @@ export function meleeFx(opts: {
     beam = "swarm_cloud";
   if (id.includes("chrono") || id.includes("quantum")) beam = "chrono_slash";
   if (id.includes("phase")) beam = "phase_rift";
-  if (id.includes("bastion") || id.includes("phalanx") || id.includes("warden") || id.includes("helix") || id.includes("anchor") || id.includes("mirror") || id.includes("clamp"))
+  if (id.includes("bastion") || id.includes("phalanx") || id.includes("warden") || id.includes("helix") || (id.includes("anchor") && id !== "grav_anchor") || id.includes("mirror") || id.includes("clamp"))
     beam = "aegis_shell";
+  if (id === "grav_anchor") beam = "grav_anchor";
   if (id.includes("apex") || id.includes("colossus") || id.includes("obsidian") || id.includes("dominion") || id.includes("overlord")) beam = "rail_line";
   if (id.includes("storm_lancer") || id.includes("vector") || id.includes("ferro") || id.includes("kinetic") || id.includes("null")) beam = "storm_lance";
   if (id.includes("rift") || id.includes("void_stitch") || id.includes("spectral")) beam = "rift_cut";
@@ -416,7 +421,9 @@ export function spellFx(opts: {
     beam === "orbit_ring" ||
     beam === "ion_grid" ||
     beam === "legion_signal" ||
-    beam === "orbital_scan";
+    beam === "orbital_scan" ||
+    beam === "grav_anchor" ||
+    beam === "ion_symphony";
 
   return {
     id: nextFxId(),
@@ -668,6 +675,10 @@ export function beamLabel(beam?: BeamStyle): string {
       return "Legion Signal";
     case "orbital_scan":
       return "Orbital Scan";
+    case "grav_anchor":
+      return "Grav Anchor";
+    case "ion_symphony":
+      return "Ion Symphony";
     case "slash":
     default:
       return "Blade Clash";

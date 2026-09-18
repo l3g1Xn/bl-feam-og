@@ -30,6 +30,10 @@ export function waveHTint(beam?: string): string | null {
       return "#d4c878";
     case "orbital_scan":
       return "#7ec8ff";
+    case "grav_anchor":
+      return "#8870e0";
+    case "ion_symphony":
+      return "#7ce8d0";
     case "cobalt_lance":
       return "#5ee0ff";
     case "cobalt_key":
@@ -172,7 +176,8 @@ export function waveHParticleKind(
     beam === "sonic_coil" ||
     beam === "iridium_lance" ||
     beam === "iridium_key" ||
-    beam === "quartz_coil"
+    beam === "quartz_coil" ||
+    beam === "ion_symphony"
   )
     return "arc";
   if (
@@ -204,7 +209,8 @@ export function waveHParticleKind(
     beam === "riftglass_throne" ||
     beam === "axiom_ring" ||
     beam === "axiom_drone" ||
-    beam === "axiom_throne"
+    beam === "axiom_throne" ||
+    beam === "grav_anchor"
   )
     return "void";
   return null;

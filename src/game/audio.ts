@@ -1252,6 +1252,9 @@ export function playCombatSfx(opts: {
     } else if (card.includes("aether") || beam === "aether_shell") {
       playSfx("aether", power * 1.05);
       playSfx("shield_up", power * 0.45);
+    } else if (card === "grav_anchor" || beam === "grav_anchor") {
+      playSfx("grav", power * 1.05);
+      playSfx("shield_up", power * 0.55);
     } else if (card.includes("null_spear") || beam === "null_spear") {
       playSfx("null", power * 1.15);
       playSfx("blade", power * 0.5);
@@ -1348,8 +1351,11 @@ export function playCombatSfx(opts: {
       card.includes("cataclysm")
     ) {
       playSfx("nova", power * 1.1);
+    } else if (card === "grav_anchor" || beam === "grav_anchor") {
+      playSfx("grav", power * 1.05);
+      playSfx("shield_up", power * 0.55);
     } else if (
-      card.includes("grav") ||
+      card === "grav_well" ||
       beam === "grav_well" ||
       card.includes("singularity") ||
       beam === "singularity"
@@ -1436,7 +1442,8 @@ export function playCombatSfx(opts: {
       playSfx("frost", power * 1.1);
       playSfx("matrix", power * 0.7);
     } else if (
-      card.includes("ion_symphony")
+      card.includes("ion_symphony") ||
+      beam === "ion_symphony"
     ) {
       playSfx("ion", power * 1.05);
       playSfx("matrix", power * 0.75);

@@ -181,6 +181,10 @@ jobs:
           - Ion/Orbit substring false-positives closed (Legion Signal ≠ Ion Lance, Orbital Scan ≠ Orbit Ring)
           - Ion Grid combat banner unique · board-buff exclusives no longer fall through to Bio Weave
 
+          ### 2026.09.18
+          - 4 leftover visual-duplicate portraits replaced (Chrono Blade, Nova Hex, Arc Catalyst, Titan Wrath)
+          - Grav Anchor ≠ Gravity Well · Ion Symphony ≠ Matrix Lock
+
           **Download:** [BattleLegions.apk](https://github.com/l3g1Xn/bl-feam-og/releases/download/apk-release-1.0.7/BattleLegions.apk)
 
           Hard cap: 750 MB packed · TraX 9-track · BUILD_ID 2026.08.15-v1.0.7-reward-lock

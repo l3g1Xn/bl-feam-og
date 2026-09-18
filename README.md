@@ -134,6 +134,10 @@ Think: drag-and-drop hand, attack trails, card-specific combat FX, denser battle
 
 - Combat banners no longer steal identity via substring matches: `ion` no longer tags Legion Signal / Bastion / Helion; `orbit` no longer tags Orbital Scan as Orbit Ring. Ion Grid has its own beam (≠ Ion Lance). Generic buff fallback to “Bio Weave” now runs after named-card routing so Legion Signal, Shield Matrix, Legion Beacon, and Nano Swarm keep their own callouts. Reward-lock (`matchId` + `rewardedMatchIds`, cap 64) is unchanged. BUILD_ID remains `2026.08.15-v1.0.7-reward-lock`. Version still 1.0.7 / 100007.
 
+### Maintenance patch (2026.09.18 — unique remaining portrait twins + Grav/Ion banners)
+
+- Four leftover ahash twins replaced with dedicated 2:3 arts (Chrono Blade ≠ Laser Edge, Nova Hex ≠ Sweep Laser, Arc Catalyst ≠ Arc Bolt, Titan Wrath ≠ Orbital Cataclysm). Grav Anchor no longer shows Gravity Well / Aegis Shell; Ion Symphony no longer shows Matrix Lock. Reward-lock (`matchId` + `rewardedMatchIds`, cap 64) is unchanged. BUILD_ID remains `2026.08.15-v1.0.7-reward-lock`. Version still 1.0.7 / 100007.
+
 ---
 
 ## Quick start checklist

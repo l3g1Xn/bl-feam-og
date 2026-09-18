@@ -61,4 +61,16 @@ compositions did not). Dedicated 2:3 JPGs now ship for:
 
 Do not copy-encode these from sibling cards.
 
+## Visual-duplicate bake (2026-09-18)
+
+Four remaining ahash twins (composition-identical despite unique byte hashes)
+now ship dedicated 2:3 identity arts:
+
+- chrono_blade.jpg (Chrono Blade — cyan-gold temporal katana + chrono rings, not Laser Edge fire-sword)
+- nova_hex.jpg (Nova Hex — magenta-void hex curse nova, not Sweep Laser cyan grid)
+- arc_catalyst.jpg (Arc Catalyst — stacked ion-capacitor core, not Arc Bolt sky lightning)
+- titan_wrath.jpg (Titan Wrath — ground-level war-titan chest cannon, not Orbital Cataclysm satellite beam)
+
+Do not copy-encode these from sibling cards.
+
 After these files are in place, trigger the **Build and publish BattleLegions.apk** workflow for a full production bake.
